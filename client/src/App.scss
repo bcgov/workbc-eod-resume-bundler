@@ -1,0 +1,101 @@
+@import "~@bcgov/bootstrap-theme/dist/scss/bootstrap-theme";
+@import "node_modules/progress-tracker/src/styles/progress-tracker.scss";
+
+#root {
+    display: flex;
+    flex-flow: column nowrap;
+    min-height: 100vh;
+}
+
+.react-datepicker-wrapper {
+    display: block;
+}
+
+.BC-Gov-SecondaryButton {
+    background: none;
+    border-radius: 4px;
+    border: 2px solid #003366;
+    padding: 10px 30px;
+    text-align: center;
+    text-decoration: none;
+    //display: block;
+    font-size: 16px;
+    font-family: ‘BCSans’, ‘Noto Sans’, Verdana, Arial, sans-serif;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    color: #003366;
+}
+.BC-Gov-SecondaryButton:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+    background-color: #003366;
+    color: #ffffff;
+}
+:focus {
+    outline-offset: 1px;
+    outline: 4px solid #3b99fc;
+}
+.BC-Gov-SecondaryButton:active {
+    opacity: 1;
+}
+
+//SHUTTLE CUSTOM CSS
+
+.shuttle {
+    display: flex;
+}
+.shuttle--ush .shuttle__container,
+.shuttle--ush .shuttle__controls {
+    user-select: none;
+}
+.shuttle__container {
+    width: 350px;
+    height: 400px;
+    padding: 0.5em;
+    overflow: auto;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+}
+.shuttle__container + .shuttle__container {
+    margin-left: 1em;
+}
+.shuttle__item {
+    border: 1px solid transparent;
+    border-radius: 3px;
+    //padding: 0.5em;
+    cursor: pointer;
+}
+.shuttle__item:not(:last-child) {
+    margin-bottom: 0.5em;
+}
+.shuttle__item--disabled {
+    pointer-events: none;
+    background-color: #ddd;
+    color: #444;
+    border-color: #999;
+    cursor: not-allowed;
+}
+.shuttle__item:focus {
+    outline: 0 none;
+}
+.shuttle__item--selected,
+.shuttle__item:hover,
+.shuttle__item:focus {
+    border-color:black;
+    background-color: black;
+    color: white
+}
+.shuttle__controls {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.shuttle__controls > * {
+    margin: 0.75em 1em;
+    font-size: 1.2em;
+} /*# sourceMappingURL=shuttle.css.map */
+
+//END SHUTTLE CSS
