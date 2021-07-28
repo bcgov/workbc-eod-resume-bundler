@@ -152,6 +152,7 @@ function CreateJobOrder() {
 
 
     let initialValues = {
+        job_id: '',
         employer: '',
         position: '',
         startDate: '',
@@ -206,7 +207,7 @@ function CreateJobOrder() {
                                         }
                                         else {
                                             setSubmitting(false)
-                                            h.push('/successJobOrderCreate')
+                                            //h.push('/successJobOrderCreate')
                                         }
                                     }
                                 )
