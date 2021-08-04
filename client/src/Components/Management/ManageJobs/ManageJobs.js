@@ -17,21 +17,74 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+import Grid from '@material-ui/core/Grid';
+import List from '@material-ui/core/List';
+import Card from '@material-ui/core/Card';
+import CardHeader from '@material-ui/core/CardHeader';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import Checkbox from '@material-ui/core/Checkbox';
+import Button from '@material-ui/core/Button';
+import Divider from '@material-ui/core/Divider';
+import EditJobFields from './EditJobFields'
+import { Formik, Form } from 'formik'
 
+const useStyles = makeStyles((theme) => ({
+  root: {
+    '& > *': {
+      borderBottom: 'unset',
+    },
+    margin: 'auto'
+  },
+  cardHeader: {
+    padding: theme.spacing(1, 2),
+  },
+  list: {
+      width: 300, // TODO: don't hardcore size
+      height: 200, // TODO: don't hardcore size
+      backgroundColor: theme.palette.background.paper,
+      overflow: 'auto',
+      paddingLeft: 0
+  },
+  button: {
+      margin: theme.spacing(0.5, 0),
+  },
+}));
+
+//#region HELPER FUNCTIONS
+function intersection(a, b) {
+  return a.filter((value) => b.indexOf(value) !== -1);
+}
+
+function not(a, b) {
+  return a.filter((value) => b.indexOf(value) === -1);
+}
+
+function union(a, b) {
+  return [...a, ...not(b, a)];
+}
+//#endregion
 
 function ManageJobs() {
-  const [show, setShow] = useState(false);
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+  const classes = useStyles();
 
-  const useStyles = makeStyles((theme) => ({
-    root: {
-      '& > *': {
-        borderBottom: 'unset',
-      },
-    },
-  }));
+  //#region MODAL STATE
+  const [show, setShow] = useState({});
 
+  const handleClose = jobID => () => {
+    setShow(show => ({
+      ...show,
+      [jobID] : false}))
+  }
+  const handleShow = ( jobID, catchments ) => () => {
+    setShow(show => ({
+      ...show,
+      [jobID] : true}));
+  }
+  //#endregion
+
+  //#region DUMMY DATA
   const createData = (id, employer, position, status, deadline, catchments, location, submissions, created, lastEdit, editedBy) => {
       return {
           id,
@@ -53,9 +106,11 @@ function ManageJobs() {
     createData('AAAAAAA', 'Employer 2', 'Position 2', 'Closed', '01/01/0000', [{id: 1, value: 45}, {id: 2, value: 44}, {id: 3, value: 29}], 'City B', 25, '03/03/2021', '05/05/2021', 'Timmy Twotests'),
     createData('BBBBBBB', 'Employer 3', 'Position 3', 'Cancelled', '03/03/0000', [{id: 1, value: 10}, {id: 2, value: 15}, {id: 3, value: 17}], 'City C', 9, '04/04/2021', '06/06/2021', 'Bilbo Baggins')
   ];
+  //#endregion
 
+  //#region UI FUNCTIONS
   const ActionIcons = (props) => {
-      let editIcon =  <button className="btn btn-primary btn-sm" type="button" onClick={handleShow}> 
+      let editIcon =  <button className="btn btn-primary btn-sm" type="button" onClick={handleShow(props.jobID, props.catchments)}>
                           <EditIcon style={{color: "white"}}></EditIcon>
                       </button>
 
@@ -93,10 +148,140 @@ function ManageJobs() {
     // )
   }
 
+  const CatchmentSelector = (props) => {
+    //#region CATCHMENT CHECKBOX STATE
+    const [checked, setChecked] = React.useState([]);
+    const [left, setLeft] = React.useState(props.catchments.map(c => c.value));
+    const [right, setRight] = React.useState([]);
+
+    const leftChecked = intersection(checked, left);
+    const rightChecked = intersection(checked, right);
+    const catchments = props.catchments.map(c => c.value);
+
+    const handleToggle = (value) => () => {
+      const currentIndex = checked.indexOf(value);
+      const newChecked = [...checked];
+
+      if (currentIndex === -1) {
+          newChecked.push(value);
+      } else {
+          newChecked.splice(currentIndex, 1);
+      }
+
+      setChecked(newChecked);
+    };
+    
+    const numberOfChecked = (items) => intersection(checked, items).length;
+
+    const handleToggleAll = (items) => () => {
+      if (numberOfChecked(items) === items.length) {
+          setChecked(not(checked, items));
+      } else {
+          setChecked(union(checked, items));
+      }
+    };
+
+    const handleCheckedRight = () => {
+      setRight(right.concat(leftChecked));
+      setLeft(not(left, leftChecked));
+      setChecked(not(checked, leftChecked));
+    };
+
+    const handleCheckedLeft = () => {
+      setLeft(left.concat(rightChecked));
+      setRight(not(right, rightChecked));
+      setChecked(not(checked, rightChecked));
+    };
+    //#endregion
+
+    const CustomList = (props) => {
+      return (
+        <Card>
+          <CardHeader
+              className={classes.cardHeader}
+              avatar={
+                  <Checkbox
+                      onClick={handleToggleAll(props.items)}
+                      checked={numberOfChecked(props.items) === props.items.length && props.items.length !== 0}
+                      indeterminate={numberOfChecked(props.items) !== props.items.length && numberOfChecked(props.items) !== 0}
+                      disabled={props.items.length === 0}
+                      inputProps={{ 'aria-label': 'all items selected' }}
+                  />
+              }
+              title={props.title}
+              subheader={`${numberOfChecked(props.items)}/${props.items.length} selected`}
+          />
+          <Divider />
+          <List className={classes.list} dense component="div" role="list">
+              {props.items.map((value) => {
+                  const labelId = `transfer-list-all-item-${value}-label`;
+  
+                  return (
+                      <ListItem key={value} role="listitem" button onClick={handleToggle(value)}>
+                          <ListItemIcon>
+                              <Checkbox
+                                  checked={checked.indexOf(value) !== -1}
+                                  tabIndex={-1}
+                                  disableRipple
+                                  inputProps={{ 'aria-labelledby': labelId }}
+                              />
+                          </ListItemIcon>
+                          <ListItemText id={labelId} primary={`${value}`} />
+                      </ListItem>
+                  );
+              })}
+              <ListItem />
+            </List>
+          </Card>
+      );
+    }
+
+    return (
+      <Formik>
+        <Form>
+          <Grid
+            container
+            spacing={2}
+            alignItems="center">
+            <Grid item>
+              <CustomList title='Unselected' items={left}></CustomList>
+            </Grid>
+            <Grid item>
+                <Grid container direction="column" alignItems="center">
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        className={classes.button}
+                        onClick={handleCheckedRight}
+                        disabled={leftChecked.length === 0}
+                        aria-label="move selected right"
+                    >
+                        &gt;
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        className={classes.button}
+                        onClick={handleCheckedLeft}
+                        disabled={rightChecked.length === 0}
+                        aria-label="move selected left"
+                    >
+                        &lt;
+                    </Button>
+                </Grid>
+            </Grid>
+            <Grid item>
+              <CustomList title='Selected' items={right}></CustomList>
+            </Grid>
+          </Grid>
+        </Form>
+      </Formik>
+    );
+  }
+
   const Row = (props) => {
     const { row } = props;
     const [open, setOpen] = React.useState(false);
-    const classes = useStyles();
   
     return (
       <React.Fragment>
@@ -117,14 +302,13 @@ function ManageJobs() {
           <TableCell align="left">{row.location}</TableCell>
           <TableCell align="left">{row.submissions}</TableCell>
           <TableCell>
-              <ActionIcons status={row.status}></ActionIcons>
+              <ActionIcons jobID={row.id} catchments={row.catchments} status={row.status}></ActionIcons>
           </TableCell>
           <TableCell align="right">
             <button
                 className="btn btn-block"
                 type="button"
-                style={{ backgroundColor: "grey", color: "white"}}
-            >
+                style={{ backgroundColor: "grey", color: "white"}}>
                 Review
             </button>
           </TableCell>
@@ -179,26 +363,38 @@ function ManageJobs() {
             </Collapse>
           </TableCell>
         </TableRow>
-        <Modal show={show} onHide={handleClose}>
-          <Modal.Header closeButton>
+        <Modal show={show[row.id]} onHide={handleClose(row.id)} size="lg">
+          <Modal.Header>
             <div className="d-flex flex-row flex-fill">
               <div className="mr-auto">
                 <Modal.Title>Editing Job {row.id}</Modal.Title>
               </div>
               <div className="ml-auto">
-                <button className="btn btn-primary" type="button"> 
+                <button className="btn btn-danger" type="button"> 
                   Mark for Delete
                 </button>
               </div>
             </div>
           </Modal.Header>
-          <Modal.Body>Woohoo, you're reading this text in a modal!</Modal.Body>
+          <Modal.Body>
+            <h5 style={{ color: 'grey', fontWeight: 'lighter' }}>Job Fields</h5>
+            <Formik
+              initialValues={row}
+              enableReinitialize={true}>
+              <Form>
+                <EditJobFields />
+              </Form>
+            </Formik>
+            <br></br>
+            <h5>Catchments Job will be available to</h5>
+          </Modal.Body>
+          <CatchmentSelector catchments={row.catchments}></CatchmentSelector>
           <Modal.Footer>
-            <button className="btn btn-primary" type="button" onClick={handleClose}> 
-              Cancel
-            </button>
-            <button className="btn btn-primary" type="button" onClick={handleClose}> 
+            <button className="btn btn-primary" type="button" onClick={handleClose(row.id)}> 
               Submit
+            </button>
+            <button className="btn btn-outline-primary" type="button" onClick={handleClose(row.id)}> 
+              Cancel
             </button>
           </Modal.Footer>
         </Modal>
@@ -236,6 +432,7 @@ function ManageJobs() {
       </>
     );
   }
+  //#endregion
 
   return (
     <div className="container">
@@ -250,6 +447,5 @@ function ManageJobs() {
     </div>
   )
 }
-
 
 export default ManageJobs
