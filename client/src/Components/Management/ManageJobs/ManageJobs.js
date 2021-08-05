@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Modal } from 'react-bootstrap';
+import { useHistory } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles';
 import EditIcon from '@material-ui/icons/Edit';
 import VisibilityIcon from '@material-ui/icons/Visibility';
@@ -28,7 +29,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
 import EditJobFields from './EditJobFields'
-import { Formik, Form } from 'formik'
+import { Formik, Form, Field, ErrorMessage } from 'formik'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -67,22 +68,30 @@ function union(a, b) {
 //#endregion
 
 function ManageJobs() {
+  let history = useHistory();
   const classes = useStyles();
 
-  //#region MODAL STATE
-  const [show, setShow] = useState({});
+  //#region EDIT MODAL STATE
+  const [showEdit, setShowEdit] = useState({});
 
-  const handleClose = jobID => () => {
-    setShow(show => ({
-      ...show,
+  const handleEditClose = jobID => () => {
+    setShowEdit(showEdit => ({
+      ...showEdit,
       [jobID] : false}))
   }
-  const handleShow = ( jobID, catchments ) => () => {
-    setShow(show => ({
-      ...show,
+  const handleEditShow = jobID => () => {
+    setShowEdit(showEdit => ({
+      ...showEdit,
       [jobID] : true}));
   }
   //#endregion
+
+  const handleReviewReferral = (props) => () => {
+    history.push({
+      pathname: '/reviewReferral',
+      props: props
+    });
+  }
 
   //#region DUMMY DATA
   const createData = (id, employer, position, status, deadline, catchments, location, submissions, created, lastEdit, editedBy) => {
@@ -110,7 +119,7 @@ function ManageJobs() {
 
   //#region UI FUNCTIONS
   const ActionIcons = (props) => {
-      let editIcon =  <button className="btn btn-primary btn-sm" type="button" onClick={handleShow(props.jobID, props.catchments)}>
+      let editIcon =  <button className="btn btn-primary btn-sm" type="button" onClick={handleEditShow(props.jobID)}>
                           <EditIcon style={{color: "white"}}></EditIcon>
                       </button>
 
@@ -149,14 +158,12 @@ function ManageJobs() {
   }
 
   const CatchmentSelector = (props) => {
-    //#region CATCHMENT CHECKBOX STATE
     const [checked, setChecked] = React.useState([]);
     const [left, setLeft] = React.useState(props.catchments.map(c => c.value));
     const [right, setRight] = React.useState([]);
 
     const leftChecked = intersection(checked, left);
     const rightChecked = intersection(checked, right);
-    const catchments = props.catchments.map(c => c.value);
 
     const handleToggle = (value) => () => {
       const currentIndex = checked.indexOf(value);
@@ -192,7 +199,6 @@ function ManageJobs() {
       setRight(not(right, rightChecked));
       setChecked(not(checked, rightChecked));
     };
-    //#endregion
 
     const CustomList = (props) => {
       return (
@@ -239,43 +245,146 @@ function ManageJobs() {
     return (
       <Formik>
         <Form>
-          <Grid
-            container
-            spacing={2}
-            alignItems="center">
-            <Grid item>
-              <CustomList title='Unselected' items={left}></CustomList>
+          <div className="ml-5">
+            <Grid
+              container
+              spacing={2}
+              alignItems="center">
+              <Grid item>
+                <CustomList title='Unselected' items={left}></CustomList>
+              </Grid>
+              <Grid item>
+                  <Grid container direction="column" alignItems="center">
+                      <Button
+                          variant="outlined"
+                          size="small"
+                          className={classes.button}
+                          onClick={handleCheckedRight}
+                          disabled={leftChecked.length === 0}
+                          aria-label="move selected right"
+                      >
+                          &gt;
+                      </Button>
+                      <Button
+                          variant="outlined"
+                          size="small"
+                          className={classes.button}
+                          onClick={handleCheckedLeft}
+                          disabled={rightChecked.length === 0}
+                          aria-label="move selected left"
+                      >
+                          &lt;
+                      </Button>
+                  </Grid>
+              </Grid>
+              <Grid item>
+                <CustomList title='Selected' items={right}></CustomList>
+              </Grid>
             </Grid>
-            <Grid item>
-                <Grid container direction="column" alignItems="center">
-                    <Button
-                        variant="outlined"
-                        size="small"
-                        className={classes.button}
-                        onClick={handleCheckedRight}
-                        disabled={leftChecked.length === 0}
-                        aria-label="move selected right"
-                    >
-                        &gt;
-                    </Button>
-                    <Button
-                        variant="outlined"
-                        size="small"
-                        className={classes.button}
-                        onClick={handleCheckedLeft}
-                        disabled={rightChecked.length === 0}
-                        aria-label="move selected left"
-                    >
-                        &lt;
-                    </Button>
-                </Grid>
-            </Grid>
-            <Grid item>
-              <CustomList title='Selected' items={right}></CustomList>
-            </Grid>
-          </Grid>
+          </div>
         </Form>
       </Formik>
+    );
+  }
+
+  const EditModal = (props) => {
+    //#region MARK FOR DELETE MODAL STATE
+    const [showMarkForDelete, setShowMarkForDelete] = useState(false);
+
+    const handleMarkForDeleteClose = jobID => () => {
+      setShowMarkForDelete(false);
+      handleEditClose(jobID)();
+    } 
+    const handleMarkForDeleteShow = () => {
+      setShowMarkForDelete(true);
+    }
+    //#endregion
+
+    const MarkForDeleteModal = (props) => {
+      return (
+        <Modal show={showMarkForDelete} onHide={handleMarkForDeleteClose(props.jobID)}>
+          <Modal.Header>
+            <div className="d-flex flex-row flex-fill">
+              <div className="mr-auto">
+                <Modal.Title>Confirm Mark Delete</Modal.Title>
+              </div>
+            </div>
+          </Modal.Header>
+          <Modal.Body>
+            <h5 style={{ color: 'grey', fontWeight: 'lighter' }}>
+              Type the ID of the application to confirm mark for deletion:
+            </h5>
+            <Formik
+              initialValues={props}
+              enableReinitialize={true}>
+              <Form>
+                <div>
+                  <div className="form-group col-md-6">
+                    <label className="control-label" htmlFor="app-id">Confirm ID</label>
+                    <Field
+                        name="app-id"
+                        type="text"
+                        className="form-control"
+                    />
+                    <ErrorMessage
+                        name="app-id"
+                        component="div"
+                        className="field-error"
+                    />
+                  </div>
+                </div>
+              </Form>
+            </Formik>
+          </Modal.Body>
+          <Modal.Footer>
+            <button className="btn btn-danger" type="button" onClick={handleMarkForDeleteClose(props.jobID)}> 
+              Mark for Delete
+            </button>
+            <button className="btn btn-outline-primary" type="button" onClick={handleMarkForDeleteClose(props.jobID)}> 
+              Cancel
+            </button>
+          </Modal.Footer>
+        </Modal>
+      );
+    }
+
+    return (
+      <Modal show={showEdit[props.jobID]} onHide={handleEditClose(props.jobID)} size="lg">
+        <Modal.Header>
+          <div className="d-flex flex-row flex-fill">
+            <div className="mr-auto">
+              <Modal.Title>Editing Job {props.jobID}</Modal.Title>
+            </div>
+            <div className="ml-auto">
+              <button className="btn btn-danger" type="button" onClick={handleMarkForDeleteShow}> 
+                Mark for Delete
+              </button>
+            </div>
+          </div>
+        </Modal.Header>
+        <Modal.Body>
+          <h5 style={{ color: 'grey', fontWeight: 'lighter' }}>Job Fields</h5>
+          <Formik
+            initialValues={props.row}
+            enableReinitialize={true}>
+            <Form>
+              <EditJobFields />
+            </Form>
+          </Formik>
+          <br></br>
+          <h5>Catchments Job will be available to</h5>
+        </Modal.Body>
+        <CatchmentSelector catchments={props.catchments}></CatchmentSelector>
+        <Modal.Footer>
+          <button className="btn btn-primary" type="button" onClick={handleEditClose(props.jobID)}> 
+            Submit
+          </button>
+          <button className="btn btn-outline-primary" type="button" onClick={handleEditClose(props.jobID)}> 
+            Cancel
+          </button>
+        </Modal.Footer>
+        <MarkForDeleteModal jobID={props.jobID}></MarkForDeleteModal>
+      </Modal>
     );
   }
 
@@ -305,12 +414,20 @@ function ManageJobs() {
               <ActionIcons jobID={row.id} catchments={row.catchments} status={row.status}></ActionIcons>
           </TableCell>
           <TableCell align="right">
-            <button
+            <div className="cold-md-6">
+              <a  onClick={handleReviewReferral(row)}
+                  type="button"
+                  className="btn btn-block"
+                  style={{ backgroundColor: "grey", color: "white"}}>
+                Review
+              </a>
+            </div>
+            {/* <button
                 className="btn btn-block"
                 type="button"
                 style={{ backgroundColor: "grey", color: "white"}}>
                 Review
-            </button>
+            </button> */}
           </TableCell>
         </TableRow>
         <TableRow>
@@ -363,41 +480,7 @@ function ManageJobs() {
             </Collapse>
           </TableCell>
         </TableRow>
-        <Modal show={show[row.id]} onHide={handleClose(row.id)} size="lg">
-          <Modal.Header>
-            <div className="d-flex flex-row flex-fill">
-              <div className="mr-auto">
-                <Modal.Title>Editing Job {row.id}</Modal.Title>
-              </div>
-              <div className="ml-auto">
-                <button className="btn btn-danger" type="button"> 
-                  Mark for Delete
-                </button>
-              </div>
-            </div>
-          </Modal.Header>
-          <Modal.Body>
-            <h5 style={{ color: 'grey', fontWeight: 'lighter' }}>Job Fields</h5>
-            <Formik
-              initialValues={row}
-              enableReinitialize={true}>
-              <Form>
-                <EditJobFields />
-              </Form>
-            </Formik>
-            <br></br>
-            <h5>Catchments Job will be available to</h5>
-          </Modal.Body>
-          <CatchmentSelector catchments={row.catchments}></CatchmentSelector>
-          <Modal.Footer>
-            <button className="btn btn-primary" type="button" onClick={handleClose(row.id)}> 
-              Submit
-            </button>
-            <button className="btn btn-outline-primary" type="button" onClick={handleClose(row.id)}> 
-              Cancel
-            </button>
-          </Modal.Footer>
-        </Modal>
+        <EditModal jobID={row.id} catchments={row.catchments} row={row}></EditModal>
       </React.Fragment>
     );
   }

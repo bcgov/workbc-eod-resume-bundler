@@ -6,7 +6,7 @@ export const FORM_URL = {
 }
 
 if (process.env.NODE_ENV === 'development'){
-    FORM_URL.mainForm = 'http://localhost:8000/api/createJobOrder/create'
+    FORM_URL.mainForm = 'http://localhost:8000/api/createJobOrder/create' //TODO: rename
 } else if (process.env.NODE_ENV === 'production') {
     FORM_URL.mainForm = '/api/createJobOrder/create'
 }

@@ -22,7 +22,18 @@ router.get('/sample', async (req, res) => {
 router.post('/create', async (req,res) => {
   console.log("POST")
   console.log(req.body)
-  await db.query('INSERT INTO job_orders VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',[req.body.job_id,req.body.employer,req.body.position,new Date(),new Date(),req.body.location,1,req.body.catchments,req.body.jobDescriptionFile])
+  await db.query(`INSERT INTO job_orders VALUES 
+    ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+    [req.body.job_id,
+    req.body.employer,
+    req.body.position,
+    new Date(),
+    new Date(),
+    req.body.location,
+    1,
+    req.body.catchments,
+    req.body.jobDescriptionFile])
+    
   await db.query('COMMIT')
   res.send({
       result: rows[0]
