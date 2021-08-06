@@ -15,7 +15,7 @@ const corsOptions = {
     optionsSuccessStatus: 200,
 };
 
-var formRouter = require('./routes/createJobOrder')
+var jobOrdersRouter = require('./routes/JobOrders')
 
 
 var app = express();
@@ -28,7 +28,7 @@ app.use(cookieParser());
 app.use(helmet());
 
 
-app.use('/api/createJobOrder', formRouter)
+app.use('/JobOrders', jobOrdersRouter)
 
 
 module.exports = app;

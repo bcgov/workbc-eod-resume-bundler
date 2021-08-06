@@ -34,14 +34,14 @@ function JobFields() {
             </div>
             <div className="form-row">
                 <div className="form-group col-md-6">
-                    <label className="control-label" htmlFor="openDate">Open Date</label>
+                    <label className="control-label" htmlFor="startDate">Open Date</label>
                     <Field
-                        name="openDate"
-                        type="text"
+                        name="startDate"
+                        type="date"
                         className="form-control"
                     />
                     <ErrorMessage
-                        name="openDate"
+                        name="startDate"
                         component="div"
                         className="field-error"
                     />
@@ -50,7 +50,7 @@ function JobFields() {
                     <label className="control-label" htmlFor="deadline">Deadline</label>
                     <Field
                         name="deadline"
-                        type="text"
+                        type="date"
                         className="form-control"
                     />
                     <ErrorMessage
@@ -78,7 +78,7 @@ function JobFields() {
                     <label className="control-label" htmlFor="vacancies">Vacancies</label>
                     <Field
                         name="vacancies"
-                        type="text"
+                        type="number"
                         className="form-control"
                     />
                     <ErrorMessage

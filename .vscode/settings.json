@@ -6,5 +6,7 @@
     "cSpell.words": [
         "Formik",
         "endregion"
-    ]
+    ],
+    "editor.quickSuggestionsDelay": 100,
+    "editor.minimap.enabled": false
 }

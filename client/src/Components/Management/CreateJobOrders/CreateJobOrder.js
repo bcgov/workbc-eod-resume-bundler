@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useCallback } from 'react'
 import Dropzone from 'react-dropzone'
 import { withRouter, useHistory } from 'react-router-dom'
+import { useKeycloak } from '@react-keycloak/web'
 import { Formik, Form, Field, FieldArray, ErrorMessage } from 'formik'
 import { FORM_URL } from '../../../constants/form'
 import Thumb from '../../../utils/Thumb'
@@ -57,6 +58,7 @@ function union(a, b) {
 
 function CreateJobOrder() {
     const h = useHistory()
+    const { keycloak, initialized } = useKeycloak()
 
     const classes = useStyles();
     const [checked, setChecked] = React.useState([]);
@@ -152,16 +154,16 @@ function CreateJobOrder() {
 
 
     let initialValues = {
-        job_id: '',
-        employer: '',
-        position: '',
-        startDate: '',
-        deadline: '',
-        location: '',
-        vacancies: '',
+        employer: "",
+        position: "",
+        startDate: new Date(),
+        deadline: new Date(),
+        location: "",
+        vacancies: 1,
         catchments: right,
-        jobDescriptionFile: [],
-        otherInformation: ''
+        jobDescriptionFile: {},
+        otherInformation: "",
+        user: keycloak.tokenParsed.name //TODO: user id instead?
     }
 
     const dropzoneStyle = {
@@ -188,7 +190,7 @@ function CreateJobOrder() {
                         initialValues={initialValues}
                         enableReinitialize={true}
                         onSubmit={(values, { resetForm, setErrors, setStatus, setSubmitting }) => {
-                            fetch(FORM_URL.mainForm, {
+                            fetch(FORM_URL.JobOrders, {
                                 method: "POST",
                                 credentials: 'include',
                                 headers: {
@@ -197,27 +199,36 @@ function CreateJobOrder() {
                                 },
                                 body: JSON.stringify(values),
                             })
-                                .then(res => res.json())
-                                .then(
-                                    (resp) => {
-                                        console.log(resp)
-                                        if (resp.err) {
-                                            setErrors(resp.err)
-                                            setSubmitting(false)
-                                        }
-                                        else {
-                                            setSubmitting(false)
-                                            //h.push('/successJobOrderCreate')
-                                        }
+                            .then(
+                                (res) => {
+                                    if (res.ok){
+                                        setSubmitting(false);
+                                        return res.json();
                                     }
-                                )
+                                    else{
+                                        throw new Error("server responded with error!")
+                                    }
+                            })
+                            .then(
+                                (res) => {
+                                    setSubmitting(false);
+                                    h.push({
+                                        pathname: '/createJobOrderSuccess',
+                                        createdID: res.createdID
+                                    });
+                                },
+                                (err) => {
+                                    setErrors(err);
+                                    setSubmitting(false);
+                                }
+                            );
                         }}
                     //validationSchema={FormValidationSchema}
                     >
                         {({ values, isSubmitting, setFieldValue, handleBlur, handleChange, errors, hasError }) => (
                             <div>
                                 <Form>
-                                    {console.log(values)}
+                                    {/* {console.log(values)} */}
                                     <p>Create a position for WorkBC Centres to drop resumes</p>
                                     <div className="form-group">
                                         <legend>Job Fields</legend>

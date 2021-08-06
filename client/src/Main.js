@@ -5,9 +5,9 @@ import Form from './Components/Form/Form'
 import PrivateRoute from './routes/PrivateRoute'
 import LoginLanding from './Components/Login/LoginLanding'
 import CreateJobOrder from './Components/Management/CreateJobOrders/CreateJobOrder'
+import CreateJobOrderSuccess from './Components/Management/CreateJobOrders/CreateJobOrderSuccess'
 import ManageJobs from './Components/Management/ManageJobs/ManageJobs'
 import ReviewReferral from './Components/Management/ManageJobs/ReviewReferral'
-
 
 
 function Main() {
@@ -16,6 +16,7 @@ function Main() {
         <main role="main">
                 <Switch>
                     <PrivateRoute component={CreateJobOrder} roles={['eod-staff']} path="/createJobOrder"   />
+                    <PrivateRoute component={CreateJobOrderSuccess} roles={['eod-staff']} path="/createJobOrderSuccess" />
                     <PrivateRoute component={Form} roles={['elmsd-form']} path="/form"   />
                     <PrivateRoute component={ManageJobs} roles={['eod-staff']} path="/manageJobs"   />
                     <PrivateRoute component={ReviewReferral} roles={['eod-staff']} path="/reviewReferral"   />
