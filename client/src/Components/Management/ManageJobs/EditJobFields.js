@@ -22,7 +22,7 @@ function EditJobFields() {
                     <label className="control-label" htmlFor="startDate">Start Date</label>
                     <Field
                         name="startDate"
-                        type="text"
+                        type="date"
                         className="form-control"
                     />
                     <ErrorMessage
@@ -50,7 +50,7 @@ function EditJobFields() {
                     <label className="control-label" htmlFor="closingDate">Closing Date</label>
                     <Field
                         name="closingDate"
-                        type="text"
+                        type="date"
                         className="form-control"
                     />
                     <ErrorMessage

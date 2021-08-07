@@ -163,6 +163,7 @@ function CreateJobOrder() {
         catchments: right,
         jobDescriptionFile: {},
         otherInformation: "",
+        status: "Open",
         user: keycloak.tokenParsed.name //TODO: user id instead?
     }
 

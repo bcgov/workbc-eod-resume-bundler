@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal } from 'react-bootstrap';
-import { useHistory } from 'react-router-dom'
+import { useHistory } from 'react-router-dom';
+import { FORM_URL } from '../../../constants/form';
 import { makeStyles } from '@material-ui/core/styles';
 import EditIcon from '@material-ui/icons/Edit';
 import VisibilityIcon from '@material-ui/icons/Visibility';
@@ -28,8 +29,8 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
-import EditJobFields from './EditJobFields'
-import { Formik, Form, Field, ErrorMessage } from 'formik'
+import EditJobFields from './EditJobFields';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -93,13 +94,13 @@ function ManageJobs() {
     });
   }
 
-  //#region DUMMY DATA
-  const createData = (id, employer, position, status, deadline, catchments, location, submissions, created, lastEdit, editedBy) => {
+  const createData = (id, employer, position, status, startDate, deadline, catchments, location, submissions, created, lastEdit, editedBy) => {
       return {
           id,
           employer,
           position,
           status,
+          startDate,
           deadline,
           catchments,
           location,
@@ -109,13 +110,6 @@ function ManageJobs() {
           editedBy
       };
   }
-
-  const rows = [
-    createData('FFFFFFFF', 'Employer 1', 'Position 1', 'Open', '02/02/0000', [{id: 1, value: 1}, {id: 2, value: 7}, {id: 3, value: 45}], 'City A', 22, '01/01/2021', '02/02/2021', 'Tess Tester'),
-    createData('AAAAAAA', 'Employer 2', 'Position 2', 'Closed', '01/01/0000', [{id: 1, value: 45}, {id: 2, value: 44}, {id: 3, value: 29}], 'City B', 25, '03/03/2021', '05/05/2021', 'Timmy Twotests'),
-    createData('BBBBBBB', 'Employer 3', 'Position 3', 'Cancelled', '03/03/0000', [{id: 1, value: 10}, {id: 2, value: 15}, {id: 3, value: 17}], 'City C', 9, '04/04/2021', '06/06/2021', 'Bilbo Baggins')
-  ];
-  //#endregion
 
   //#region UI FUNCTIONS
   const ActionIcons = (props) => {
@@ -147,19 +141,12 @@ function ManageJobs() {
   }
 
   const DisplayCatchments = (catchments) => {
-    return catchments.map(c => c.value).join(", "); // TODO: currently throws an error regarding keys for lists
-    // return (
-    //   catchments.map((catchment, index) => (
-    //     <span key={index}>
-    //       <span>{catchment.value}, </span>
-    //     </span>
-    //   ))
-    // )
+    return catchments.map(c => parseInt(c.substring(2)).toString()).join(", "); // TODO: currently throws a warning regarding keys for lists
   }
 
   const CatchmentSelector = (props) => {
     const [checked, setChecked] = React.useState([]);
-    const [left, setLeft] = React.useState(props.catchments.map(c => c.value));
+    const [left, setLeft] = React.useState(props.catchments);
     const [right, setRight] = React.useState([]);
 
     const leftChecked = intersection(checked, left);
@@ -410,7 +397,7 @@ function ManageJobs() {
           <TableCell align="left">{DisplayCatchments(row.catchments)}</TableCell>
           <TableCell align="left">{row.location}</TableCell>
           <TableCell align="left">{row.submissions}</TableCell>
-          <TableCell>
+          <TableCell className="d-flex flex-row">
               <ActionIcons jobID={row.id} catchments={row.catchments} status={row.status}></ActionIcons>
           </TableCell>
           <TableCell align="right">
@@ -422,59 +409,47 @@ function ManageJobs() {
                 Review
               </a>
             </div>
-            {/* <button
-                className="btn btn-block"
-                type="button"
-                style={{ backgroundColor: "grey", color: "white"}}>
-                Review
-            </button> */}
           </TableCell>
         </TableRow>
         <TableRow>
           <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
             <Collapse in={open} timeout="auto" unmountOnExit>
               <Box margin={1}>
-                <div className="d-flex flex-column">
-                    <div className="d-flex flex-row">
-                        <div className="mr-auto">
-                            Job ID: {row.id}
-                        </div>
-                        <div className="ml-auto">
-                            Catchments: {DisplayCatchments(row.catchments)}
-                        </div>
+                <div className="row justify-content-between">
+                  <div className="column" style= {{ textAlign: "left", marginLeft: "7px" }}>
+                    <div>
+                        Job ID: {row.id}
                     </div>
-                    <div className="d-flex flex-row">
-                        <div className="mr-auto">
-                            Employer: {row.employer}
-                        </div>
-                        <div className="ml-auto">
-                            Location: {row.location}
-                        </div>
+                    <div>
+                        Employer: {row.employer}
                     </div>
-                    <div className="d-flex flex-row">
-                        <div className="mr-auto">
-                            Position: {row.position}
-                        </div>
-                        <div className="ml-auto">
-                            Submissions: {row.submissions}
-                        </div>
+                    <div>
+                        Position: {row.position}
                     </div>
-                    <div className="d-flex flex-row">
-                        <div className="mr-auto">
-                            Created: {row.created}
-                        </div>
-                        <div className="ml-auto">
-                            Last Edit: {row.lastEdit}
-                        </div>
+                    <div>
+                        Created: {row.created}
                     </div>
-                    <div className="d-flex flex-row">
-                        <div className="mr-auto">
-                            Deadline: {row.deadline}
-                        </div>
-                        <div className="ml-auto">
-                            Edited by: {row.editedBy}
-                        </div>
+                    <div>
+                        Deadline: {row.deadline}
                     </div>
+                  </div>
+                  <div className="column" style= {{ textAlign: "left", marginRight: "7px" }}>
+                    <div>
+                        Catchments: {DisplayCatchments(row.catchments)}
+                    </div>
+                    <div>
+                        Location: {row.location}
+                    </div>
+                    <div>
+                        Submissions: {row.submissions}
+                    </div>
+                    <div>
+                        Last Edit: {row.lastEdit}
+                    </div>
+                    <div>
+                        Edited By: {row.editedBy}
+                    </div>
+                  </div>
                 </div>
               </Box>
             </Collapse>
@@ -486,6 +461,17 @@ function ManageJobs() {
   }
   
   const CollapsibleTable = () => {
+    const [jobOrders, setJobOrders] = useState([]);
+
+    useEffect(() => {
+      getJobOrders();
+
+      async function getJobOrders() {
+        const response = await fetch(FORM_URL.JobOrders);
+        const data = await response.json();
+        setJobOrders(data.result.rows);
+      }
+    }, [setJobOrders]);
     return (
       <>
         <TableContainer component={Paper}>
@@ -506,9 +492,25 @@ function ManageJobs() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows.map((row) => (
-                <Row key={row.name} row={row} />
-              ))}
+              { jobOrders && (
+                jobOrders?.map(jobOrder => (
+                  <Row 
+                    key={jobOrder.job_id} 
+                    row={createData(
+                      jobOrder.job_id,
+                      jobOrder.employer,
+                      jobOrder.position,
+                      jobOrder.status,
+                      jobOrder.start_date.substring(0, 10),
+                      jobOrder.deadline.substring(0, 10),
+                      jobOrder.catchments,
+                      jobOrder.location,
+                      0,
+                      jobOrder.created_date.substring(0, 10)
+                      )}>
+                  </Row>
+                ))                
+              )}
             </TableBody>
           </Table>
         </TableContainer>
