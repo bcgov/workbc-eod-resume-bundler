@@ -72,6 +72,19 @@ function ManageJobs() {
   let history = useHistory();
   const classes = useStyles();
 
+  const [jobOrders, setJobOrders] = useState([]);
+
+  useEffect(() => {
+    getJobOrders();
+
+    async function getJobOrders() {
+      console.log("get job orders!")
+      const response = await fetch(FORM_URL.JobOrders);
+      const data = await response.json();
+      setJobOrders(data.result.rows);
+    }
+  }, [setJobOrders]);
+
   //#region EDIT MODAL STATE
   const [showEdit, setShowEdit] = useState({});
 
@@ -461,17 +474,6 @@ function ManageJobs() {
   }
   
   const CollapsibleTable = () => {
-    const [jobOrders, setJobOrders] = useState([]);
-
-    useEffect(() => {
-      getJobOrders();
-
-      async function getJobOrders() {
-        const response = await fetch(FORM_URL.JobOrders);
-        const data = await response.json();
-        setJobOrders(data.result.rows);
-      }
-    }, [setJobOrders]);
     return (
       <>
         <TableContainer component={Paper}>
