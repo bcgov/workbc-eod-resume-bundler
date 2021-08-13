@@ -394,7 +394,7 @@ function ManageJobs() {
   
     return (
       <React.Fragment>
-        <TableRow className={classes.root}>
+        <TableRow>
           <TableCell>
             <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
               {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
