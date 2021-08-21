@@ -14,8 +14,7 @@ import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import IconButton from '@material-ui/core/IconButton';
 import Collapse from '@material-ui/core/Collapse';
-import { TextField } from '@material-ui/core';
-import { TablePagination } from '@material-ui/core';
+import SearchBar from '../../../utils/SearchBar';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -43,10 +42,14 @@ const useStyles = makeStyles((theme) => ({
   tableHeader: {
     borderTopWidth: 2,
     borderBottomWidth: 2,
-    borderRightWidth: 1,
-    borderLeftWidth: 1,
+    borderRightWidth: 0,
+    borderLeftWidth: 0,
     borderColor: 'black',
     borderStyle: 'solid'
+  },
+  noBorder: {
+    borderTopWidth: 0,
+    borderBottomWidth: 0
   },
   searchBox: {
     height: 100,
@@ -55,11 +58,15 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function ViewJobOrders() {
-  let history = useHistory();
   const classes = useStyles();
 
   const [jobOrders, setJobOrders] = useState([]);
   const [employers, setEmployers] = useState([]);
+  const [employersToDisplay, setEmployersToDisplay] = useState([]);
+
+  const handleUpdateEmployersToDisplay = (searchString) => {
+    setEmployersToDisplay(employers.filter(e => e.startsWith(searchString)));
+  }
 
   useEffect(async () => {
     await getJobOrders();
@@ -80,11 +87,10 @@ function ViewJobOrders() {
           uniqueEmployers.push(jo.employer);
       });
       setEmployers(uniqueEmployers);
+      setEmployersToDisplay(uniqueEmployers);
     }
 
   }, [setJobOrders]);
-
-
 
   const createJobData = (id, position, location, openDate, deadline, vacancies) => {
       return {
@@ -96,8 +102,7 @@ function ViewJobOrders() {
           vacancies
       };
   }
-
-  //#region UI FUNCTIONS
+  
   const ActionIcons = (props) => {
       let viewIcon =  <button className="btn btn-primary btn-sm" type="button"> 
                           <VisibilityIcon style={{color: "white"}}></VisibilityIcon> 
@@ -110,30 +115,32 @@ function ViewJobOrders() {
     return catchments.map(c => parseInt(c.substring(2)).toString()).join(", "); // TODO: currently throws a warning regarding keys for lists
   }
 
-  const JobSearchBar = (props) => {
-    return (
-    <React.Fragment>
-      <div className="column">
-        <b>Find jobs</b>
-        <div className="row justify-content-between">
-          <TextField style={{float:"left"}} size="small" id="outlined-basic" variant="outlined" placeholder="..." />
-          <TablePagination
-            style={{float:"right"}}
-            component="div"
-            count={jobOrders.length}
-            page={0}
-            onPageChange={console.log("page change!")}
-            rowsPerPage={20}
-            rowsPerPageOptions={[]}
-          />
-        </div>
-      </div>
-    </React.Fragment>
-    );
-  }
-
   const getJobOrdersForEmployer = (employer) => {
     return jobOrders.filter(jo => jo.employer == employer);
+  }
+
+  const EmployerTable = () => {
+    return (
+        <TableContainer>
+          <Table className={classes.table}>
+            <TableHead className={classes.tableHeader}>
+              <TableRow>
+                <TableCell style={{width: "5%"}}></TableCell>
+                <TableCell style={{fontWeight: "bold"}}>Employer</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              { employersToDisplay && (
+                employersToDisplay?.map(employer => (
+                  <EmployerRow 
+                    employer={employer}>
+                  </EmployerRow>
+                ))                
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+    );
   }
 
   const EmployerRow = (props) => {
@@ -141,12 +148,12 @@ function ViewJobOrders() {
     return (
     <React.Fragment>
       <TableRow>
-          <TableCell>
+          <TableCell className={classes.noBorder}>
             <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
               {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
             </IconButton>
           </TableCell>
-          <TableCell component="th" scope="row">
+          <TableCell component="th" scope="row" className={classes.noBorder}>
               {props.employer}
           </TableCell>
       </TableRow>
@@ -161,10 +168,47 @@ function ViewJobOrders() {
     );
   }
 
+  const JobTable = (props) => {
+    return (
+        <TableContainer className={"mb-2"}>
+          <Table className={classes.table} aria-label="simple table">
+            <TableHead className={classes.tableHeader}>
+              <TableRow>
+                <TableCell style={{fontWeight: "bold"}}>Job ID</TableCell>
+                <TableCell style={{fontWeight: "bold"}} align="left">Position</TableCell>
+                <TableCell style={{fontWeight: "bold"}} align="left">Location</TableCell>
+                <TableCell style={{fontWeight: "bold"}} align="left">Open Date</TableCell>
+                <TableCell style={{fontWeight: "bold"}} align="left">Deadline</TableCell>
+                <TableCell style={{fontWeight: "bold"}} align="left">Vacancies</TableCell>
+                <TableCell style={{fontWeight: "bold"}} align="center">View</TableCell>
+                <TableCell style={{fontWeight: "bold"}} align="center">Apply</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              { props.jobOrders && (
+                props.jobOrders?.map(jobOrder => (
+                  <JobRow 
+                    key={jobOrder.job_id} 
+                    row={createJobData(
+                      jobOrder.job_id,
+                      jobOrder.position,
+                      jobOrder.location,
+                      jobOrder.start_date.substring(0, 10),
+                      jobOrder.deadline.substring(0, 10),
+                      jobOrder.vacancies
+                      )}>
+                  </JobRow>
+                ))                
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+    );
+  }
+
   const JobRow = (props) => {
     const { row } = props;
-    const [open, setOpen] = React.useState(false);
-  
+
     return (
     <TableRow>
         <TableCell component="th" scope="row">
@@ -175,7 +219,7 @@ function ViewJobOrders() {
         <TableCell align="left">{row.openDate}</TableCell>
         <TableCell align="left">{row.deadline}</TableCell>
         <TableCell align="left">{row.vacancies}</TableCell>
-        <TableCell>
+        <TableCell align="center">
             <button className="btn btn-primary btn-sm" type="button"> 
                 <VisibilityIcon style={{color: "white"}}></VisibilityIcon> 
             </button>
@@ -193,69 +237,6 @@ function ViewJobOrders() {
     </TableRow>
     );
   }
-  
-  const JobTable = (props) => {
-    return (
-        <TableContainer component={Paper}>
-          <Table className={classes.table} aria-label="simple table">
-            <TableHead className={classes.tableHeader}>
-              <TableRow>
-                <TableCell style={{fontWeight: "bold"}}>Job ID</TableCell>
-                <TableCell style={{fontWeight: "bold"}} align="left">Position</TableCell>
-                <TableCell style={{fontWeight: "bold"}} align="left">Location</TableCell>
-                <TableCell style={{fontWeight: "bold"}} align="left">Open Date</TableCell>
-                <TableCell style={{fontWeight: "bold"}} align="left">Deadline</TableCell>
-                <TableCell style={{fontWeight: "bold"}} align="left">Vacancies</TableCell>
-                <TableCell style={{fontWeight: "bold"}} align="left">View</TableCell>
-                <TableCell style={{fontWeight: "bold"}} align="center">Apply</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              { props.jobOrders && (
-                props.jobOrders?.map(jobOrder => (
-                  <JobRow 
-                    key={jobOrder.job_id} 
-                    row={createJobData(
-                      jobOrder.job_id,
-                      jobOrder.position,
-                      jobOrder.location,
-                      jobOrder.start_date.substring(0, 10),
-                      jobOrder.deadline.substring(0, 10),
-                      0, //TODO: Vacancies
-                      )}>
-                  </JobRow>
-                ))                
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-    );
-  }
-
-  const EmployerTable = () => {
-    return (
-        <TableContainer component={Paper}>
-          <Table className={classes.table} aria-label="simple table">
-            <TableHead className={classes.tableHeader}>
-              <TableRow>
-                <TableCell style={{width: "5%"}}></TableCell>
-                <TableCell style={{fontWeight: "bold"}}>Employer</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              { employers && (
-                employers?.map(employer => (
-                  <EmployerRow 
-                    employer={employer}>
-                  </EmployerRow>
-                ))                
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-    );
-  }
-  //#endregion
 
   return (
     <div className="container">
@@ -263,7 +244,10 @@ function ViewJobOrders() {
             <div className="col-md-12">
               <h1>EOD Resume Bundler - Available Job Orders</h1>  
               <p>View available job orders and submit resumes</p>  
-              <JobSearchBar></JobSearchBar>
+              <SearchBar
+                handleUpdate={handleUpdateEmployersToDisplay}
+                paginationCount={jobOrders.length}
+              ></SearchBar>
               <EmployerTable></EmployerTable>
             </div>
         </div>
