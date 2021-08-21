@@ -10,6 +10,10 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+import IconButton from '@material-ui/core/IconButton';
+import Collapse from '@material-ui/core/Collapse';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -32,8 +36,16 @@ const useStyles = makeStyles((theme) => ({
       margin: theme.spacing(0.5, 0),
   },
   table: {
-    minWidth: 650,
+    minWidth: 650
   },
+  tableHeader: {
+    borderTopWidth: 2,
+    borderBottomWidth: 2,
+    borderRightWidth: 1,
+    borderLeftWidth: 1,
+    borderColor: 'black',
+    borderStyle: 'solid'
+  }
 }));
 
 function ViewJobOrders() {
@@ -41,15 +53,29 @@ function ViewJobOrders() {
   const classes = useStyles();
 
   const [jobOrders, setJobOrders] = useState([]);
+  const [employers, setEmployers] = useState([]);
 
-  useEffect(() => {
-    getJobOrders();
+  useEffect(async () => {
+    await getJobOrders();
 
     async function getJobOrders() {
       const response = await fetch(FORM_URL.JobOrders);
       const data = await response.json();
-      setJobOrders(data.result.rows);
+      const jobOrders = data.result.rows;
+      setJobOrders(jobOrders);
+      setJobEmployers(jobOrders);
     }
+
+    function setJobEmployers(jobOrders) {
+      let uniqueEmployers = [];
+      jobOrders.map(jo => {
+        let alreadyExists = uniqueEmployers.find(e => e == jo.employer);
+        if (!alreadyExists)
+          uniqueEmployers.push(jo.employer);
+      });
+      setEmployers(uniqueEmployers);
+    }
+
   }, [setJobOrders]);
 
 
@@ -78,7 +104,36 @@ function ViewJobOrders() {
     return catchments.map(c => parseInt(c.substring(2)).toString()).join(", "); // TODO: currently throws a warning regarding keys for lists
   }
 
-  const Row = (props) => {
+  const getJobOrdersForEmployer = (employer) => {
+    return jobOrders.filter(jo => jo.employer == employer);
+  }
+
+  const EmployerRow = (props) => {
+    const [open, setOpen] = React.useState(false);
+    return (
+    <React.Fragment>
+      <TableRow>
+          <TableCell>
+            <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
+              {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+            </IconButton>
+          </TableCell>
+          <TableCell component="th" scope="row">
+              {props.employer}
+          </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+          <Collapse in={open} timeout="auto" unmountOnExit>
+            <JobTable jobOrders={getJobOrdersForEmployer(props.employer)}></JobTable>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </React.Fragment>
+    );
+  }
+
+  const JobRow = (props) => {
     const { row } = props;
     const [open, setOpen] = React.useState(false);
   
@@ -111,26 +166,26 @@ function ViewJobOrders() {
     );
   }
   
-  const CollapsibleTable = () => {
+  const JobTable = (props) => {
     return (
         <TableContainer component={Paper}>
           <Table className={classes.table} aria-label="simple table">
-            <TableHead>
+            <TableHead className={classes.tableHeader}>
               <TableRow>
-                <TableCell>Job ID</TableCell>
-                <TableCell align="left">Position</TableCell>
-                <TableCell align="left">Location</TableCell>
-                <TableCell align="left">Open Date</TableCell>
-                <TableCell align="left">Deadline</TableCell>
-                <TableCell align="left">Vacancies</TableCell>
-                <TableCell align="left">View</TableCell>
-                <TableCell align="left">Apply</TableCell>
+                <TableCell style={{fontWeight: "bold"}}>Job ID</TableCell>
+                <TableCell style={{fontWeight: "bold"}} align="left">Position</TableCell>
+                <TableCell style={{fontWeight: "bold"}} align="left">Location</TableCell>
+                <TableCell style={{fontWeight: "bold"}} align="left">Open Date</TableCell>
+                <TableCell style={{fontWeight: "bold"}} align="left">Deadline</TableCell>
+                <TableCell style={{fontWeight: "bold"}} align="left">Vacancies</TableCell>
+                <TableCell style={{fontWeight: "bold"}} align="left">View</TableCell>
+                <TableCell style={{fontWeight: "bold"}} align="center">Apply</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              { jobOrders && (
-                jobOrders?.map(jobOrder => (
-                  <Row 
+              { props.jobOrders && (
+                props.jobOrders?.map(jobOrder => (
+                  <JobRow 
                     key={jobOrder.job_id} 
                     row={createJobData(
                       jobOrder.job_id,
@@ -140,7 +195,31 @@ function ViewJobOrders() {
                       jobOrder.deadline.substring(0, 10),
                       0, //TODO: Vacancies
                       )}>
-                  </Row>
+                  </JobRow>
+                ))                
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+    );
+  }
+
+  const EmployerTable = () => {
+    return (
+        <TableContainer component={Paper}>
+          <Table className={classes.table} aria-label="simple table">
+            <TableHead className={classes.tableHeader}>
+              <TableRow>
+                <TableCell style={{width: "5%"}}></TableCell>
+                <TableCell style={{fontWeight: "bold"}}>Employer</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              { employers && (
+                employers?.map(employer => (
+                  <EmployerRow 
+                    employer={employer}>
+                  </EmployerRow>
                 ))                
               )}
             </TableBody>
@@ -158,7 +237,7 @@ function ViewJobOrders() {
                 <p>View available job orders and submit resumes</p>  
             </div>
 
-            <CollapsibleTable></CollapsibleTable>
+            <EmployerTable></EmployerTable>
         </div>
     </div>
   )
