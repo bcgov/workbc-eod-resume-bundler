@@ -14,6 +14,8 @@ import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import IconButton from '@material-ui/core/IconButton';
 import Collapse from '@material-ui/core/Collapse';
+import { TextField } from '@material-ui/core';
+import { TablePagination } from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -45,6 +47,10 @@ const useStyles = makeStyles((theme) => ({
     borderLeftWidth: 1,
     borderColor: 'black',
     borderStyle: 'solid'
+  },
+  searchBox: {
+    height: 100,
+    width: 300
   }
 }));
 
@@ -102,6 +108,28 @@ function ViewJobOrders() {
 
   const DisplayCatchments = (catchments) => {
     return catchments.map(c => parseInt(c.substring(2)).toString()).join(", "); // TODO: currently throws a warning regarding keys for lists
+  }
+
+  const JobSearchBar = (props) => {
+    return (
+    <React.Fragment>
+      <div className="column">
+        <b>Find jobs</b>
+        <div className="row justify-content-between">
+          <TextField style={{float:"left"}} size="small" id="outlined-basic" variant="outlined" placeholder="..." />
+          <TablePagination
+            style={{float:"right"}}
+            component="div"
+            count={jobOrders.length}
+            page={0}
+            onPageChange={console.log("page change!")}
+            rowsPerPage={20}
+            rowsPerPageOptions={[]}
+          />
+        </div>
+      </div>
+    </React.Fragment>
+    );
   }
 
   const getJobOrdersForEmployer = (employer) => {
@@ -233,11 +261,11 @@ function ViewJobOrders() {
     <div className="container">
         <div className="row">
             <div className="col-md-12">
-                <h1>EOD Resume Bundler - Available Job Orders</h1>  
-                <p>View available job orders and submit resumes</p>  
+              <h1>EOD Resume Bundler - Available Job Orders</h1>  
+              <p>View available job orders and submit resumes</p>  
+              <JobSearchBar></JobSearchBar>
+              <EmployerTable></EmployerTable>
             </div>
-
-            <EmployerTable></EmployerTable>
         </div>
     </div>
   )
