@@ -2,7 +2,7 @@ import { TextField } from '@material-ui/core';
 import { TablePagination } from '@material-ui/core';
 import React, { useState } from 'react';
 
-const SearchBar = ({handleUpdate, paginationCount}) => {
+const SearchBar = ({handleUpdate, paginationCount, label}) => {
     const [searchBar, setSearchBar] = useState("");
   
     const handleSearchBarChange = (event) => {
@@ -14,7 +14,9 @@ const SearchBar = ({handleUpdate, paginationCount}) => {
     return (
     <React.Fragment>
       <div className="column">
-        <b>Find jobs</b>
+        <div className="row">
+          <b>{label}</b>
+        </div>
         <div className="row justify-content-between">
           <form>
             <TextField 

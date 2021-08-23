@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import { FORM_URL } from '../../../constants/form';
+import { FORM_URL } from '../../constants/form';
 import { makeStyles } from '@material-ui/core/styles';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import Table from '@material-ui/core/Table';
@@ -14,7 +14,7 @@ import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import IconButton from '@material-ui/core/IconButton';
 import Collapse from '@material-ui/core/Collapse';
-import SearchBar from '../../../utils/SearchBar';
+import SearchBar from '../../utils/SearchBar';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -247,6 +247,7 @@ function ViewJobOrders() {
               <SearchBar
                 handleUpdate={handleUpdateEmployersToDisplay}
                 paginationCount={jobOrders.length}
+                label={"Search Jobs"}
               ></SearchBar>
               <EmployerTable></EmployerTable>
             </div>

@@ -8,7 +8,8 @@ import CreateJobOrder from './Components/Management/CreateJobOrders/CreateJobOrd
 import CreateJobOrderSuccess from './Components/Management/CreateJobOrders/CreateJobOrderSuccess'
 import ManageJobs from './Components/Management/ManageJobs/ManageJobs'
 import ReviewReferral from './Components/Management/ManageJobs/ReviewReferral'
-import ViewJobOrders from './Components/Management/ViewJobOrders/ViewJobOrders'
+import ViewJobOrders from './Components/External/ViewJobOrders'
+import ViewSubmissions from './Components/External/ViewSubmissions'
 
 
 function Main() {
@@ -23,6 +24,7 @@ function Main() {
                     <PrivateRoute component={ReviewReferral} roles={['eod-staff']} path="/reviewReferral"   />
                     {/* <PrivateRoute component={ViewJobOrders} roles={['eod-contractor']} path="/jobOrdersExternal" /> */}
                     <Route exact component={ViewJobOrders} path="/jobOrdersExternal" />
+                    <Route exact component={ViewSubmissions} path="/submissionsExternal" />
                     <Route exact path="/loginLanding" component={LoginLanding} />
                     <Route exact path="/" component={Home} />
                 </Switch>
