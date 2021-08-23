@@ -15,9 +15,7 @@ const corsOptions = {
     optionsSuccessStatus: 200,
 };
 
-var jobOrdersRouter = require('./routes/JobOrders')
-
-
+var jobOrdersRouter = require("./routes/JobOrder.route");
 var app = express();
 
 app.use(express.json());
@@ -30,5 +28,9 @@ app.use(helmet());
 
 app.use('/JobOrders', jobOrdersRouter)
 
+var port = process.env.PORT || '8000';
+app.listen( port, () => {
+  console.log( `server started at http://localhost:${ port }` );
+} );
 
 module.exports = app;

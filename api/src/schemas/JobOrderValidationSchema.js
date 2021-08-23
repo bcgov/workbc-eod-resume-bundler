@@ -9,10 +9,11 @@ var JobOrderValidationSchema = yup.object().shape({
     vacancies: yup.number()
         .required()
         .typeError("vacancies must be a number"),
-    catchments: yup.array().min(1, "there must be at least one catchment"), //TODO: ensure it's a string array
+    catchments: yup.array().required().min(1, "there must be at least one catchment"), //TODO: ensure it's a string array
     otherInformation: yup.string().max(1000, "the 'other information' field is 1000 characters max"),
     jobDescription: yup.object(),
-    user: yup.string().required()
+    user: yup.string().required(),
+    status: yup.string().required()
 });
 
 module.exports = JobOrderValidationSchema;

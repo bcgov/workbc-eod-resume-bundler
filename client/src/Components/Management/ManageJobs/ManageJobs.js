@@ -81,7 +81,7 @@ function ManageJobs() {
       console.log("get job orders!")
       const response = await fetch(FORM_URL.JobOrders);
       const data = await response.json();
-      setJobOrders(data.result.rows);
+      setJobOrders(data.jobs);
     }
   }, [setJobOrders]);
 

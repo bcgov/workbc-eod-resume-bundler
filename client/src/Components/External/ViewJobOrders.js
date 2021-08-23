@@ -74,7 +74,7 @@ function ViewJobOrders() {
     async function getJobOrders() {
       const response = await fetch(FORM_URL.JobOrders);
       const data = await response.json();
-      const jobOrders = data.result.rows;
+      const jobOrders = data.jobs;
       setJobOrders(jobOrders);
       setJobEmployers(jobOrders);
     }
