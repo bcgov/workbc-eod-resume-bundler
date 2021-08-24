@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useReducer } from 'react';
 import { Modal } from 'react-bootstrap';
 import { useHistory } from 'react-router-dom';
 import { FORM_URL } from '../../../constants/form';
@@ -73,17 +73,19 @@ function ManageJobs() {
   const classes = useStyles();
 
   const [jobOrders, setJobOrders] = useState([]);
+  const [forceUpdate, setForceUpdate] = useState(0);
+  console.log("re-render!")
 
   useEffect(() => {
     getJobOrders();
 
     async function getJobOrders() {
-      console.log("get job orders!")
       const response = await fetch(FORM_URL.JobOrders);
       const data = await response.json();
-      setJobOrders(data.jobs);
+      const jobs = data.jobs;
+      setJobOrders(jobs.sort((a,b) => a.created_date < b.created_date ? 1 : -1));
     }
-  }, [setJobOrders]);
+  }, [setJobOrders, forceUpdate]);
 
   //#region EDIT MODAL STATE
   const [showEdit, setShowEdit] = useState({});
@@ -105,6 +107,21 @@ function ManageJobs() {
       pathname: '/reviewReferral',
       props: props
     });
+  }
+
+  const setStatusClosed = jobID => async () => {
+    await fetch(FORM_URL.JobOrders + "/" + jobID + "/setClosed", {
+      method: "POST",
+      credentials: 'include',
+      headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+      }
+    })
+    .catch(err => {
+      console.log(err);
+    });
+    setForceUpdate(forceUpdate + 1);
   }
 
   const createData = (id, employer, position, status, startDate, deadline, catchments, location, submissions, created, lastEdit, editedBy) => {
@@ -134,7 +151,7 @@ function ManageJobs() {
                           <VisibilityIcon style={{color: "white"}}></VisibilityIcon> 
                       </button>
       
-      let cancelIcon = <button className="btn btn-primary btn-sm" type="button"> 
+      let cancelIcon = <button className="btn btn-primary btn-sm" type="button" onClick={setStatusClosed(props.jobID)}> 
                           <CancelIcon style={{color: "white"}}></CancelIcon> 
                       </button>
 
