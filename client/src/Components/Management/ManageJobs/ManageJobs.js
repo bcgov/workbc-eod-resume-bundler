@@ -74,7 +74,6 @@ function ManageJobs() {
 
   const [jobOrders, setJobOrders] = useState([]);
   const [forceUpdate, setForceUpdate] = useState(0);
-  console.log("re-render!")
 
   useEffect(() => {
     getJobOrders();

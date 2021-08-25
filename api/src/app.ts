@@ -15,7 +15,8 @@ const corsOptions = {
     optionsSuccessStatus: 200,
 };
 
-var jobOrdersRouter = require("./routes/JobOrder.route");
+var jobOrderRouter = require("./routes/JobOrder.route");
+var submissionRouter = require("./routes/Submission.route");
 var app = express();
 
 app.use(express.json());
@@ -26,7 +27,8 @@ app.use(cookieParser());
 app.use(helmet());
 
 
-app.use('/JobOrders', jobOrdersRouter)
+app.use("/JobOrders", jobOrderRouter);
+app.use("/Submissions", submissionRouter);
 
 var port = process.env.PORT || '8000';
 app.listen( port, () => {
