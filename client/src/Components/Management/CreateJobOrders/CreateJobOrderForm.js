@@ -25,6 +25,8 @@ const CreateJobOrderForm = () => {
         ...dropzoneStyle
     }))
 
+    const [catchments, setCatchments] = React.useState([]);
+
     let initialValues = {
         employer: "",
         position: "",
@@ -39,19 +41,7 @@ const CreateJobOrderForm = () => {
         user: keycloak.tokenParsed.preferred_username
     }
 
-    const [values, setValues] = React.useState(initialValues);
-
- 
-
-    const handleChange = event => { 
-        setValues(prevValues => ({ 
-            ...prevValues,
-            // we use the name to tell Formik which key of `values` to update
-            [event.target.name]: event.target.value
-        }));
-    }
-
-    const catchments = 
+    const catchmentsList = 
     [
         'CA01', 'CA02', 'CA03', 'CA04', 'CA05', 'CA06', 'CA07', 'CA08', 'CA09',
         'CA10', 'CA11', 'CA12', 'CA13', 'CA14', 'CA15', 'CA16', 'CA17', 'CA18', 'CA19',
@@ -62,7 +52,7 @@ const CreateJobOrderForm = () => {
 
     return (
     <Formik
-        initialValues={values}
+        initialValues={initialValues}
         enableReinitialize={true}
         onSubmit={(values, { resetForm, setErrors, setStatus, setSubmitting }) => {
             fetch(FORM_URL.JobOrders, {
@@ -100,9 +90,9 @@ const CreateJobOrderForm = () => {
         }}
     //validationSchema={FormValidationSchema}
     >
-        {({ values, isSubmitting, setFieldValue, handleBlur, errors, hasError }) => (
+        {({ values, isSubmitting, setFieldValue, handleBlur, handleChange, errors, hasError }) => (
             <div>
-                <form>
+                <Form>
                     {/* {console.log(values)} */}
                     <p>Create a position for WorkBC Centres to drop resumes</p>
                     <div className="form-group">
@@ -160,10 +150,9 @@ const CreateJobOrderForm = () => {
                         <p className="col-form-label control-label">Catchments Job will be available to</p>
                     </div>
                     <FastField 
-                        name="catchments" 
-                        value={[]}
+                        name="catchments"
                         component={CatchmentSelector} 
-                        catchments={catchments} 
+                        catchments={catchmentsList} 
                     />
                     <div className="form-group">
                         <label className="col-form-label control-label" htmlFor="otherInformation">Other information
@@ -197,7 +186,7 @@ const CreateJobOrderForm = () => {
                         }
 
                     </button>
-                </form>
+                </Form>
             </div>
         )}
     </Formik>);

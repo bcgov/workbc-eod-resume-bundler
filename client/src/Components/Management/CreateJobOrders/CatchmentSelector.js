@@ -44,8 +44,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const CatchmentSelector = ({ catchments }) => {
-    console.log("cs render")
+const CatchmentSelector = ({ field, catchments, form, ...props }) => {
     const classes = useStyles();
 
     const [checked, setChecked] = React.useState([]);
@@ -78,16 +77,17 @@ const CatchmentSelector = ({ catchments }) => {
     };
 
     const handleCheckedRight = () => {
-      setRight(right.concat(leftChecked));
-      console.log(not(left, leftChecked));
-      setLeft(not(left, leftChecked));
-      setChecked(not(checked, leftChecked));
+        form.setFieldValue("catchments", right.concat(leftChecked));
+        setRight(right.concat(leftChecked));
+        setLeft(not(left, leftChecked));
+        setChecked(not(checked, leftChecked));
     };
 
     const handleCheckedLeft = () => {
-      setLeft(left.concat(rightChecked));
-      setRight(not(right, rightChecked));
-      setChecked(not(checked, rightChecked));
+        form.setFieldValue("catchments", not(right, rightChecked));
+        setLeft(left.concat(rightChecked));
+        setRight(not(right, rightChecked));
+        setChecked(not(checked, rightChecked));
     };
 
     const CustomList = (props) => {
@@ -134,12 +134,10 @@ const CatchmentSelector = ({ catchments }) => {
         </Card>);
     };
 
-    console.log("cs render done~")
     return (
     <Grid
         container
         spacing={2}
-        //justifyContent="center"
         alignItems="center"
         className={classes.root}
     >
@@ -182,5 +180,4 @@ const CatchmentSelector = ({ catchments }) => {
     </Grid>);
 }
 
-const CatchmentSelectorMemo = React.memo(CatchmentSelector);
-export default CatchmentSelectorMemo;
+export default CatchmentSelector;
