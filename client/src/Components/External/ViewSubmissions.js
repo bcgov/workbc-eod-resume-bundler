@@ -64,7 +64,7 @@ function ViewSubmissions() {
 
 
   const handleUpdateSubmissionsToDisplay = (searchString) => {
-    setSubmissionsToDisplay(submissions.filter(s => s.employer.startsWith(searchString)));
+    setSubmissionsToDisplay(submissions.filter(s => s.employer.toLowerCase().startsWith(searchString.toLowerCase())));
   }
 
   useEffect(async () => {
@@ -73,21 +73,12 @@ function ViewSubmissions() {
     async function getSubmissions() {
       const response = await fetch(FORM_URL.Submissions);
       const data = await response.json();
-      const jobOrders = data.result.rows;
+      const submissions = data.submissions;
+      console.log(submissions);
       setSubmissions(submissions);
+      setSubmissionsToDisplay(submissions);
     }
   }, [setSubmissions]);
-
-//   const createJobData = (id, position, location, openDate, deadline, vacancies) => {
-//       return {
-//           id,
-//           position,
-//           location,
-//           openDate,
-//           deadline,
-//           vacancies
-//       };
-//   }
   
   const ActionIcons = (props) => {
       let viewIcon =  <button className="btn btn-primary btn-sm" type="button"> 
@@ -97,124 +88,72 @@ function ViewSubmissions() {
       return viewIcon;
   }
 
-//   const SubmissionTable = () => {
-//     return (
-//         <TableContainer>
-//           <Table className={classes.table}>
-//             <TableHead className={classes.tableHeader}>
-//               <TableRow>
-//                 <TableCell style={{width: "5%"}}></TableCell>
-//                 <TableCell style={{fontWeight: "bold"}}>Employer</TableCell>
-//               </TableRow>
-//             </TableHead>
-//             <TableBody>
-//               { employersToDisplay && (
-//                 employersToDisplay?.map(employer => (
-//                   <EmployerRow 
-//                     employer={employer}>
-//                   </EmployerRow>
-//                 ))                
-//               )}
-//             </TableBody>
-//           </Table>
-//         </TableContainer>
-//     );
-//   }
+  const SubmissionTable = () => {
+    return (
+        <TableContainer>
+          <Table className={classes.table}>
+            <TableHead className={classes.tableHeader}>
+              <TableRow>
+                <TableCell style={{width: "5%"}}></TableCell>
+                <TableCell style={{fontWeight: "bold"}}>Submission ID</TableCell>
+                <TableCell style={{fontWeight: "bold"}}>Job Order ID</TableCell>
+                <TableCell style={{fontWeight: "bold"}}>Employer</TableCell>
+                <TableCell style={{fontWeight: "bold"}}>Position Title</TableCell>
+                <TableCell style={{fontWeight: "bold"}}>Location</TableCell>
+                <TableCell style={{fontWeight: "bold"}}>Submitted</TableCell>
+                <TableCell style={{fontWeight: "bold"}}>Candidates</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              { submissionsToDisplay && (
+                submissionsToDisplay?.map(submission => (
+                  <SubmissionRow 
+                    submission={submission}>
+                  </SubmissionRow>
+                ))                
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+    );
+  }
 
-//   const EmployerRow = (props) => {
-//     const [open, setOpen] = React.useState(false);
-//     return (
-//     <React.Fragment>
-//       <TableRow>
-//           <TableCell className={classes.noBorder}>
-//             <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
-//               {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-//             </IconButton>
-//           </TableCell>
-//           <TableCell component="th" scope="row" className={classes.noBorder}>
-//               {props.employer}
-//           </TableCell>
-//       </TableRow>
-//       <TableRow>
-//         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-//           <Collapse in={open} timeout="auto" unmountOnExit>
-//             <JobTable jobOrders={getJobOrdersForEmployer(props.employer)}></JobTable>
-//           </Collapse>
-//         </TableCell>
-//       </TableRow>
-//     </React.Fragment>
-//     );
-//   }
+  const SubmissionRow = (props) => {
+    const [open, setOpen] = React.useState(false);
+    return (
+    <React.Fragment>
+      <TableRow>
+          <TableCell className={classes.noBorder}>
+            <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
+              {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+            </IconButton>
+          </TableCell>
+          <TableCell component="th" scope="row" className={classes.noBorder}>
+              {props.submission.submission_id}
+          </TableCell>
+          <TableCell component="th" scope="row" className={classes.noBorder}>
+              {props.submission.job_id}
+          </TableCell>
+          <TableCell component="th" scope="row" className={classes.noBorder}>
+              {props.submission.employer}
+          </TableCell>
+          <TableCell component="th" scope="row" className={classes.noBorder}>
+              {props.submission.position}
+          </TableCell>
+          <TableCell component="th" scope="row" className={classes.noBorder}>
+              {props.submission.location}
+          </TableCell>
+          <TableCell component="th" scope="row" className={classes.noBorder}>
+              {props.submission.created_date}
+          </TableCell>
+          <TableCell component="th" scope="row" className={classes.noBorder}>
+              {props.submission.candidates}
+          </TableCell>
 
-//   const JobTable = (props) => {
-//     return (
-//         <TableContainer className={"mb-2"}>
-//           <Table className={classes.table} aria-label="simple table">
-//             <TableHead className={classes.tableHeader}>
-//               <TableRow>
-//                 <TableCell style={{fontWeight: "bold"}}>Job ID</TableCell>
-//                 <TableCell style={{fontWeight: "bold"}} align="left">Position</TableCell>
-//                 <TableCell style={{fontWeight: "bold"}} align="left">Location</TableCell>
-//                 <TableCell style={{fontWeight: "bold"}} align="left">Open Date</TableCell>
-//                 <TableCell style={{fontWeight: "bold"}} align="left">Deadline</TableCell>
-//                 <TableCell style={{fontWeight: "bold"}} align="left">Vacancies</TableCell>
-//                 <TableCell style={{fontWeight: "bold"}} align="center">View</TableCell>
-//                 <TableCell style={{fontWeight: "bold"}} align="center">Apply</TableCell>
-//               </TableRow>
-//             </TableHead>
-//             <TableBody>
-//               { props.jobOrders && (
-//                 props.jobOrders?.map(jobOrder => (
-//                   <JobRow 
-//                     key={jobOrder.job_id} 
-//                     row={createJobData(
-//                       jobOrder.job_id,
-//                       jobOrder.position,
-//                       jobOrder.location,
-//                       jobOrder.start_date.substring(0, 10),
-//                       jobOrder.deadline.substring(0, 10),
-//                       jobOrder.vacancies
-//                       )}>
-//                   </JobRow>
-//                 ))                
-//               )}
-//             </TableBody>
-//           </Table>
-//         </TableContainer>
-//     );
-//   }
-
-//   const JobRow = (props) => {
-//     const { row } = props;
-
-//     return (
-//     <TableRow>
-//         <TableCell component="th" scope="row">
-//             {row.id}
-//         </TableCell>
-//         <TableCell align="left">{row.position}</TableCell>
-//         <TableCell align="left">{row.location}</TableCell>
-//         <TableCell align="left">{row.openDate}</TableCell>
-//         <TableCell align="left">{row.deadline}</TableCell>
-//         <TableCell align="left">{row.vacancies}</TableCell>
-//         <TableCell align="center">
-//             <button className="btn btn-primary btn-sm" type="button"> 
-//                 <VisibilityIcon style={{color: "white"}}></VisibilityIcon> 
-//             </button>
-//         </TableCell>
-//         <TableCell align="right">
-//             <div className="cold-md-6">
-//                 <a
-//                     type="button"
-//                     className="btn btn-block"
-//                     style={{ backgroundColor: "grey", color: "white"}}>
-//                 Submit
-//                 </a>
-//             </div>
-//         </TableCell>
-//     </TableRow>
-//     );
-//   }
+      </TableRow>
+    </React.Fragment>
+    );
+  }
 
   return (
     <div className="container">
@@ -226,8 +165,8 @@ function ViewSubmissions() {
                 handleUpdate={handleUpdateSubmissionsToDisplay}
                 paginationCount={submissions.length}
                 label={"Find Submissions"}
-              ></SearchBar>
-              {/* <SubmissionTable></SubmissionTable> */}
+              />
+              <SubmissionTable/>
             </div>
         </div>
     </div>

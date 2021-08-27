@@ -76,4 +76,4 @@ typings/
 .fusebox/
 
 # Compiled TS
-api/dist/**
+api/dist/

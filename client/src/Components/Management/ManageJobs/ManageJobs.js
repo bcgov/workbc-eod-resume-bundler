@@ -86,6 +86,15 @@ function ManageJobs() {
     }
   }, [setJobOrders, forceUpdate]);
 
+  const catchments =
+    [
+        'CA01', 'CA02', 'CA03', 'CA04', 'CA05', 'CA06', 'CA07', 'CA08', 'CA09',
+        'CA10', 'CA11', 'CA12', 'CA13', 'CA14', 'CA15', 'CA16', 'CA17', 'CA18', 'CA19',
+        'CA20', 'CA21', 'CA22', 'CA23', 'CA24', 'CA25', 'CA26', 'CA27', 'CA28', 'CA29',
+        'CA30', 'CA31', 'CA32', 'CA33', 'CA34', 'CA35', 'CA36', 'CA37', 'CA38', 'CA39',
+        'CA40', 'CA41', 'CA42', 'CA43', 'CA44', 'CA45',
+    ];
+
   //#region EDIT MODAL STATE
   const [showEdit, setShowEdit] = useState({});
 
@@ -175,8 +184,8 @@ function ManageJobs() {
 
   const CatchmentSelector = (props) => {
     const [checked, setChecked] = React.useState([]);
-    const [left, setLeft] = React.useState(props.catchments);
-    const [right, setRight] = React.useState([]);
+    const [left, setLeft] = React.useState(not(props.catchments, props.selectedCatchments));
+    const [right, setRight] = React.useState(props.selectedCatchments);
 
     const leftChecked = intersection(checked, left);
     const rightChecked = intersection(checked, right);
@@ -390,7 +399,7 @@ function ManageJobs() {
           <br></br>
           <h5>Catchments Job will be available to</h5>
         </Modal.Body>
-        <CatchmentSelector catchments={props.catchments}></CatchmentSelector>
+        <CatchmentSelector catchments={props.catchments} selectedCatchments={props.selectedCatchments}></CatchmentSelector>
         <Modal.Footer>
           <button className="btn btn-primary" type="button" onClick={handleEditClose(props.jobID)}> 
             Submit
@@ -484,7 +493,12 @@ function ManageJobs() {
             </Collapse>
           </TableCell>
         </TableRow>
-        <EditModal jobID={row.id} catchments={row.catchments} row={row}></EditModal>
+        <EditModal 
+          jobID={row.id} 
+          catchments={catchments}
+          selectedCatchments={row.catchments} 
+          row={row}>
+        </EditModal>
       </React.Fragment>
     );
   }

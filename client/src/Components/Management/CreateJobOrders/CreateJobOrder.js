@@ -152,7 +152,6 @@ function CreateJobOrder() {
         </Card>
     );
 
-
     let initialValues = {
         employer: "",
         position: "",
@@ -164,7 +163,8 @@ function CreateJobOrder() {
         jobDescriptionFile: {},
         otherInformation: "",
         status: "Open",
-        user: keycloak.tokenParsed.name //TODO: user id instead?
+        user: keycloak.tokenParsed.preferred_username
+        //user: keycloak.tokenParsed.name //TODO: user id instead?
     }
 
     const dropzoneStyle = {

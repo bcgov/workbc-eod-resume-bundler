@@ -5,7 +5,8 @@ export const getSubmissions = async () => {
     let submissions: any;
 
     await db.query(
-        `SELECT * FROM job_referrals`
+        `SELECT * FROM job_referrals jr
+        INNER JOIN job_orders jo ON jo.job_id = jr.job_id`
       )
     .then((resp: any) => {
         submissions = { count: resp.rowCount, submissions: resp.rows };

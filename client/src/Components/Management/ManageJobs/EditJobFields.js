@@ -19,7 +19,7 @@ function EditJobFields() {
                     />
                 </div>
                 <div className="form-group col-md-6">
-                    <label className="control-label" htmlFor="startDate">Start Date</label>
+                    <label className="control-label" htmlFor="startDate">Open Date</label>
                     <Field
                         name="startDate"
                         type="date"
@@ -47,7 +47,7 @@ function EditJobFields() {
                     />
                 </div>
                 <div className="form-group col-md-6">
-                    <label className="control-label" htmlFor="closingDate">Closing Date</label>
+                    <label className="control-label" htmlFor="closingDate">Deadline</label>
                     <Field
                         name="closingDate"
                         type="date"
