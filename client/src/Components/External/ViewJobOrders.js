@@ -59,6 +59,7 @@ const useStyles = makeStyles((theme) => ({
 
 function ViewJobOrders() {
   const classes = useStyles();
+  const history = useHistory();
 
   const [jobOrders, setJobOrders] = useState([]);
   const [employers, setEmployers] = useState([]);
@@ -229,7 +230,11 @@ function ViewJobOrders() {
                 <a
                     type="button"
                     className="btn btn-block"
-                    style={{ backgroundColor: "grey", color: "white"}}>
+                    style={{ backgroundColor: "grey", color: "white"}}
+                    onClick={() => history.push({
+                              pathname: "/submitToJobOrder",
+                              jobID: row.id
+                            })}>
                 Submit
                 </a>
             </div>
@@ -253,7 +258,7 @@ function ViewJobOrders() {
             </div>
         </div>
     </div>
-  )
+  );
 }
 
 export default ViewJobOrders
