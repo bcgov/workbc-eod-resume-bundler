@@ -8,8 +8,10 @@ function Home() {
 
     const handleRoles = () => {
         if (keycloak.hasResourceRole('eod-staff')){
+            console.log("staff")
             return <LandingInternal />
         } else if (keycloak.hasResourceRole('eod-contractor')){
+            console.log("contractor")
             return <LandingExternal />
         } else {
             return <p>You don't have any options. Unauthorized</p>

@@ -23,11 +23,12 @@ function Main() {
                     <PrivateRoute component={Form} roles={['elmsd-form']} path="/form"   />
                     <PrivateRoute component={ManageJobs} roles={['eod-staff']} path="/manageJobs"   />
                     <PrivateRoute component={ReviewReferral} roles={['eod-staff']} path="/reviewReferral"   />
-                    {/* <PrivateRoute component={ViewJobOrders} roles={['eod-contractor']} path="/jobOrdersExternal" />
-                    <PrivateRoute component={ViewSubmissions} roles={['eod-contractor']} path="/submissionsExternal" /> */}
-                    <Route exact component={ViewJobOrders} path="/jobOrdersExternal" />
+                    <PrivateRoute component={ViewJobOrders} roles={['eod-staff', 'eod-contractor']} path="/jobOrdersExternal" />
+                    <PrivateRoute component={ViewSubmissions} roles={['eod-staff', 'eod-contractor']} path="/submissionsExternal" />
+                    <PrivateRoute component={SubmitToJobOrder} roles={['eod-staff', 'eod-contractor']} path="/submitToJobOrder" />
+                    {/* <Route exact component={ViewJobOrders} path="/jobOrdersExternal" />
                     <Route exact component={ViewSubmissions} path="/submissionsExternal" />
-                    <Route exact component={SubmitToJobOrder} path="/submitToJobOrder" />
+                    <Route exact component={SubmitToJobOrder} path="/submitToJobOrder" /> */}
                     <Route exact path="/loginLanding" component={LoginLanding} />
                     <Route exact path="/" component={Home} />
                 </Switch>
