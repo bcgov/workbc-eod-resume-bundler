@@ -2,16 +2,22 @@ import React, { useMemo, useState, useCallback } from 'react'
 import { Formik, Form, Field, FastField, FieldArray, ErrorMessage } from 'formik'
 import { FORM_URL } from '../../constants/form'
 import Dropzone from 'react-dropzone';
-import CandidateForm from './CandidateForm';
+import ApplicantForm from './ApplicantForm';
+import { useKeycloak } from '@react-keycloak/web';
+import { withRouter, useHistory } from 'react-router-dom';
 
 function SubmitToJobOrder(props) {
 
-  const [candidates, setCandidates] = useState([{ candidateID: 1, clientName: "", clientCaseNumber: ""}]);
+  const [applicants, setApplicants] = useState([{ applicantID: 0, clientName: "", clientCaseNumber: "", consent: false}]);
+  const { keycloak } = useKeycloak();
+  const h = useHistory();
 
   let initialValues = {
-    catchment: "",
-    centre: "",
-    candidates: candidates
+    catchment: "CA01",
+    centre: "Centre A",
+    applicants: applicants,
+    jobID: props.location.jobID ? props.location.jobID : "9p1uq9pyis", //TODO: Remove
+    user: keycloak.tokenParsed?.preferred_username ? keycloak.tokenParsed?.preferred_username : "Test User", //TODO: Remove
   }
 
   const catchments =
@@ -34,6 +40,7 @@ function SubmitToJobOrder(props) {
                   enableReinitialize={true}
                   onSubmit={(values, { resetForm, setErrors, setStatus, setSubmitting }) => {
                       console.log(values);
+
                       fetch(FORM_URL.Submissions, {
                           method: "POST",
                           credentials: 'include',
@@ -56,6 +63,10 @@ function SubmitToJobOrder(props) {
                       .then(
                           (res) => {
                               setSubmitting(false);
+                              h.push({
+                                pathname: '/submitToJobOrderSuccess',
+                                createdID: res.createdID
+                            });
                           },
                           (err) => {
                               setErrors(err);
@@ -63,7 +74,6 @@ function SubmitToJobOrder(props) {
                           }
                       );
                   }}
-              //validationSchema={FormValidationSchema}
               >
                   {({ values, isSubmitting, setFieldValue, handleBlur, handleChange, errors, hasError }) => (
                       <div>
@@ -72,7 +82,7 @@ function SubmitToJobOrder(props) {
                               <div>
                                 <div className="form-row">
                                     <div className="form-group col-md-6">
-                                        <label className="control-label" htmlFor="employer">Catchment</label>
+                                        <label className="control-label" htmlFor="catchment">Catchment</label>
                                         <Field
                                             as="select"
                                             name="catchment"
@@ -88,7 +98,7 @@ function SubmitToJobOrder(props) {
                                         />
                                     </div>
                                     <div className="form-group col-md-6">
-                                        <label className="control-label" htmlFor="position">WorkBC Centre</label>
+                                        <label className="control-label" htmlFor="centre">WorkBC Centre</label>
                                         <Field
                                             as="select"
                                             name="centre"
@@ -105,18 +115,16 @@ function SubmitToJobOrder(props) {
                                     </div>
                                 </div>
                                 <div>
-                                  { values.candidates.map(c => (
-                                    <CandidateForm candidate={c} />
-                                  ))}
+                                    <ApplicantForm applicants={values.applicants} />
                                 </div>
                                 <div>
-                                  { candidates.length > 1 ? 
+                                  { applicants.length > 1 ? 
                                   <button 
                                     type="button" 
                                     class="btn btn-danger"
                                     style={{ marginBottom: "0.5rem" }}
                                     onClick={() => {    
-                                      setCandidates(candidates.slice(0, -1));
+                                      setApplicants(values.applicants.slice(0, -1));
                                     }}>
                                     Remove
                                   </button>
@@ -127,8 +135,14 @@ function SubmitToJobOrder(props) {
                                     type="button" 
                                     class="btn btn-primary"
                                     style={{ marginBottom: "0.5rem" }}
-                                    onClick={() => {    
-                                      setCandidates(candidates.concat({candidateID: candidates.length + 1, clientName: "", clientCaseNumber: "" }));
+                                    onClick={() => {   
+                                      setApplicants(values.applicants.concat(
+                                        {
+                                          applicantID: applicants.length,
+                                          clientName: "", 
+                                          clientCaseNumber: "",
+                                          consent: false
+                                       }));
                                     }}>
                                     Add Another
                                   </button>
@@ -147,9 +161,7 @@ function SubmitToJobOrder(props) {
                                           </div>
                                           :
                                           "Submit"
-
                                   }
-
                               </button>
                           </Form>
                       </div>

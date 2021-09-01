@@ -25,7 +25,7 @@ export const createSubmission = async (req: express.Request, res: express.Respon
 
   try {
     let createdID: string = await submissionService.createSubmission(req.body);
-    return res.status(200).send(createdID);
+    return res.status(200).json({ createdID : createdID });
 
   } catch(e) {
     console.log(e);

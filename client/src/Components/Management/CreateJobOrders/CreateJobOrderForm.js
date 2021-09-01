@@ -9,7 +9,7 @@ import CatchmentSelector from './CatchmentSelector';
 import Dropzone from 'react-dropzone';
 
 const CreateJobOrderForm = () => {
-    const h = useHistory()
+    const h = useHistory();
     const { keycloak, initialized } = useKeycloak();
 
     const dropzoneStyle = {

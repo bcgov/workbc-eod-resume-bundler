@@ -11,6 +11,7 @@ import ReviewReferral from './Components/Management/ManageJobs/ReviewReferral'
 import ViewJobOrders from './Components/External/ViewJobOrders'
 import ViewSubmissions from './Components/External/ViewSubmissions'
 import SubmitToJobOrder from './Components/External/SubmitToJobOrder'
+import SubmitToJobOrderSuccess from './Components/External/SubmitToJobOrderSuccess'
 
 
 function Main() {
@@ -23,12 +24,13 @@ function Main() {
                     <PrivateRoute component={Form} roles={['elmsd-form']} path="/form"   />
                     <PrivateRoute component={ManageJobs} roles={['eod-staff']} path="/manageJobs"   />
                     <PrivateRoute component={ReviewReferral} roles={['eod-staff']} path="/reviewReferral"   />
-                    <PrivateRoute component={ViewJobOrders} roles={['eod-staff', 'eod-contractor']} path="/jobOrdersExternal" />
+                    {/* <PrivateRoute component={ViewJobOrders} roles={['eod-staff', 'eod-contractor']} path="/jobOrdersExternal" />
                     <PrivateRoute component={ViewSubmissions} roles={['eod-staff', 'eod-contractor']} path="/submissionsExternal" />
-                    <PrivateRoute component={SubmitToJobOrder} roles={['eod-staff', 'eod-contractor']} path="/submitToJobOrder" />
-                    {/* <Route exact component={ViewJobOrders} path="/jobOrdersExternal" />
+                    <PrivateRoute component={SubmitToJobOrder} roles={['eod-staff', 'eod-contractor']} path="/submitToJobOrder" /> */}
+                    <Route exact component={ViewJobOrders} path="/jobOrdersExternal" />
                     <Route exact component={ViewSubmissions} path="/submissionsExternal" />
-                    <Route exact component={SubmitToJobOrder} path="/submitToJobOrder" /> */}
+                    <Route exact component={SubmitToJobOrder} path="/submitToJobOrder" />
+                    <Route exact component={SubmitToJobOrderSuccess} path="/submitToJobOrderSuccess" />
                     <Route exact path="/loginLanding" component={LoginLanding} />
                     <Route exact path="/" component={Home} />
                 </Switch>
