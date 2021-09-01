@@ -1,3 +1,5 @@
+import { JobOrder } from "./job-order.interface";
+
 export interface CreateSubmission {
     jobID: string,
     catchment: string,
@@ -10,4 +12,15 @@ export interface ClientApplication {
     clientName: string,
     clientCaseNumber: string,
     consent: boolean
+}
+
+export interface Submission {
+    submissionID: string,
+    jobID: string,
+    catchment: string,
+    centre: string,
+    applicants: Array<ClientApplication>,
+    jobOrderInfo: JobOrder,
+    createdDate: Date,
+    createdBy: string
 }
