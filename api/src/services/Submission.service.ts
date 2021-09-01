@@ -9,7 +9,12 @@ export const getSubmissions = async () => {
     let submissions: any;
 
     await db.query(
-        `SELECT * FROM submissions s
+        `SELECT 
+          s.*,
+          jo.employer,
+          jo.position,
+          jo.location
+           FROM submissions s
         INNER JOIN job_orders jo ON jo.job_id = s.job_id`
       )
     .then((resp: any) => {

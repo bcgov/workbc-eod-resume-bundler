@@ -39,8 +39,6 @@ function SubmitToJobOrder(props) {
                   initialValues={initialValues}
                   enableReinitialize={true}
                   onSubmit={(values, { resetForm, setErrors, setStatus, setSubmitting }) => {
-                      console.log(values);
-
                       fetch(FORM_URL.Submissions, {
                           method: "POST",
                           credentials: 'include',

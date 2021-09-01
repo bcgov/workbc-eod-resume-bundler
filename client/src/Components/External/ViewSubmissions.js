@@ -74,7 +74,6 @@ function ViewSubmissions() {
       const response = await fetch(FORM_URL.Submissions);
       const data = await response.json();
       const submissions = data.submissions;
-      console.log(submissions);
       setSubmissions(submissions);
       setSubmissionsToDisplay(submissions);
     }
@@ -120,38 +119,38 @@ function ViewSubmissions() {
 
   const SubmissionRow = (props) => {
     const [open, setOpen] = React.useState(false);
-    return (
-    <React.Fragment>
-      <TableRow>
-          <TableCell className={classes.noBorder}>
-            <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
-              {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-            </IconButton>
-          </TableCell>
-          <TableCell component="th" scope="row" className={classes.noBorder}>
-              {props.submission.submission_id}
-          </TableCell>
-          <TableCell component="th" scope="row" className={classes.noBorder}>
-              {props.submission.job_id}
-          </TableCell>
-          <TableCell component="th" scope="row" className={classes.noBorder}>
-              {props.submission.employer}
-          </TableCell>
-          <TableCell component="th" scope="row" className={classes.noBorder}>
-              {props.submission.position}
-          </TableCell>
-          <TableCell component="th" scope="row" className={classes.noBorder}>
-              {props.submission.location}
-          </TableCell>
-          <TableCell component="th" scope="row" className={classes.noBorder}>
-              {props.submission.created_date}
-          </TableCell>
-          <TableCell component="th" scope="row" className={classes.noBorder}>
-              {props.submission.candidates}
-          </TableCell>
 
-      </TableRow>
-    </React.Fragment>
+    return (
+      <React.Fragment>
+        <TableRow>
+            <TableCell className={classes.noBorder}>
+              <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
+                {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+              </IconButton>
+            </TableCell>
+            <TableCell component="th" scope="row" className={classes.noBorder}>
+                {props.submission.submission_id}
+            </TableCell>
+            <TableCell component="th" scope="row" className={classes.noBorder}>
+                {props.submission.job_id}
+            </TableCell>
+            <TableCell component="th" scope="row" className={classes.noBorder}>
+                {props.submission.employer}
+            </TableCell>
+            <TableCell component="th" scope="row" className={classes.noBorder}>
+                {props.submission.position}
+            </TableCell>
+            <TableCell component="th" scope="row" className={classes.noBorder}>
+                {props.submission.location}
+            </TableCell>
+            <TableCell component="th" scope="row" className={classes.noBorder}>
+                {props.submission.created_date}
+            </TableCell>
+            <TableCell component="th" scope="row" className={classes.noBorder}>
+                {props.submission.candidates}
+            </TableCell>
+        </TableRow>
+      </React.Fragment>
     );
   }
 
