@@ -60,11 +60,9 @@ function ViewSubmissions() {
 
   const [submissions, setSubmissions] = useState([[]]);
   const [submissionsToDisplay, setSubmissionsToDisplay] = useState([]);
-  const [clientCases, setClientCases] = useState([]);
-
 
   const handleUpdateSubmissionsToDisplay = (searchString) => {
-    setSubmissionsToDisplay(submissions.filter(s => s.employer.toLowerCase().startsWith(searchString.toLowerCase())));
+    setSubmissionsToDisplay(submissions.filter(s => s.jobOrderInfo.employer.toLowerCase().startsWith(searchString.toLowerCase())));
   }
 
   useEffect(async () => {
@@ -129,28 +127,79 @@ function ViewSubmissions() {
               </IconButton>
             </TableCell>
             <TableCell component="th" scope="row" className={classes.noBorder}>
-                {props.submission.submission_id}
+                {props.submission.submissionID}
             </TableCell>
             <TableCell component="th" scope="row" className={classes.noBorder}>
-                {props.submission.job_id}
+                {props.submission.jobID}
             </TableCell>
             <TableCell component="th" scope="row" className={classes.noBorder}>
-                {props.submission.employer}
+                {props.submission.jobOrderInfo.employer}
             </TableCell>
             <TableCell component="th" scope="row" className={classes.noBorder}>
-                {props.submission.position}
+                {props.submission.jobOrderInfo.position}
             </TableCell>
             <TableCell component="th" scope="row" className={classes.noBorder}>
-                {props.submission.location}
+                {props.submission.jobOrderInfo.location}
             </TableCell>
             <TableCell component="th" scope="row" className={classes.noBorder}>
-                {props.submission.created_date}
+                {props.submission.createdDate}
             </TableCell>
             <TableCell component="th" scope="row" className={classes.noBorder}>
-                {props.submission.candidates}
+                {props.submission.applicants.length}
             </TableCell>
         </TableRow>
+        <TableRow>
+          <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+            <Collapse in={open} timeout="auto" unmountOnExit>
+              <ApplicantTable applicants={props.submission.applicants} />
+            </Collapse>
+          </TableCell>
+        </TableRow>
       </React.Fragment>
+    );
+  }
+
+  const ApplicantTable = (props) => {
+    return (
+        <TableContainer className={"mb-2"}>
+          <Table className={classes.table} aria-label="simple table">
+            <TableHead className={classes.tableHeader}>
+              <TableRow>
+                <TableCell style={{fontWeight: "bold"}}>Client Case #</TableCell>
+                <TableCell style={{fontWeight: "bold"}} align="left">Client Name</TableCell>
+                <TableCell style={{fontWeight: "bold"}} align="left">Resume</TableCell>
+                <TableCell style={{fontWeight: "bold"}} align="left">Status</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              { props.applicants && (
+                props.applicants?.map(a => (
+                  <ApplicantRow 
+                    applicant={a}
+                  />
+                ))                
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+    );
+  }
+
+  const ApplicantRow = ({ applicant }) => {
+    return (
+    <TableRow>
+        <TableCell component="th" scope="applicant">
+            {applicant.clientCaseNumber}
+        </TableCell>
+        <TableCell align="left">{applicant.clientName}</TableCell>
+        <TableCell align="left"></TableCell>
+        <TableCell align="left">{applicant.status}</TableCell>
+        <TableCell align="center">
+            <button className="btn btn-primary btn-sm" type="button"> 
+                <VisibilityIcon style={{color: "white"}}></VisibilityIcon> 
+            </button>
+        </TableCell>
+    </TableRow>
     );
   }
 

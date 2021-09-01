@@ -43,7 +43,8 @@ export const getSubmissions = async () => {
             let applicant: ClientApplication = {
               clientName: a.client_name,
               clientCaseNumber: a.client_case_number,
-              consent: a.consent
+              consent: a.consent,
+              status: a.status
             }
 
             let submission: Submission = {
@@ -64,7 +65,8 @@ export const getSubmissions = async () => {
             let applicant: ClientApplication = {
               clientName: a.client_name,
               clientCaseNumber: a.client_case_number,
-              consent: a.consent
+              consent: a.consent,
+              status: a.status
             }
 
             submissions[a.submission_id].applicants.push(applicant);
@@ -109,9 +111,9 @@ export const createSubmission = async (createBody: CreateSubmission) => {
       const clientApplicationID: string = nanoid();
       await db.query(
         `INSERT INTO client_applications (
-          client_application_id, submission_id, catchment, centre, client_name, client_case_number, consent, created_by, created_date)
+          client_application_id, submission_id, catchment, centre, client_name, client_case_number, consent, status, created_by, created_date)
           VALUES 
-          ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+          ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
           [clientApplicationID,
           submissionID,
           createBody.catchment,
@@ -119,6 +121,7 @@ export const createSubmission = async (createBody: CreateSubmission) => {
           applicant.clientName,
           applicant.clientCaseNumber,
           applicant.consent,
+          "Active",
           createBody.user,
           new Date()
           ]

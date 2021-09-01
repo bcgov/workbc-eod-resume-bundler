@@ -32,7 +32,7 @@ function SubmitToJobOrderSuccess(props) {
                     type="button"
                     onClick={
                         () => {
-                            history.push('/jobOrdersExternal');
+                            history.push('/submissionsExternal');
                         }
                     }> 
                     My Submissions

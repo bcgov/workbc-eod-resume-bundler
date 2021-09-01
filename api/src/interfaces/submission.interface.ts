@@ -11,7 +11,8 @@ export interface CreateSubmission {
 export interface ClientApplication {
     clientName: string,
     clientCaseNumber: string,
-    consent: boolean
+    consent: boolean,
+    status: string
 }
 
 export interface Submission {
