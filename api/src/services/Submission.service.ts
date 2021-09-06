@@ -1,6 +1,6 @@
 import { JobOrder } from "../interfaces/job-order.interface";
-import { Submission, CreateSubmission, ClientApplication } from "../interfaces/submission.interface";
-
+import { Submission, CreateSubmission, ClientApplication, Resume } from "../interfaces/submission.interface";
+const fs = require("fs");
 const db = require('../db/db');
 const { customAlphabet } = require('nanoid');
 const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz',10);
@@ -32,7 +32,7 @@ export const getSubmissions = async () => {
     .then((resp: any) => {
         let submissions: {[id: string]: Submission} = {};
         resp.rows.forEach((a: any) => {
-          if (submissions[a.submission_id] == null){ // new dictionary entry
+          if (submissions[a.submission_id] == null){ // case 1: new Submission
             let job: JobOrder = {
               jobOrderID: a.job_id,
               employer: a.employer,
@@ -41,6 +41,7 @@ export const getSubmissions = async () => {
             }
 
             let applicant: ClientApplication = {
+              clientApplicationID: a.client_application_id,
               clientName: a.client_name,
               clientCaseNumber: a.client_case_number,
               consent: a.consent,
@@ -61,8 +62,9 @@ export const getSubmissions = async () => {
             submissions[a.submission_id] = submission;
           }
 
-          else{ // Submission already exists in dictionary
+          else{ // case 2: Submission already exists in dictionary
             let applicant: ClientApplication = {
+              clientApplicationID: a.client_application_id,
               clientName: a.client_name,
               clientCaseNumber: a.client_case_number,
               consent: a.consent,
@@ -88,10 +90,41 @@ export const getSubmissions = async () => {
     return res;
 }
 
-// Create Submission //
-export const createSubmission = async (createBody: CreateSubmission) => {
-  const submissionID: string = nanoid();
+// Download Resume //
+export const downloadResume = async (clientApplicationID: string) => {
+  let res: Resume | null = null;
+  await db.query(
+      `SELECT 
+        ca.resume_file_name,
+        ca.resume_file_type,
+        encode(ca.resume_file, 'base64') AS resume_file
+      FROM client_applications ca
+      WHERE ca.client_application_id = '${clientApplicationID}'`
+    )
+  .then((resp: any) => {
+      let r = resp.rows[0];
+      res = {
+        fileName: r.resume_file_name,
+        fileType: r.resume_file_type,
+        buffer: r.resume_file
+      }
+      fs.writeFile("test.pdf", r.resume_file, "base64", function (err: any) {
+        if (err) return console.log(err);
+      });
 
+  })
+  .catch((err: any) => {
+      console.error("error while querying: ", err);
+      throw new Error(err.message);
+    });
+
+  return res;
+}
+
+// Create Submission //
+export const createSubmission = async (createBody: CreateSubmission, file: any) => {
+  const submissionID: string = nanoid();
+  let applicants = JSON.parse(createBody.applicants.toString());
   await db.query(
     `INSERT INTO submissions (
         submission_id, job_id, catchment, centre, bundled, created_by, created_date)
@@ -107,19 +140,22 @@ export const createSubmission = async (createBody: CreateSubmission) => {
         ]
   )
   .then(() => {
-    createBody.applicants.forEach(async applicant => {
+    applicants.forEach(async (applicant: any) => {
       const clientApplicationID: string = nanoid();
       await db.query(
         `INSERT INTO client_applications (
-          client_application_id, submission_id, catchment, centre, client_name, client_case_number, consent, status, created_by, created_date)
+          client_application_id, submission_id, catchment, centre, client_name, client_case_number, resume_file, resume_file_name, resume_file_type, consent, status, created_by, created_date)
           VALUES 
-          ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+          ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
           [clientApplicationID,
           submissionID,
           createBody.catchment,
           createBody.centre,
           applicant.clientName,
           applicant.clientCaseNumber,
+          file.data,
+          applicant.resume?.fileName,
+          applicant.resume?.fileType,
           applicant.consent,
           "Active",
           createBody.user,
@@ -138,4 +174,14 @@ export const createSubmission = async (createBody: CreateSubmission) => {
   });
 
   return submissionID;
+}
+
+function _base64ToArrayBuffer(base64: any) {
+  var binary_string = window.atob(base64);
+  var len = binary_string.length;
+  var bytes = new Uint8Array(len);
+  for (var i = 0; i < len; i++) {
+      bytes[i] = binary_string.charCodeAt(i);
+  }
+  return bytes.buffer;
 }

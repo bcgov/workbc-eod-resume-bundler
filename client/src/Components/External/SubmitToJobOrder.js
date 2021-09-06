@@ -4,11 +4,19 @@ import { FORM_URL } from '../../constants/form'
 import Dropzone from 'react-dropzone';
 import ApplicantForm from './ApplicantForm';
 import { useKeycloak } from '@react-keycloak/web';
-import { withRouter, useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 
 function SubmitToJobOrder(props) {
+    const [applicants, setApplicants] = useState([
+        { 
+            applicantID: 0,
+            clientName: "", 
+            clientCaseNumber: "", 
+            consent: false,
+            resume: {}
+        }
+    ]);
 
-  const [applicants, setApplicants] = useState([{ applicantID: 0, clientName: "", clientCaseNumber: "", consent: false}]);
   const { keycloak } = useKeycloak();
   const h = useHistory();
 
@@ -39,14 +47,22 @@ function SubmitToJobOrder(props) {
                   initialValues={initialValues}
                   enableReinitialize={true}
                   onSubmit={(values, { resetForm, setErrors, setStatus, setSubmitting }) => {
+                    var formData = new FormData();
+                    formData.append("catchment", values.catchment);
+                    formData.append("centre", values.centre);
+                    formData.append("applicants", JSON.stringify(values.applicants));
+                    formData.append("jobID", values.jobID);
+                    formData.append("user", values.user);
+                    var blob = new Blob([values.applicants[0].resume.buffer], { type: "application/pdf"});
+                    formData.append("resume", blob);
                       fetch(FORM_URL.Submissions, {
                           method: "POST",
                           credentials: 'include',
-                          headers: {
-                              'Accept': 'application/json',
-                              'Content-Type': 'application/json',
-                          },
-                          body: JSON.stringify(values),
+                        //   headers: {
+                        //       'Accept': '*/*',
+                        //       'Content-Type': "multipart/form-data; boundary=--------------------------855932861828901246142571",
+                        //   },
+                          body: formData
                       })
                       .then(
                           (res) => {
@@ -113,7 +129,7 @@ function SubmitToJobOrder(props) {
                                     </div>
                                 </div>
                                 <div>
-                                    <ApplicantForm applicants={values.applicants} />
+                                    <ApplicantForm applicants={values.applicants} setFieldValue={setFieldValue} />
                                 </div>
                                 <div>
                                   { applicants.length > 1 ? 
@@ -139,6 +155,7 @@ function SubmitToJobOrder(props) {
                                           applicantID: applicants.length,
                                           clientName: "", 
                                           clientCaseNumber: "",
+                                          resume: {},
                                           consent: false
                                        }));
                                     }}>

@@ -9,8 +9,10 @@ export interface CreateSubmission {
 }
 
 export interface ClientApplication {
+    clientApplicationID: string,
     clientName: string,
     clientCaseNumber: string,
+    resume?: Resume,
     consent: boolean,
     status: string
 }
@@ -24,4 +26,10 @@ export interface Submission {
     jobOrderInfo: JobOrder,
     createdDate: Date,
     createdBy: string
+}
+
+export interface Resume {
+    fileName: string,
+    fileType: string,
+    buffer: ArrayBuffer
 }

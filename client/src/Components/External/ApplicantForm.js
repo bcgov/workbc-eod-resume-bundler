@@ -3,7 +3,7 @@ import { Formik, Form, Field, FastField, FieldArray, ErrorMessage } from 'formik
 import Dropzone from 'react-dropzone';
 import { makeStyles } from '@material-ui/core/styles';
 
-function SubmitToJobOrder({ applicants }) {
+function SubmitToJobOrder({ applicants, setFieldValue }) {
     //console.log(props.values.applicants);
     const useStyles = makeStyles((theme) => ({
         root: {
@@ -56,8 +56,26 @@ function SubmitToJobOrder({ applicants }) {
                                 </div>
                             </div>
                             <div className="form-group">
-                                <Dropzone onDrop={acceptedFiles => {
-                                }}
+                                <Dropzone 
+                                    name={`applicants[${index}].resume`}
+                                    onDrop={acceptedFiles => {
+                                        acceptedFiles.forEach(file => {
+                                            const reader = new FileReader();
+                                            reader.onabort = () => console.log('file reading was aborted')
+                                            reader.onerror = () => console.log('file reading has failed')
+                                            reader.onload = () => {
+                                                const binaryStr = reader.result;
+                                                console.log(binaryStr.byteLength);
+                                                const data = new FormData();
+                                                data.append('file', binaryStr);
+                                                setFieldValue(`applicants[${index}].resume.buffer`, binaryStr);
+                                                setFieldValue(`applicants[${index}].resume.fileName`, file.name);
+                                                setFieldValue(`applicants[${index}].resume.fileType`, file.type);
+                                                console.log(data);
+                                            }
+                                            reader.readAsArrayBuffer(file);
+                                        })
+                                    }}
                                 >
                                     {({ getRootProps, getInputProps }) => (
                                         <div {...getRootProps({ style })}>

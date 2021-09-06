@@ -11,8 +11,13 @@ import TableRow from '@material-ui/core/TableRow';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import IconButton from '@material-ui/core/IconButton';
+import EditIcon from '@material-ui/icons/Edit';
+import DownloadIcon from '@material-ui/icons/GetApp';
 import Collapse from '@material-ui/core/Collapse';
 import SearchBar from '../../utils/SearchBar';
+import { saveAs } from 'file-saver'
+import { useHistory } from 'react-router-dom';
+var fs = require('browserify-fs');
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -55,6 +60,12 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+const b64toBlob = (b64Data, contentType='', sliceSize=512) => {
+  const buffer = Buffer.from(b64Data, "base64");
+  const blob = new Blob([buffer.buffer], {type: contentType});
+  return blob;
+}
+
 function ViewSubmissions() {
   const classes = useStyles();
 
@@ -63,6 +74,32 @@ function ViewSubmissions() {
 
   const handleUpdateSubmissionsToDisplay = (searchString) => {
     setSubmissionsToDisplay(submissions.filter(s => s.jobOrderInfo.employer.toLowerCase().startsWith(searchString.toLowerCase())));
+  }
+
+  const handleResumeDownload = (applicantID, submissionID) => async () => {
+    await fetch(FORM_URL.Submissions + "/" + submissionID + "/applications/" + applicantID + "/downloadResume")
+          .then(async (response) => await response.json())
+          .then((data) => {
+            const blob = b64toBlob(data.buffer, "application/pdf");
+
+            // Create link to blob
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute(
+              "download",
+              data.fileName,
+            );
+        
+            // Append to html link element page
+            document.body.appendChild(link);
+        
+            // Start download
+            link.click();
+        
+            // Clean up and remove the link
+            link.parentNode.removeChild(link);
+          });
   }
 
   useEffect(async () => {
@@ -76,14 +113,6 @@ function ViewSubmissions() {
       setSubmissionsToDisplay(submissions);
     }
   }, [setSubmissions]);
-  
-  const ActionIcons = (props) => {
-      let viewIcon =  <button className="btn btn-primary btn-sm" type="button"> 
-                          <VisibilityIcon style={{color: "white"}}></VisibilityIcon> 
-                      </button>
-      
-      return viewIcon;
-  }
 
   const SubmissionTable = () => {
     return (
@@ -151,7 +180,7 @@ function ViewSubmissions() {
         <TableRow>
           <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
             <Collapse in={open} timeout="auto" unmountOnExit>
-              <ApplicantTable applicants={props.submission.applicants} />
+              <ApplicantTable applicants={props.submission.applicants} submissionID={props.submission.submissionID}/>
             </Collapse>
           </TableCell>
         </TableRow>
@@ -176,6 +205,7 @@ function ViewSubmissions() {
                 props.applicants?.map(a => (
                   <ApplicantRow 
                     applicant={a}
+                    submissionID={props.submissionID}
                   />
                 ))                
               )}
@@ -185,21 +215,31 @@ function ViewSubmissions() {
     );
   }
 
-  const ApplicantRow = ({ applicant }) => {
+  const ApplicantRow = ({ applicant, submissionID }) => {
     return (
-    <TableRow>
+      <TableRow>
         <TableCell component="th" scope="applicant">
             {applicant.clientCaseNumber}
         </TableCell>
         <TableCell align="left">{applicant.clientName}</TableCell>
-        <TableCell align="left"></TableCell>
-        <TableCell align="left">{applicant.status}</TableCell>
-        <TableCell align="center">
-            <button className="btn btn-primary btn-sm" type="button"> 
-                <VisibilityIcon style={{color: "white"}}></VisibilityIcon> 
-            </button>
+        <TableCell align="left">
+          <button 
+            className="btn btn-primary btn-sm" 
+            type="button"
+            onClick={handleResumeDownload(applicant.clientApplicationID, submissionID)}> 
+              <DownloadIcon style={{color: "white"}}></DownloadIcon> 
+          </button>
         </TableCell>
-    </TableRow>
+        <TableCell align="left">{applicant.status}</TableCell>
+        <TableCell className="d-flex flex-row">
+          <button className="btn btn-primary btn-sm" type="button"> 
+              <VisibilityIcon style={{color: "white"}}></VisibilityIcon> 
+          </button>
+          <button className="btn btn-primary btn-sm" type="button">
+              <EditIcon style={{color: "white"}}></EditIcon>
+          </button>
+        </TableCell>
+      </TableRow>
     );
   }
 
@@ -211,7 +251,7 @@ function ViewSubmissions() {
               <p>View submitted candidates to job orders</p>  
               <SearchBar
                 handleUpdate={handleUpdateSubmissionsToDisplay}
-                paginationCount={submissions.length}
+                paginationCount={submissionsToDisplay.length}
                 label={"Find Submissions"}
               />
               <SubmissionTable/>

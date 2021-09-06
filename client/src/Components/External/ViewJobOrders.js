@@ -66,7 +66,7 @@ function ViewJobOrders() {
   const [employersToDisplay, setEmployersToDisplay] = useState([]);
 
   const handleUpdateEmployersToDisplay = (searchString) => {
-    setEmployersToDisplay(employers.filter(e => e.startsWith(searchString)));
+    setEmployersToDisplay(employers.filter(e => e.toLowerCase().startsWith(searchString.toLowerCase())));
   }
 
   useEffect(async () => {
@@ -251,7 +251,7 @@ function ViewJobOrders() {
               <p>View available job orders and submit resumes</p>  
               <SearchBar
                 handleUpdate={handleUpdateEmployersToDisplay}
-                paginationCount={jobOrders.length}
+                paginationCount={employersToDisplay.length}
                 label={"Search Jobs"}
               ></SearchBar>
               <EmployerTable></EmployerTable>

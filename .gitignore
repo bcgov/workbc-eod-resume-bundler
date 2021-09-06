@@ -78,3 +78,6 @@ typings/
 # Compiled TS
 api/dist/
 dist/
+
+.DS_STORE
+.vscode/settings.json
