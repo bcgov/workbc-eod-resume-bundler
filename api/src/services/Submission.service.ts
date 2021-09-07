@@ -108,10 +108,6 @@ export const downloadResume = async (clientApplicationID: string) => {
         fileType: r.resume_file_type,
         buffer: r.resume_file
       }
-      fs.writeFile("test.pdf", r.resume_file, "base64", function (err: any) {
-        if (err) return console.log(err);
-      });
-
   })
   .catch((err: any) => {
       console.error("error while querying: ", err);
@@ -122,8 +118,9 @@ export const downloadResume = async (clientApplicationID: string) => {
 }
 
 // Create Submission //
-export const createSubmission = async (createBody: CreateSubmission, file: any) => {
+export const createSubmission = async (createBody: CreateSubmission, files: any) => {
   const submissionID: string = nanoid();
+  console.log(files);
   let applicants = JSON.parse(createBody.applicants.toString());
   await db.query(
     `INSERT INTO submissions (
@@ -153,7 +150,7 @@ export const createSubmission = async (createBody: CreateSubmission, file: any) 
           createBody.centre,
           applicant.clientName,
           applicant.clientCaseNumber,
-          file.data,
+          files[applicant.applicantID].data,
           applicant.resume?.fileName,
           applicant.resume?.fileType,
           applicant.consent,

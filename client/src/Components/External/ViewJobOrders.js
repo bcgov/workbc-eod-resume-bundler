@@ -103,18 +103,6 @@ function ViewJobOrders() {
           vacancies
       };
   }
-  
-  const ActionIcons = (props) => {
-      let viewIcon =  <button className="btn btn-primary btn-sm" type="button"> 
-                          <VisibilityIcon style={{color: "white"}}></VisibilityIcon> 
-                      </button>
-      
-      return viewIcon;
-  }
-
-  const DisplayCatchments = (catchments) => {
-    return catchments.map(c => parseInt(c.substring(2)).toString()).join(", "); // TODO: currently throws a warning regarding keys for lists
-  }
 
   const getJobOrdersForEmployer = (employer) => {
     return jobOrders.filter(jo => jo.employer == employer);

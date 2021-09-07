@@ -224,11 +224,11 @@ function ViewSubmissions() {
         <TableCell align="left">{applicant.clientName}</TableCell>
         <TableCell align="left">
           <button 
-            className="btn btn-primary btn-sm" 
-            type="button"
-            onClick={handleResumeDownload(applicant.clientApplicationID, submissionID)}> 
-              <DownloadIcon style={{color: "white"}}></DownloadIcon> 
-          </button>
+            type="button" 
+            class="btn btn-link" 
+            onClick={handleResumeDownload(applicant.clientApplicationID, submissionID)}>
+              View 
+            </button>
         </TableCell>
         <TableCell align="left">{applicant.status}</TableCell>
         <TableCell className="d-flex flex-row">

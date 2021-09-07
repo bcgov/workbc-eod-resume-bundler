@@ -53,40 +53,39 @@ function SubmitToJobOrder(props) {
                     formData.append("applicants", JSON.stringify(values.applicants));
                     formData.append("jobID", values.jobID);
                     formData.append("user", values.user);
-                    var blob = new Blob([values.applicants[0].resume.buffer], { type: "application/pdf"});
-                    formData.append("resume", blob);
-                      fetch(FORM_URL.Submissions, {
-                          method: "POST",
-                          credentials: 'include',
-                        //   headers: {
-                        //       'Accept': '*/*',
-                        //       'Content-Type': "multipart/form-data; boundary=--------------------------855932861828901246142571",
-                        //   },
-                          body: formData
-                      })
-                      .then(
-                          (res) => {
-                              if (res.ok){
-                                  setSubmitting(false);
-                                  return res.json();
-                              }
-                              else{
-                                  throw new Error("server responded with error!")
-                              }
-                      })
-                      .then(
-                          (res) => {
-                              setSubmitting(false);
-                              h.push({
-                                pathname: '/submitToJobOrderSuccess',
-                                createdID: res.createdID
-                            });
-                          },
-                          (err) => {
-                              setErrors(err);
-                              setSubmitting(false);
-                          }
-                      );
+                    values.applicants.forEach(applicant => {
+                      let blob = new Blob([applicant.resume.buffer], { type: "application/pdf"});
+                      formData.append(applicant.applicantID, blob);
+                    });
+
+                    fetch(FORM_URL.Submissions, {
+                        method: "POST",
+                        credentials: 'include',
+                        body: formData
+                    })
+                    .then(
+                        (res) => {
+                            if (res.ok){
+                                setSubmitting(false);
+                                return res.json();
+                            }
+                            else{
+                                throw new Error("server responded with error!")
+                            }
+                    })
+                    .then(
+                        (res) => {
+                            setSubmitting(false);
+                            h.push({
+                              pathname: '/submitToJobOrderSuccess',
+                              createdID: res.createdID
+                          });
+                        },
+                        (err) => {
+                            setErrors(err);
+                            setSubmitting(false);
+                        }
+                    );
                   }}
               >
                   {({ values, isSubmitting, setFieldValue, handleBlur, handleChange, errors, hasError }) => (

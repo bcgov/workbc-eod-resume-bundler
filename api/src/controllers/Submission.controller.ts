@@ -49,7 +49,7 @@ export const createSubmission = async (req: any, res: express.Response) => {
       user: req.body.user
     }
 
-    let createdID: string = await submissionService.createSubmission(req.body, req.files.resume);
+    let createdID: string = await submissionService.createSubmission(req.body, req.files);
     return res.status(200).json({ createdID : createdID });
 
   } catch(e) {
