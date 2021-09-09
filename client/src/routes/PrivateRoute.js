@@ -9,8 +9,8 @@ function PrivateRoute({roles, ...rest }) {
     const isAuthorized = () => {
         if (keycloak && roles) {
             return roles.some(r => {
-                console.log(r)
-                console.log(keycloak)
+                //console.log(r)
+                //console.log(keycloak)
                 const realm =  keycloak.hasRealmRole(r);
                 const resource = keycloak.hasResourceRole(r);
                 return realm || resource;

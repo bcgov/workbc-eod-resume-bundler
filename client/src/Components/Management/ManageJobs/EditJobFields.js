@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Formik, Form, Field, FieldArray, ErrorMessage } from 'formik'
 
-function JobFields() {
+function EditJobFields() {
     return (
         <div>
             <div className="form-row">
@@ -19,21 +19,6 @@ function JobFields() {
                     />
                 </div>
                 <div className="form-group col-md-6">
-                    <label className="control-label" htmlFor="position">Position</label>
-                    <Field
-                        name="position"
-                        type="text"
-                        className="form-control"
-                    />
-                    <ErrorMessage
-                        name="position"
-                        component="div"
-                        className="field-error"
-                    />
-                </div>
-            </div>
-            <div className="form-row">
-                <div className="form-group col-md-6">
                     <label className="control-label" htmlFor="startDate">Open Date</label>
                     <Field
                         name="startDate"
@@ -46,43 +31,30 @@ function JobFields() {
                         className="field-error"
                     />
                 </div>
-                <div className="form-group col-md-6">
-                    <label className="control-label" htmlFor="deadline">Deadline</label>
-                    <Field
-                        name="deadline"
-                        type="date"
-                        className="form-control"
-                    />
-                    <ErrorMessage
-                        name="deadline"
-                        component="div"
-                        className="field-error"
-                    />
-                </div>
             </div>
             <div className="form-row">
                 <div className="form-group col-md-6">
-                    <label className="control-label" htmlFor="location">Location (City)</label>
+                    <label className="control-label" htmlFor="position">Position</label>
                     <Field
-                        name="location"
+                        name="position"
                         type="text"
                         className="form-control"
                     />
                     <ErrorMessage
-                        name="location"
+                        name="position"
                         component="div"
                         className="field-error"
                     />
                 </div>
                 <div className="form-group col-md-6">
-                    <label className="control-label" htmlFor="vacancies">Vacancies</label>
+                    <label className="control-label" htmlFor="closingDate">Deadline</label>
                     <Field
-                        name="vacancies"
-                        type="number"
+                        name="closingDate"
+                        type="date"
                         className="form-control"
                     />
                     <ErrorMessage
-                        name="vacancies"
+                        name="closingDate"
                         component="div"
                         className="field-error"
                     />
@@ -92,4 +64,4 @@ function JobFields() {
     )
 }
 
-export default JobFields
+export default EditJobFields
