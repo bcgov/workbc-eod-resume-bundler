@@ -113,7 +113,7 @@ function ManageJobs() {
   const handleReviewReferral = (props) => () => {
     history.push({
       pathname: '/reviewReferral',
-      props: props
+      props
     });
   }
 
