@@ -12,12 +12,8 @@ import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import IconButton from '@material-ui/core/IconButton';
 import EditIcon from '@material-ui/icons/Edit';
-import DownloadIcon from '@material-ui/icons/GetApp';
 import Collapse from '@material-ui/core/Collapse';
 import SearchBar from '../../utils/SearchBar';
-import { saveAs } from 'file-saver'
-import { useHistory } from 'react-router-dom';
-var fs = require('browserify-fs');
 
 const useStyles = makeStyles((theme) => ({
   root: {
