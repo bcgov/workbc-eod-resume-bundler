@@ -10,7 +10,7 @@ function LoginLanding() {
             {console.log(initialized)}
             <div className="row">
                 <div className="col-md-12">
-                    <h1>EOD - Resume Bundler</h1>
+                    <h1>Resume Bundler</h1>
                 </div>
             </div>
             <div>

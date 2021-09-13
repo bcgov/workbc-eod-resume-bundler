@@ -222,7 +222,7 @@ function ReviewReferral({location}) {
             </TableCell>
             <TableCell align="left">{applicant.clientName}</TableCell>
             <TableCell align="left">{applicant.clientCaseNumber}</TableCell>
-            <TableCell align="left">{submission.createdDate}</TableCell>
+            <TableCell align="left">{submission.createdDate.substring(0, 10)}</TableCell>
             <TableCell align="left">
               <button 
                 type="button" 
@@ -231,7 +231,7 @@ function ReviewReferral({location}) {
                   View 
                 </button>
             </TableCell>
-            <TableCell className="d-flex flex-row">
+            <TableCell className="flex-row">
               <button className="btn btn-primary btn-sm" type="button">
                   <EditIcon style={{color: "white"}}></EditIcon>
               </button>
@@ -261,57 +261,66 @@ function ReviewReferral({location}) {
 
     return(
         <div className="container">
-            <div className="row">
-                <div className="col-md-12">
-                    <h1>Resume Bundler - Reviewing Referral for Job {jobOrder.id}</h1>   
-                </div>
+          {jobOrder && 
+            <div>
+              <div className="row">
+                  <div className="col-md-12">
+                      <h1>Resume Bundler - Reviewing Referral for Job {jobOrder.id}</h1>   
+                  </div>
+              </div>
+              <div className="row">
+                  <div className="column" style= {{ textAlign: "left", marginLeft: "7px", marginRight: "20px" }}>
+                      <div>
+                          Job ID: {jobOrder.id}
+                      </div>
+                      <div>
+                          Employer: {jobOrder.employer}
+                      </div>
+                      <div>
+                          Position: {jobOrder.position}
+                      </div>
+                      <div>
+                          Created: {jobOrder.created}
+                      </div>
+                      <div>
+                          Deadline: {jobOrder.deadline}
+                      </div>
+                  </div>
+                  <div className="column ml-5" style= {{ textAlign: "left", marginRight: "7px", marginLeft: "20px" }}>
+                      <div>
+                          Catchments: {DisplayCatchments(jobOrder.catchments)}
+                      </div>
+                      <div>
+                          Location: {jobOrder.location}
+                      </div>
+                      <div>
+                          Referrals: {jobOrder.referrals}
+                      </div>
+                      <div>
+                          Last Edit: {jobOrder.lastEdit}
+                      </div>
+                      <div>
+                          Edited By: {jobOrder.editedBy}
+                      </div>
+                  </div>
+              </div>
+              <div className="row">
+                  <div className="col-md-12"> 
+                      <SearchBar
+                          handleUpdate={handleUpdateReferralsToDisplay}
+                          paginationCount={referralsToDisplay.length}
+                          label={"Find Referral"}
+                      />
+                      <ReferralTable/>
+                  </div>
+              </div>
             </div>
-            <div className="row">
-                <div className="column" style= {{ textAlign: "left", marginLeft: "7px", marginRight: "20px" }}>
-                    <div>
-                        Job ID: {jobOrder.id}
-                    </div>
-                    <div>
-                        Employer: {jobOrder.employer}
-                    </div>
-                    <div>
-                        Position: {jobOrder.position}
-                    </div>
-                    <div>
-                        Created: {jobOrder.created}
-                    </div>
-                    <div>
-                        Deadline: {jobOrder.deadline}
-                    </div>
-                </div>
-                <div className="column ml-5" style= {{ textAlign: "left", marginRight: "7px", marginLeft: "20px" }}>
-                    <div>
-                        Catchments: {DisplayCatchments(jobOrder.catchments)}
-                    </div>
-                    <div>
-                        Location: {jobOrder.location}
-                    </div>
-                    <div>
-                        Referrals: {jobOrder.referrals}
-                    </div>
-                    <div>
-                        Last Edit: {jobOrder.lastEdit}
-                    </div>
-                    <div>
-                        Edited By: {jobOrder.editedBy}
-                    </div>
-                </div>
-            </div>
-            <div className="row">
-                <div className="col-md-12"> 
-                    <SearchBar
-                        handleUpdate={handleUpdateReferralsToDisplay}
-                        paginationCount={referralsToDisplay.length}
-                        label={"Find Referral"}
-                    />
-                    <ReferralTable/>
-                </div>
-            </div>
+          }
+          {!jobOrder && 
+            <h2>
+              Error loading page. Please go back to the job orders screen and re-select the job order you wish to review.
+            </h2>
+          }
         </div>
     );
 }

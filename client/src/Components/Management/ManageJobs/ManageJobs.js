@@ -51,7 +51,7 @@ const useStyles = makeStyles((theme) => ({
   },
   button: {
       margin: theme.spacing(0.5, 0),
-  },
+  }
 }));
 
 //#region HELPER FUNCTIONS
@@ -151,19 +151,19 @@ function ManageJobs() {
 
   //#region UI FUNCTIONS
   const ActionIcons = (props) => {
-      let editIcon =  <button className="btn btn-primary btn-sm" type="button" onClick={handleEditShow(props.jobID)}>
+      let editIcon =  <button className="btn btn-primary btn-sm" type="button" onClick={handleEditShow(props.jobID)} style={{minWidth: "10px", paddingTop: "0.5rem", paddingBottom: "0.5rem"}}>
                           <EditIcon style={{color: "white"}}></EditIcon>
                       </button>
 
-      let viewIcon =  <button className="btn btn-primary btn-sm" type="button"> 
+      let viewIcon =  <button className="btn btn-primary btn-sm" type="button" style={{minWidth: "10px", paddingTop: "0.5rem", paddingBottom: "0.5rem"}}> 
                           <VisibilityIcon style={{color: "white"}}></VisibilityIcon> 
                       </button>
       
-      let cancelIcon = <button className="btn btn-primary btn-sm" type="button" onClick={setStatusClosed(props.jobID)}> 
+      let cancelIcon = <button className="btn btn-primary btn-sm" type="button" onClick={setStatusClosed(props.jobID)} style={{minWidth: "10px", paddingTop: "0.5rem", paddingBottom: "0.5rem"}}> 
                           <CancelIcon style={{color: "white"}}></CancelIcon> 
                       </button>
 
-      let openIcon = <button className="btn btn-primary btn-sm" type="button"> 
+      let openIcon = <button className="btn btn-primary btn-sm" type="button" style={{minWidth: "10px", paddingTop: "0.5rem", paddingBottom: "0.5rem"}}> 
                           <MeetingRoomIcon style={{color: "white"}}></MeetingRoomIcon> 
                       </button>
       
@@ -432,10 +432,12 @@ function ManageJobs() {
           <TableCell align="left">{row.position}</TableCell>
           <TableCell align="left">{row.status}</TableCell>
           <TableCell align="left">{row.deadline}</TableCell>
-          <TableCell align="left">{DisplayCatchments(row.catchments)}</TableCell>
+          <TableCell align="left" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "10px"}}>
+            {DisplayCatchments(row.catchments)}
+          </TableCell>
           <TableCell align="left">{row.location}</TableCell>
           <TableCell align="left">{row.submissions}</TableCell>
-          <TableCell className="d-flex flex-row">
+          <TableCell className={"d-flex flex-row"}>
               <ActionIcons jobID={row.id} catchments={row.catchments} status={row.status}></ActionIcons>
           </TableCell>
           <TableCell align="right">
@@ -443,7 +445,7 @@ function ManageJobs() {
               <a  onClick={handleReviewReferral(row)}
                   type="button"
                   className="btn btn-block"
-                  style={{ backgroundColor: "grey", color: "white"}}>
+                  style={{ backgroundColor: "grey", color: "white" }}>
                 Review
               </a>
             </div>
@@ -511,16 +513,16 @@ function ManageJobs() {
             <TableHead>
               <TableRow>
                 <TableCell />
-                <TableCell>ID</TableCell>
-                <TableCell align="left">Employer</TableCell>
-                <TableCell align="left">Position</TableCell>
-                <TableCell align="left">Status</TableCell>
-                <TableCell align="left">Deadline</TableCell>
-                <TableCell align="left">Catchments</TableCell>
-                <TableCell align="left">Location</TableCell>
-                <TableCell align="left">Submissions</TableCell>
-                <TableCell align="left">Actions</TableCell>
-                <TableCell align="left">Referrals</TableCell>
+                <TableCell style={{fontWeight: "bold"}}>ID</TableCell>
+                <TableCell align="left" style={{fontWeight: "bold"}}>Employer</TableCell>
+                <TableCell align="left" style={{fontWeight: "bold"}}>Position</TableCell>
+                <TableCell align="left" style={{fontWeight: "bold"}}>Status</TableCell>
+                <TableCell align="left" style={{fontWeight: "bold"}}>Deadline</TableCell>
+                <TableCell align="left" style={{fontWeight: "bold"}}>Catchments</TableCell>
+                <TableCell align="left" style={{fontWeight: "bold"}}>Location</TableCell>
+                <TableCell align="left" style={{fontWeight: "bold"}}>Submissions</TableCell>
+                <TableCell align="left" style={{fontWeight: "bold"}}>Actions</TableCell>
+                <TableCell align="left" style={{fontWeight: "bold"}}>Referrals</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -537,7 +539,7 @@ function ManageJobs() {
                       jobOrder.deadline.substring(0, 10),
                       jobOrder.catchments,
                       jobOrder.location,
-                      0,
+                      jobOrder.submissions,
                       jobOrder.created_date.substring(0, 10)
                       )}>
                   </Row>
@@ -555,7 +557,7 @@ function ManageJobs() {
     <div className="container">
         <div className="row">
             <div className="col-md-12">
-                <h1>EOD Resume Bundler - Manage Jobs</h1>  
+                <h1>Resume Bundler - Manage Jobs</h1>  
                 <p>Manage all job orders</p>  
             </div>
 

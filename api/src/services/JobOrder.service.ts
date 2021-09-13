@@ -7,7 +7,12 @@ export const getJobOrders = async () => {
     let jobOrders: any;
 
     await db.query(
-        `SELECT * FROM job_orders`
+        `SELECT job_orders.*, COUNT(submissions.job_id) AS submissions        
+        FROM job_orders
+        LEFT JOIN submissions
+        ON (job_orders.job_id = submissions.job_id)
+        GROUP BY
+            job_orders.job_id`
       )
     .then((resp: any) => {
         jobOrders = { count: resp.rowCount, jobs: resp.rows };

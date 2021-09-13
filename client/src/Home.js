@@ -22,7 +22,7 @@ function Home() {
         <div className="container">
             <div className="row">
                 <div className="col-md-12">
-                    <h1>EOD - Resume Bundler</h1>
+                    <h1>Resume Bundler</h1>
                 </div>
             </div>
             {initialized ? (
@@ -32,7 +32,7 @@ function Home() {
                         <div className="col-md-12">
                             {!keycloak.authenticated ? 
                                 <div>
-                                    <p>Welcome to the EOD Resume Bundler. This site is where referral bundling job opportunities are posted for you to conveniently upload WorkBC client resumes. EOD will forward qualified resumes to employers for their consideration. This process is designed to streamline the referral process in order to make it easier for large provincial footprint employers to hire WorkBC clients.
+                                    <p>Welcome to the Resume Bundler. This site is where referral bundling job opportunities are posted for you to conveniently upload WorkBC client resumes. EOD will forward qualified resumes to employers for their consideration. This process is designed to streamline the referral process in order to make it easier for large provincial footprint employers to hire WorkBC clients.
                                     If you have questions or encounter any difficulties with the process please contact the Employment Opportunities Development (EOD) branch at Employer.Support@workbc.ca
                                     </p>
                                     <p><a type="button" className="btn btn-lg btn-primary" href="/loginLanding">Login</a><br /></p>
