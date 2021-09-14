@@ -58,7 +58,7 @@ export const createJobOrder = async (body: any) => {
     return jobID;
 }
 
-// Create Job Order //
+// Close Job Order //
 export const setToClosed = async (jobOrderID: string) => {
     await db.query(
     `UPDATE job_orders SET Status = 'Closed' WHERE job_id = '${jobOrderID}'`

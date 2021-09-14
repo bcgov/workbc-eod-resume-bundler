@@ -36,7 +36,7 @@ export const createJobOrder = async (req: express.Request, res: express.Response
     })
     .catch((validationErrors: ValidationError) => {
       console.error("validation unsuccessful: ", validationErrors);
-      return res.status(400).send(validationErrors.errors);
+      return res.status(400).send(validationErrors.errors.reduce((prev: any, curr: any) => ({ ...prev, [curr.key]: curr.value}), {}));
     });
     
   } catch(e) {

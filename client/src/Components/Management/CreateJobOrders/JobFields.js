@@ -14,9 +14,9 @@ function JobFields() {
                     />
                     <ErrorMessage
                         name="employer"
-                        component="div"
-                        className="field-error"
-                    />
+                        className="field-error">
+                        { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                    </ErrorMessage>
                 </div>
                 <div className="form-group col-md-6">
                     <label className="control-label" htmlFor="position">Position</label>
@@ -27,9 +27,9 @@ function JobFields() {
                     />
                     <ErrorMessage
                         name="position"
-                        component="div"
-                        className="field-error"
-                    />
+                        className="field-error">
+                        { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                    </ErrorMessage>
                 </div>
             </div>
             <div className="form-row">
@@ -39,12 +39,14 @@ function JobFields() {
                         name="startDate"
                         type="date"
                         className="form-control"
+                        defaultValue={null}
                     />
                     <ErrorMessage
                         name="startDate"
                         component="div"
-                        className="field-error"
-                    />
+                        className="field-error">
+                        { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                    </ErrorMessage>
                 </div>
                 <div className="form-group col-md-6">
                     <label className="control-label" htmlFor="deadline">Deadline</label>
@@ -52,12 +54,14 @@ function JobFields() {
                         name="deadline"
                         type="date"
                         className="form-control"
+                        defaultValue={null}
                     />
                     <ErrorMessage
                         name="deadline"
                         component="div"
-                        className="field-error"
-                    />
+                        className="field-error">
+                        { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                    </ErrorMessage>
                 </div>
             </div>
             <div className="form-row">
@@ -71,8 +75,9 @@ function JobFields() {
                     <ErrorMessage
                         name="location"
                         component="div"
-                        className="field-error"
-                    />
+                        className="field-error">
+                        { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                    </ErrorMessage>
                 </div>
                 <div className="form-group col-md-6">
                     <label className="control-label" htmlFor="vacancies">Vacancies</label>
@@ -84,8 +89,9 @@ function JobFields() {
                     <ErrorMessage
                         name="vacancies"
                         component="div"
-                        className="field-error"
-                    />
+                        className="field-error">
+                        { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                    </ErrorMessage>
                 </div>
             </div>
         </div>

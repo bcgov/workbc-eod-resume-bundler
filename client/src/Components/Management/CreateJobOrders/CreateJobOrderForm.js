@@ -7,6 +7,7 @@ import { FORM_URL } from '../../../constants/form'
 import JobFields from './JobFields'
 import CatchmentSelector from './CatchmentSelector';
 import Dropzone from 'react-dropzone';
+import * as yup from 'yup';
 
 const CreateJobOrderForm = () => {
     const h = useHistory();
@@ -25,13 +26,23 @@ const CreateJobOrderForm = () => {
         ...dropzoneStyle
     }))
 
-    const [catchments, setCatchments] = React.useState([]);
+    const [hasBeenSubmitted, setHasBeenSubmitted] = React.useState(false);
+    const [formErrors, setFormErrors] = React.useState(false);
+
+    // const [jobOrder, setJobOrder] = useState([
+    //     { 
+    //         clientName: "", 
+    //         clientCaseNumber: "", 
+    //         consent: false,
+    //         resume: {}
+    //     }
+    // ]);
 
     let initialValues = {
         employer: "",
         position: "",
-        startDate: new Date(),
-        deadline: new Date(),
+        startDate: null,
+        deadline: null,
         location: "",
         vacancies: 1,
         catchments: [],
@@ -50,50 +61,72 @@ const CreateJobOrderForm = () => {
         'CA40', 'CA41', 'CA42', 'CA43', 'CA44', 'CA45',
     ];
 
+    const CreateJobOrderValidationSchema = yup.object().shape({
+        employer: yup.string().required("employer is required field"),
+        position: yup.string().required("position is a required field"),
+        startDate: yup.date().typeError("a start date must be selected"),
+        deadline: yup.date().typeError("a deadline must be selected"),
+        location: yup.string().required("location is a required field"),
+        catchments: yup.array().min(1, "please select a catchment"),
+        otherInformation: yup.string().max(1000, "over 1000 characters")
+    });
+
+    const showErrors = () => {
+        return (
+            <div>
+                <div className="alert alert-dismissible alert-danger">
+                <button type="button" className="close" data-dismiss="alert">×</button>
+                <strong>Please enter required information and try again</strong>
+                </div>
+            </div>
+        );
+    }
+
     return (
-    <Formik
-        initialValues={initialValues}
-        enableReinitialize={true}
-        onSubmit={(values, { resetForm, setErrors, setStatus, setSubmitting }) => {
-            fetch(FORM_URL.JobOrders, {
-                method: "POST",
-                credentials: 'include',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(values),
-            })
-            .then(
-                (res) => {
-                    if (res.ok){
+        <Formik
+            initialValues={initialValues}
+            enableReinitialize={false}
+            validationSchema={CreateJobOrderValidationSchema}
+            onSubmit={(values, { resetForm, setErrors, setFieldError, setStatus, setSubmitting }) => {
+                fetch(FORM_URL.JobOrders, {
+                    method: "POST",
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(values),
+                })
+                .then(
+                    async (res) => {
+                        if (res.ok){
+                            setSubmitting(false);
+                            return res.json();
+                        }
+                        else{
+                            let err = await res.json();
+                            setErrors(err);
+                            setFormErrors(true);
+                            throw new Error();
+                        }
+                })
+                .then(
+                    (res) => {
                         setSubmitting(false);
-                        return res.json();
+                        h.push({
+                            pathname: '/createJobOrderSuccess',
+                            createdID: res.createdID
+                        });
+                    },
+                    (err) => {
+                        setSubmitting(false);
                     }
-                    else{
-                        throw new Error("server responded with error!")
-                    }
-            })
-            .then(
-                (res) => {
-                    setSubmitting(false);
-                    h.push({
-                        pathname: '/createJobOrderSuccess',
-                        createdID: res.createdID
-                    });
-                },
-                (err) => {
-                    setErrors(err);
-                    setSubmitting(false);
-                }
-            );
-        }}
-    //validationSchema={FormValidationSchema}
-    >
+                );
+            }}
+        >
         {({ values, isSubmitting, setFieldValue, handleBlur, handleChange, errors, hasError }) => (
             <div>
                 <Form>
-                    {/* {console.log(values)} */}
                     <p>Create a position for WorkBC Centres to drop resumes</p>
                     <div className="form-group">
                         <legend>Job Fields</legend>
@@ -154,6 +187,11 @@ const CreateJobOrderForm = () => {
                         component={CatchmentSelector} 
                         catchments={catchmentsList} 
                     />
+                    <ErrorMessage
+                        name="catchments"
+                        className="field-error">
+                        { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                    </ErrorMessage>
                     <div className="form-group">
                         <label className="col-form-label control-label" htmlFor="otherInformation">Other information
                         </label>
@@ -167,6 +205,9 @@ const CreateJobOrderForm = () => {
                             maxLength="1000"
                         />
                         <small>{values.otherInformation.length}/1000</small>
+                    </div>
+                    <div className="form-group">
+                        {Object.keys(errors).length >= 1 && showErrors()} 
                     </div>
                     <button
                         className="btn btn-success btn-block"
