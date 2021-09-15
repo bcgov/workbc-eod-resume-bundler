@@ -57,6 +57,7 @@ function SubmitToJobOrder({ applicants, setFieldValue }) {
                             <div className="form-group">
                                 <Dropzone 
                                     name={`applicants[${index}].resume`}
+                                    accept="application/pdf"
                                     onDrop={acceptedFiles => {
                                         acceptedFiles.forEach(file => {
                                             const reader = new FileReader();
@@ -74,10 +75,20 @@ function SubmitToJobOrder({ applicants, setFieldValue }) {
                                         })
                                     }}
                                 >
-                                    {({ getRootProps, getInputProps }) => (
-                                        <div {...getRootProps({ style })}>
-                                            <input {...getInputProps()} />
-                                            <p style={{ margin: "auto", paddingTop: "30px", paddingBottom: "30px", textAlign: "center" }}>Drag and drop the file here, or Add Files</p>
+                                    {({ getRootProps, getInputProps, acceptedFiles }) => (
+                                        <div>
+                                            { acceptedFiles.length == 0 && 
+                                                <div {...getRootProps({ style })}>
+                                                    <input {...getInputProps()} />
+                                                    <p style={{ margin: "auto", paddingTop: "30px", paddingBottom: "30px", textAlign: "center" }}>Click to upload or drag and drop the resume here (pdf only)</p>
+                                                </div>
+                                            }
+                                            { acceptedFiles.length > 0 && 
+                                                <div {...getRootProps({ style })}>
+                                                    <input {...getInputProps()} />
+                                                    <p style={{ margin: "auto", paddingTop: "30px", paddingBottom: "30px", textAlign: "center" }}>{acceptedFiles[0].name}</p>
+                                                </div>
+                                            }
                                         </div>
                                     )}
                                 </Dropzone>

@@ -29,6 +29,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
+import CircularProgress from '@material-ui/core/CircularProgress'
 import EditJobFields from './EditJobFields';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 
@@ -560,8 +561,13 @@ function ManageJobs() {
                 <h1>Resume Bundler - Manage Jobs</h1>  
                 <p>Manage all job orders</p>  
             </div>
+            {jobOrders.length > 0 &&
+              <CollapsibleTable></CollapsibleTable>
+            }
 
-            <CollapsibleTable></CollapsibleTable>
+            {jobOrders.length == 0 && // show spinner while fetching data
+              <CircularProgress />
+            }
         </div>
     </div>
   )
