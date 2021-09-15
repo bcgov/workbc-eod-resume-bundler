@@ -1,3 +1,5 @@
+import { Catchment } from "../interfaces/System.interface";
+
 const db = require('../db/db');
 const { customAlphabet } = require('nanoid');
 const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz',10);
@@ -42,7 +44,7 @@ export const createJobOrder = async (body: any) => {
         body.deadline,
         body.location,
         body.vacancies,
-        body.catchments,
+        body.catchments.map((c: any) => c.catchment_id).sort(),
         body.otherInformation,
         body.jobDescriptionFile,
         body.status,

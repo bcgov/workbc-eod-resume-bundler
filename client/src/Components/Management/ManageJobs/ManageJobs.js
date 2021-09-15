@@ -180,7 +180,8 @@ function ManageJobs() {
   }
 
   const DisplayCatchments = (catchments) => {
-    return catchments.map(c => parseInt(c.substring(2)).toString()).join(", "); // TODO: currently throws a warning regarding keys for lists
+    //return catchments.map(c => parseInt(c.substring(2)).toString()).join(", "); // TODO: currently throws a warning regarding keys for lists
+    return catchments.join(", ");
   }
 
   const CatchmentSelector = (props) => {

@@ -1,4 +1,4 @@
-import { JobOrder } from "./job-order.interface";
+import { JobOrder } from "./JobOrder.interface";
 
 export interface CreateSubmission {
     jobID: string,

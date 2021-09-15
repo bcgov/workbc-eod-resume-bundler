@@ -1,5 +1,5 @@
 import * as express from "express";
-import { CreateSubmission } from "../interfaces/submission.interface";
+import { CreateSubmission } from "../interfaces/Submission.interface";
 import * as submissionService from "../services/Submission.service";
 
 // Get Submissions //

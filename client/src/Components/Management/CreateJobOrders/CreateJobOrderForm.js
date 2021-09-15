@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react'
+import React, { useMemo, useState, useCallback, useEffect } from 'react'
 import { withRouter, useHistory } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles';
 import { useKeycloak } from '@react-keycloak/web'
@@ -13,6 +13,8 @@ const CreateJobOrderForm = () => {
     const h = useHistory();
     const { keycloak, initialized } = useKeycloak();
 
+    const [catchments, setCatchments] = React.useState([]);
+
     const dropzoneStyle = {
         width: "100%",
         height: "auto",
@@ -26,17 +28,15 @@ const CreateJobOrderForm = () => {
         ...dropzoneStyle
     }))
 
-    const [hasBeenSubmitted, setHasBeenSubmitted] = React.useState(false);
-    const [formErrors, setFormErrors] = React.useState(false);
-
-    // const [jobOrder, setJobOrder] = useState([
-    //     { 
-    //         clientName: "", 
-    //         clientCaseNumber: "", 
-    //         consent: false,
-    //         resume: {}
-    //     }
-    // ]);
+    useEffect(async () => {
+        await getCatchments();
+    
+        async function getCatchments() {
+          const response = await fetch(FORM_URL.System + "/Catchments");
+          const data = await response.json();
+          setCatchments(data);
+        }
+      }, [setCatchments]);
 
     let initialValues = {
         employer: "",
@@ -106,7 +106,6 @@ const CreateJobOrderForm = () => {
                         else{
                             let err = await res.json();
                             setErrors(err);
-                            setFormErrors(true);
                             throw new Error();
                         }
                 })
@@ -182,11 +181,11 @@ const CreateJobOrderForm = () => {
                     <div className="form-group">
                         <p className="col-form-label control-label">Catchments Job will be available to</p>
                     </div>
-                    <FastField 
+                    {catchments.length > 0 && <FastField 
                         name="catchments"
                         component={CatchmentSelector} 
-                        catchments={catchmentsList} 
-                    />
+                        catchments={catchments} 
+                    />}
                     <ErrorMessage
                         name="catchments"
                         className="field-error">
@@ -207,7 +206,7 @@ const CreateJobOrderForm = () => {
                         <small>{values.otherInformation.length}/1000</small>
                     </div>
                     <div className="form-group">
-                        {Object.keys(errors).length >= 1 && showErrors()} 
+                        {(Object.keys(errors).length >= 1 && errors.constructor === Object) && showErrors()} 
                     </div>
                     <button
                         className="btn btn-success btn-block"
