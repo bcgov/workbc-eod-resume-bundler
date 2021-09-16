@@ -44,7 +44,9 @@ export const createJobOrder = async (body: any) => {
         body.deadline,
         body.location,
         body.vacancies,
-        body.catchments.map((c: any) => c.catchment_id).sort(),
+        body.catchments
+            .map((c: any) => c.catchment_id)
+            .sort((a: number, b: number) => { return a - b }),
         body.otherInformation,
         body.jobDescriptionFile,
         body.status,

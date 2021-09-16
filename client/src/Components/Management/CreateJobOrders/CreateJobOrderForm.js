@@ -5,7 +5,7 @@ import { useKeycloak } from '@react-keycloak/web'
 import { Formik, Form, Field, FastField, FieldArray, ErrorMessage } from 'formik'
 import { FORM_URL } from '../../../constants/form'
 import JobFields from './JobFields'
-import CatchmentSelector from './CatchmentSelector';
+import CatchmentSelector from '../../../utils/CatchmentSelector';
 import Dropzone from 'react-dropzone';
 import * as yup from 'yup';
 
@@ -51,15 +51,6 @@ const CreateJobOrderForm = () => {
         status: "Open",
         user: keycloak.tokenParsed.preferred_username
     }
-
-    const catchmentsList = 
-    [
-        'CA01', 'CA02', 'CA03', 'CA04', 'CA05', 'CA06', 'CA07', 'CA08', 'CA09',
-        'CA10', 'CA11', 'CA12', 'CA13', 'CA14', 'CA15', 'CA16', 'CA17', 'CA18', 'CA19',
-        'CA20', 'CA21', 'CA22', 'CA23', 'CA24', 'CA25', 'CA26', 'CA27', 'CA28', 'CA29',
-        'CA30', 'CA31', 'CA32', 'CA33', 'CA34', 'CA35', 'CA36', 'CA37', 'CA38', 'CA39',
-        'CA40', 'CA41', 'CA42', 'CA43', 'CA44', 'CA45',
-    ];
 
     const CreateJobOrderValidationSchema = yup.object().shape({
         employer: yup.string().required("employer is required field"),
@@ -206,7 +197,7 @@ const CreateJobOrderForm = () => {
                         <small>{values.otherInformation.length}/1000</small>
                     </div>
                     <div className="form-group">
-                        {(Object.keys(errors).length >= 1 && errors.constructor === Object) && showErrors()} 
+                        {(Object.keys(errors).length >= 1) && showErrors()} 
                     </div>
                     <button
                         className="btn btn-success btn-block"

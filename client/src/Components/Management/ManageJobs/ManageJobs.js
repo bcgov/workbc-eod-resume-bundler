@@ -19,19 +19,10 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
-import Grid from '@material-ui/core/Grid';
-import List from '@material-ui/core/List';
-import Card from '@material-ui/core/Card';
-import CardHeader from '@material-ui/core/CardHeader';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import Checkbox from '@material-ui/core/Checkbox';
-import Button from '@material-ui/core/Button';
-import Divider from '@material-ui/core/Divider';
+import CatchmentSelector from '../../../utils/CatchmentSelector';
 import CircularProgress from '@material-ui/core/CircularProgress'
 import EditJobFields from './EditJobFields';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { Formik, Form, Field, ErrorMessage, FastField } from 'formik';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -56,16 +47,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 //#region HELPER FUNCTIONS
-function intersection(a, b) {
-  return a.filter((value) => b.indexOf(value) !== -1);
-}
 
 function not(a, b) {
   return a.filter((value) => b.indexOf(value) === -1);
-}
-
-function union(a, b) {
-  return [...a, ...not(b, a)];
 }
 //#endregion
 
@@ -74,27 +58,28 @@ function ManageJobs() {
   const classes = useStyles();
 
   const [jobOrders, setJobOrders] = useState([]);
+  const [jobOrdersLoading, setJobOrdersLoading] = useState(true);
+  const [catchments, setCatchments] = useState([]);
   const [forceUpdate, setForceUpdate] = useState(0);
 
-  useEffect(() => {
-    getJobOrders();
+  useEffect(async () => {
+    await getJobOrders();
+    await getCatchments();
 
     async function getJobOrders() {
       const response = await fetch(FORM_URL.JobOrders);
       const data = await response.json();
       const jobs = data.jobs;
       setJobOrders(jobs.sort((a,b) => a.created_date < b.created_date ? 1 : -1));
+      setJobOrdersLoading(false);
     }
-  }, [setJobOrders, forceUpdate]);
 
-  const catchments =
-    [
-        'CA01', 'CA02', 'CA03', 'CA04', 'CA05', 'CA06', 'CA07', 'CA08', 'CA09',
-        'CA10', 'CA11', 'CA12', 'CA13', 'CA14', 'CA15', 'CA16', 'CA17', 'CA18', 'CA19',
-        'CA20', 'CA21', 'CA22', 'CA23', 'CA24', 'CA25', 'CA26', 'CA27', 'CA28', 'CA29',
-        'CA30', 'CA31', 'CA32', 'CA33', 'CA34', 'CA35', 'CA36', 'CA37', 'CA38', 'CA39',
-        'CA40', 'CA41', 'CA42', 'CA43', 'CA44', 'CA45',
-    ];
+    async function getCatchments() {
+      const response = await fetch(FORM_URL.System + "/Catchments");
+      const data = await response.json();
+      setCatchments(data);
+    }
+  }, [setJobOrders, setCatchments, forceUpdate]);
 
   //#region EDIT MODAL STATE
   const [showEdit, setShowEdit] = useState({});
@@ -179,139 +164,10 @@ function ManageJobs() {
       return iconsToShow;
   }
 
-  const DisplayCatchments = (catchments) => {
-    //return catchments.map(c => parseInt(c.substring(2)).toString()).join(", "); // TODO: currently throws a warning regarding keys for lists
-    return catchments.join(", ");
-  }
-
-  const CatchmentSelector = (props) => {
-    const [checked, setChecked] = React.useState([]);
-    const [left, setLeft] = React.useState(not(props.catchments, props.selectedCatchments));
-    const [right, setRight] = React.useState(props.selectedCatchments);
-
-    const leftChecked = intersection(checked, left);
-    const rightChecked = intersection(checked, right);
-
-    const handleToggle = (value) => () => {
-      const currentIndex = checked.indexOf(value);
-      const newChecked = [...checked];
-
-      if (currentIndex === -1) {
-          newChecked.push(value);
-      } else {
-          newChecked.splice(currentIndex, 1);
-      }
-
-      setChecked(newChecked);
-    };
-    
-    const numberOfChecked = (items) => intersection(checked, items).length;
-
-    const handleToggleAll = (items) => () => {
-      if (numberOfChecked(items) === items.length) {
-          setChecked(not(checked, items));
-      } else {
-          setChecked(union(checked, items));
-      }
-    };
-
-    const handleCheckedRight = () => {
-      setRight(right.concat(leftChecked));
-      setLeft(not(left, leftChecked));
-      setChecked(not(checked, leftChecked));
-    };
-
-    const handleCheckedLeft = () => {
-      setLeft(left.concat(rightChecked));
-      setRight(not(right, rightChecked));
-      setChecked(not(checked, rightChecked));
-    };
-
-    const CustomList = (props) => {
-      return (
-        <Card>
-          <CardHeader
-              className={classes.cardHeader}
-              avatar={
-                  <Checkbox
-                      onClick={handleToggleAll(props.items)}
-                      checked={numberOfChecked(props.items) === props.items.length && props.items.length !== 0}
-                      indeterminate={numberOfChecked(props.items) !== props.items.length && numberOfChecked(props.items) !== 0}
-                      disabled={props.items.length === 0}
-                      inputProps={{ 'aria-label': 'all items selected' }}
-                  />
-              }
-              title={props.title}
-              subheader={`${numberOfChecked(props.items)}/${props.items.length} selected`}
-          />
-          <Divider />
-          <List className={classes.list} dense component="div" role="list">
-              {props.items.map((value) => {
-                  const labelId = `transfer-list-all-item-${value}-label`;
-  
-                  return (
-                      <ListItem key={value} role="listitem" button onClick={handleToggle(value)}>
-                          <ListItemIcon>
-                              <Checkbox
-                                  checked={checked.indexOf(value) !== -1}
-                                  tabIndex={-1}
-                                  disableRipple
-                                  inputProps={{ 'aria-labelledby': labelId }}
-                              />
-                          </ListItemIcon>
-                          <ListItemText id={labelId} primary={`${value}`} />
-                      </ListItem>
-                  );
-              })}
-              <ListItem />
-            </List>
-          </Card>
-      );
-    }
-
-    return (
-      <Formik>
-        <Form>
-          <div className="ml-5">
-            <Grid
-              container
-              spacing={2}
-              alignItems="center">
-              <Grid item>
-                <CustomList title='Unselected' items={left}></CustomList>
-              </Grid>
-              <Grid item>
-                  <Grid container direction="column" alignItems="center">
-                      <Button
-                          variant="outlined"
-                          size="small"
-                          className={classes.button}
-                          onClick={handleCheckedRight}
-                          disabled={leftChecked.length === 0}
-                          aria-label="move selected right"
-                      >
-                          &gt;
-                      </Button>
-                      <Button
-                          variant="outlined"
-                          size="small"
-                          className={classes.button}
-                          onClick={handleCheckedLeft}
-                          disabled={rightChecked.length === 0}
-                          aria-label="move selected left"
-                      >
-                          &lt;
-                      </Button>
-                  </Grid>
-              </Grid>
-              <Grid item>
-                <CustomList title='Selected' items={right}></CustomList>
-              </Grid>
-            </Grid>
-          </div>
-        </Form>
-      </Formik>
-    );
+  const DisplayCatchments = (catchmentIDs) => {
+    return catchmentIDs
+      .map(id => catchments.find(x => x.catchment_id == id).name)
+      .join(", ");
   }
 
   const EditModal = (props) => {
@@ -376,7 +232,7 @@ function ManageJobs() {
     }
 
     return (
-      <Modal show={showEdit[props.jobID]} onHide={handleEditClose(props.jobID)} size="lg">
+      <Modal show={showEdit[props.jobID]} onHide={handleEditClose(props.jobID)} size="xl">
         <Modal.Header>
           <div className="d-flex flex-row flex-fill">
             <div className="mr-auto">
@@ -396,12 +252,16 @@ function ManageJobs() {
             enableReinitialize={true}>
             <Form>
               <EditJobFields />
+              <br></br>
+              <h5>Catchments Job will be available to</h5>
+              {catchments.length > 0 && <FastField 
+                name="catchments"
+                component={CatchmentSelector} 
+                catchments={props.catchments} />
+              }
             </Form>
           </Formik>
-          <br></br>
-          <h5>Catchments Job will be available to</h5>
         </Modal.Body>
-        <CatchmentSelector catchments={props.catchments} selectedCatchments={props.selectedCatchments}></CatchmentSelector>
         <Modal.Footer>
           <button className="btn btn-primary" type="button" onClick={handleEditClose(props.jobID)}> 
             Submit
@@ -435,7 +295,7 @@ function ManageJobs() {
           <TableCell align="left">{row.status}</TableCell>
           <TableCell align="left">{row.deadline}</TableCell>
           <TableCell align="left" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "10px"}}>
-            {DisplayCatchments(row.catchments)}
+            {row.catchments.join(", ")}
           </TableCell>
           <TableCell align="left">{row.location}</TableCell>
           <TableCell align="left">{row.submissions}</TableCell>
@@ -562,11 +422,11 @@ function ManageJobs() {
                 <h1>Resume Bundler - Manage Jobs</h1>  
                 <p>Manage all job orders</p>  
             </div>
-            {jobOrders.length > 0 &&
+            {jobOrders.length > 0 && catchments.length > 0 &&
               <CollapsibleTable></CollapsibleTable>
             }
 
-            {jobOrders.length == 0 && // show spinner while fetching data
+            {(jobOrdersLoading || catchments.length == 0) && // show spinner while fetching data
               <CircularProgress />
             }
         </div>
