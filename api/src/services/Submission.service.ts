@@ -1,5 +1,5 @@
-import { JobOrder } from "../interfaces/job-order.interface";
-import { Submission, CreateSubmission, ClientApplication, Resume } from "../interfaces/submission.interface";
+import { JobOrder } from "../interfaces/JobOrder.interface";
+import { Submission, CreateSubmission, ClientApplication, Resume } from "../interfaces/Submission.interface";
 const fs = require("fs");
 const db = require('../db/db');
 const { customAlphabet } = require('nanoid');

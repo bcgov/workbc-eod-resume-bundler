@@ -4,7 +4,6 @@ import Dropzone from 'react-dropzone';
 import { makeStyles } from '@material-ui/core/styles';
 
 function SubmitToJobOrder({ applicants, setFieldValue }) {
-    //console.log(props.values.applicants);
     const useStyles = makeStyles((theme) => ({
         root: {
           '& > *': {
@@ -58,6 +57,7 @@ function SubmitToJobOrder({ applicants, setFieldValue }) {
                             <div className="form-group">
                                 <Dropzone 
                                     name={`applicants[${index}].resume`}
+                                    accept="application/pdf"
                                     onDrop={acceptedFiles => {
                                         acceptedFiles.forEach(file => {
                                             const reader = new FileReader();
@@ -65,22 +65,30 @@ function SubmitToJobOrder({ applicants, setFieldValue }) {
                                             reader.onerror = () => console.log('file reading has failed')
                                             reader.onload = () => {
                                                 const binaryStr = reader.result;
-                                                console.log(binaryStr.byteLength);
                                                 const data = new FormData();
                                                 data.append('file', binaryStr);
                                                 setFieldValue(`applicants[${index}].resume.buffer`, binaryStr);
                                                 setFieldValue(`applicants[${index}].resume.fileName`, file.name);
                                                 setFieldValue(`applicants[${index}].resume.fileType`, file.type);
-                                                console.log(data);
                                             }
                                             reader.readAsArrayBuffer(file);
                                         })
                                     }}
                                 >
-                                    {({ getRootProps, getInputProps }) => (
-                                        <div {...getRootProps({ style })}>
-                                            <input {...getInputProps()} />
-                                            <p style={{ margin: "auto", paddingTop: "30px", paddingBottom: "30px", textAlign: "center" }}>Drag and drop the file here, or Add Files</p>
+                                    {({ getRootProps, getInputProps, acceptedFiles }) => (
+                                        <div>
+                                            { acceptedFiles.length == 0 && 
+                                                <div {...getRootProps({ style })}>
+                                                    <input {...getInputProps()} />
+                                                    <p style={{ margin: "auto", paddingTop: "30px", paddingBottom: "30px", textAlign: "center" }}>Click to upload or drag and drop the resume here (pdf only)</p>
+                                                </div>
+                                            }
+                                            { acceptedFiles.length > 0 && 
+                                                <div {...getRootProps({ style })}>
+                                                    <input {...getInputProps()} />
+                                                    <p style={{ margin: "auto", paddingTop: "30px", paddingBottom: "30px", textAlign: "center" }}>{acceptedFiles[0].name}</p>
+                                                </div>
+                                            }
                                         </div>
                                     )}
                                 </Dropzone>
@@ -89,7 +97,6 @@ function SubmitToJobOrder({ applicants, setFieldValue }) {
                                 <label>
                                     <Field
                                         name={`applicants[${index}].consent`}
-                                        //name={`client${applicant.applicantID}Consent`}
                                         type="checkbox"
                                         style={{marginRight: "5px"}}/>
                                     I confirm that I have received written consent from the client to disclose their information to the employer
@@ -100,65 +107,6 @@ function SubmitToJobOrder({ applicants, setFieldValue }) {
                 </div>
             )}
             />
-            {/* <FieldArray
-                name="applicants"
-                render= {() => 
-                (
-                <div>
-                    <a style={{ color: 'grey', fontWeight: 'lighter' }}>Candidate {applicant.applicantID + 1}</a>
-                    <div className="form-row">
-                        <div className="form-group col-md-6">
-                            <label className="control-label" htmlFor={`clientName`}>Client Name</label>
-                            <Field
-                                name={`clientName`}
-                                type="text"
-                                className="form-control"
-                            />
-                            <ErrorMessage
-                                name={`client${applicant.applicantID}Name`}
-                                component="div"
-                                className="field-error"
-                            />
-                        </div>
-                        <div className="form-group col-md-6">
-                            <label className="control-label" htmlFor="clientCaseNumber">Client Case Number</label>
-                            <Field
-                                name={`client${applicant.applicantID}CaseNumber`}
-                                type="text"
-                                className="form-control"
-                            />
-                            <ErrorMessage
-                                name={`client${applicant.applicantID}CaseNumber`}
-                                component="div"
-                                className="field-error"
-                            />
-                        </div>
-                    </div>
-                    <div className="form-group">
-                        <Dropzone onDrop={acceptedFiles => {
-                        }}
-                        >
-                            {({ getRootProps, getInputProps }) => (
-                                <div {...getRootProps({ style })}>
-                                    <input {...getInputProps()} />
-                                    <p style={{ margin: "auto", paddingTop: "30px", paddingBottom: "30px", textAlign: "center" }}>Drag and drop the file here, or Add Files</p>
-                                </div>
-                            )}
-                        </Dropzone>
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="consent">
-                            <Field
-                                name={"candidates.consent"}
-                                //name={`client${applicant.applicantID}Consent`}
-                                type="checkbox"
-                                style={{marginRight: "5px"}}/>
-                            I confirm that I have received written consent from the client to disclose their information to the employer
-                        </label>
-                    </div>
-                </div>)
-                }
-            /> */}
         </div>
     );
 }

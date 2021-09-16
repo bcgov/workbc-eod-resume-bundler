@@ -235,7 +235,7 @@ function ViewJobOrders() {
     <div className="container">
         <div className="row">
             <div className="col-md-12">
-              <h1>EOD Resume Bundler - Available Job Orders</h1>  
+              <h1>Resume Bundler - Available Job Orders</h1>  
               <p>View available job orders and submit resumes</p>  
               <SearchBar
                 handleUpdate={handleUpdateEmployersToDisplay}

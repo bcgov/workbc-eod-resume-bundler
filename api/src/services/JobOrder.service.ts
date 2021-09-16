@@ -1,3 +1,5 @@
+import { Catchment } from "../interfaces/System.interface";
+
 const db = require('../db/db');
 const { customAlphabet } = require('nanoid');
 const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz',10);
@@ -7,7 +9,12 @@ export const getJobOrders = async () => {
     let jobOrders: any;
 
     await db.query(
-        `SELECT * FROM job_orders`
+        `SELECT job_orders.*, COUNT(submissions.job_id) AS submissions        
+        FROM job_orders
+        LEFT JOIN submissions
+        ON (job_orders.job_id = submissions.job_id)
+        GROUP BY
+            job_orders.job_id`
       )
     .then((resp: any) => {
         jobOrders = { count: resp.rowCount, jobs: resp.rows };
@@ -37,7 +44,9 @@ export const createJobOrder = async (body: any) => {
         body.deadline,
         body.location,
         body.vacancies,
-        body.catchments,
+        body.catchments
+            .map((c: any) => c.catchment_id)
+            .sort((a: number, b: number) => { return a - b }),
         body.otherInformation,
         body.jobDescriptionFile,
         body.status,
@@ -53,7 +62,7 @@ export const createJobOrder = async (body: any) => {
     return jobID;
 }
 
-// Create Job Order //
+// Close Job Order //
 export const setToClosed = async (jobOrderID: string) => {
     await db.query(
     `UPDATE job_orders SET Status = 'Closed' WHERE job_id = '${jobOrderID}'`

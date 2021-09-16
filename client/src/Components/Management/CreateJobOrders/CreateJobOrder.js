@@ -27,7 +27,7 @@ function CreateJobOrder() {
         <div className="container">
             <div className="row">
                 <div className="col-md-12">
-                    <h1>EOD Resume Bundler - Create Job Order</h1>
+                    <h1>Resume Bundler - Create Job Order</h1>
                     <CreateJobOrberForm />
                 </div>
             </div>

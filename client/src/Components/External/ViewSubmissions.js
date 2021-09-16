@@ -12,12 +12,8 @@ import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import IconButton from '@material-ui/core/IconButton';
 import EditIcon from '@material-ui/icons/Edit';
-import DownloadIcon from '@material-ui/icons/GetApp';
 import Collapse from '@material-ui/core/Collapse';
 import SearchBar from '../../utils/SearchBar';
-import { saveAs } from 'file-saver'
-import { useHistory } from 'react-router-dom';
-var fs = require('browserify-fs');
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -171,7 +167,7 @@ function ViewSubmissions() {
                 {props.submission.jobOrderInfo.location}
             </TableCell>
             <TableCell component="th" scope="row" className={classes.noBorder}>
-                {props.submission.createdDate}
+                {props.submission.createdDate.substring(0, 10)}
             </TableCell>
             <TableCell component="th" scope="row" className={classes.noBorder}>
                 {props.submission.applicants.length}
@@ -231,7 +227,7 @@ function ViewSubmissions() {
             </button>
         </TableCell>
         <TableCell align="left">{applicant.status}</TableCell>
-        <TableCell className="d-flex flex-row">
+        <TableCell className="flex-row">
           <button className="btn btn-primary btn-sm" type="button"> 
               <VisibilityIcon style={{color: "white"}}></VisibilityIcon> 
           </button>
@@ -247,7 +243,7 @@ function ViewSubmissions() {
     <div className="container">
         <div className="row">
             <div className="col-md-12">
-              <h1>EOD Resume Bundler - My Submissions</h1>  
+              <h1>Resume Bundler - My Submissions</h1>  
               <p>View submitted candidates to job orders</p>  
               <SearchBar
                 handleUpdate={handleUpdateSubmissionsToDisplay}

@@ -113,10 +113,10 @@ const CatchmentSelector = ({ field, catchments, form, ...props }) => {
             <Divider />
             <List className={classes.list} dense component="div" role="list">
                 {items.map((value) => {
-                    const labelId = `transfer-list-all-item-${value}-label`;
+                    const labelId = `transfer-list-all-item-${value.catchment_id}-label`;
 
                     return (
-                        <ListItem key={value} role="listitem" button onClick={handleToggle(value)}>
+                        <ListItem key={value.catchment_id} role="listitem" button onClick={handleToggle(value)}>
                             <ListItemIcon>
                                 <Checkbox
                                     checked={checked.indexOf(value) !== -1}
@@ -125,7 +125,7 @@ const CatchmentSelector = ({ field, catchments, form, ...props }) => {
                                     inputProps={{ 'aria-labelledby': labelId }}
                                 />
                             </ListItemIcon>
-                            <ListItemText id={labelId} primary={`${value}`} />
+                            <ListItemText id={labelId} primary={`${value.name}`} />
                         </ListItem>
                     );
                 })}

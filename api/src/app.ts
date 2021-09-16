@@ -19,6 +19,7 @@ const corsOptions = {
 
 var jobOrderRouter = require("./routes/JobOrder.route");
 var submissionRouter = require("./routes/Submission.route");
+var systemRouter = require("./routes/System.route");
 var app = express();
 
 app.use(express.json());
@@ -33,6 +34,7 @@ app.use(fileUpload());
 
 app.use("/JobOrders", jobOrderRouter);
 app.use("/Submissions", submissionRouter);
+app.use("/System", systemRouter);
 
 var port = process.env.PORT || '8000';
 app.listen( port, () => {
