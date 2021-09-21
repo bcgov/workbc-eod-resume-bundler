@@ -28,20 +28,36 @@ function SubmitToJobOrder(props) {
   }
 
   const [catchments, setCatchments] = useState([]);
+  const [centres, setCentres] = useState([]);
   
   useEffect(async () => {
     await getCatchments();
+    await getCentres();
 
     async function getCatchments() {
       const response = await fetch(FORM_URL.System + "/Catchments");
       const data = await response.json();
       setCatchments(data);
     }
-  }, [setCatchments]);
+
+    async function getCentres() {
+      const response = await fetch(FORM_URL.System + "/Centres");
+      const data = await response.json();
+      setCentres(data);
+    }
+  }, [setCatchments, setCentres]);
+
+  const displayCentresForCatchment = (catchmentID) => {
+    return centres
+            .filter(c => c.catchment_id == catchmentID)
+            .map(c => {
+              return <option value={c.centre_id}>{c.name}</option>
+            });
+  }
 
   return (
       <div className="container">
-        {props.location.jobID && catchments &&
+        {props.location.jobID && catchments && centres &&
           <div className="row">
               <div className="col-md-12">
                 <h1>Resume Bundler - Submitting to Job Order {props.location.jobID}</h1>  
@@ -119,9 +135,7 @@ function SubmitToJobOrder(props) {
                                             as="select"
                                             name="centre"
                                             className="form-control">
-                                            <option value="Centre A">Centre A</option>
-                                            <option value="Centre B">Centre B</option>
-                                            <option value="Centre C">Centre C</option>
+                                            {displayCentresForCatchment(values.catchment)}
                                         </Field>
                                         <ErrorMessage
                                             name="centre"
