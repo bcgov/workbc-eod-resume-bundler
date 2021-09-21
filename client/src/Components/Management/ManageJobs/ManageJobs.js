@@ -165,9 +165,12 @@ function ManageJobs() {
   }
 
   const DisplayCatchments = (catchmentIDs) => {
+    if(catchments.length == 0)
+      return "";
+
     return catchmentIDs
       .map(id => catchments.find(x => x.catchment_id == id).name)
-      .join(", ");
+      .join(", "); 
   }
 
   const EditModal = (props) => {

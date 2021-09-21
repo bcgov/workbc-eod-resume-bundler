@@ -68,14 +68,15 @@ const b64toBlob = (b64Data, contentType='', sliceSize=512) => {
 function ReviewReferral({location}) {
     const classes = useStyles();
 
-    console.log(location.props);
     let jobOrder = location.props;
 
     const [referrals, setReferrals] = useState([[]]);
     const [referralsToDisplay, setReferralsToDisplay] = useState([]);
+    const [catchments, setCatchments] = useState([]);
   
     useEffect(async () => {
       await getReferrals();
+      await getCatchments();
   
       async function getReferrals() {
         const response = await fetch(FORM_URL.Submissions);
@@ -84,14 +85,32 @@ function ReviewReferral({location}) {
         setReferrals(referrals);
         setReferralsToDisplay(referrals);
       }
-    }, [setReferrals]);
+
+      async function getCatchments() {
+        const response = await fetch(FORM_URL.System + "/Catchments");
+        const data = await response.json();
+        setCatchments(data);
+      }
+    }, [setReferrals, setCatchments]);
 
     const handleUpdateReferralsToDisplay = (searchString) => {
       //setReferralsToDisplay(referrals.filter(s => s.serviceProvider.toLowerCase().startsWith(searchString.toLowerCase())));
     }
 
-    const DisplayCatchments = (catchments) => {
-        return catchments.map(c => parseInt(c.substring(2)).toString()).join(", "); // TODO: currently throws a warning regarding keys for lists
+    const DisplayCatchments = (catchmentIDs) => {
+      if(catchments.length == 0)
+        return "";
+  
+      return catchmentIDs
+        .map(id => catchments.find(x => x.catchment_id.toString() == id).name)
+        .join(", "); 
+    }
+
+    const GetServiceProvider = (catchmentID) => {
+      if(catchments.length == 0)
+        return "";    
+        
+      return catchments.find(c => c.catchment_id.toString() == catchmentID).service_provider;  
     }
 
     const handleResumeDownload = (applicantID, submissionID) => async () => {
@@ -149,6 +168,7 @@ function ReviewReferral({location}) {
     
       const ReferralRow = (props) => {
         const [open, setOpen] = React.useState(false);
+        console.log(props.referral);
     
         return (
           <React.Fragment>
@@ -159,7 +179,7 @@ function ReviewReferral({location}) {
                   </IconButton>
                 </TableCell>
                 <TableCell component="th" scope="row" className={classes.noBorder}>
-                    {/* TODO */}
+                    {GetServiceProvider(props.referral.catchment)}
                 </TableCell>
                 <TableCell component="th" scope="row" className={classes.noBorder}>
                     {props.referral.catchment}
@@ -261,7 +281,7 @@ function ReviewReferral({location}) {
 
     return(
         <div className="container">
-          {jobOrder && 
+          {jobOrder && catchments &&
             <div>
               <div className="row">
                   <div className="col-md-12">
