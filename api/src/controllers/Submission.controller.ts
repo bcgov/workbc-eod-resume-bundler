@@ -42,14 +42,14 @@ export const createSubmission = async (req: any, res: express.Response) => {
 
   try {
     let body: CreateSubmission = {
-      catchment: req.body.catchment,
-      centre: req.body.centre,
+      catchmentID: req.body.catchment,
+      centreID: req.body.centre,
       jobID: req.body.jobID,
       applicants: req.body.applicants,
       user: req.body.user
     }
 
-    let createdID: string = await submissionService.createSubmission(req.body, req.files);
+    let createdID: string = await submissionService.createSubmission(body, req.files);
     return res.status(200).json({ createdID : createdID });
 
   } catch(e) {

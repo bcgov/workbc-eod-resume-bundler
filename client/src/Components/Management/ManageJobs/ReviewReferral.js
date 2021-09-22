@@ -72,11 +72,13 @@ function ReviewReferral({location}) {
 
     const [referrals, setReferrals] = useState([[]]);
     const [referralsToDisplay, setReferralsToDisplay] = useState([]);
-    const [catchments, setCatchments] = useState([]);
-  
+    const [catchments, setCatchments] = useState();
+    const [centres, setCentres] = useState();
+
     useEffect(async () => {
       await getReferrals();
       await getCatchments();
+      await getCentres();
   
       async function getReferrals() {
         const response = await fetch(FORM_URL.Submissions);
@@ -91,18 +93,20 @@ function ReviewReferral({location}) {
         const data = await response.json();
         setCatchments(data);
       }
-    }, [setReferrals, setCatchments]);
 
-    const handleUpdateReferralsToDisplay = (searchString) => {
-      //setReferralsToDisplay(referrals.filter(s => s.serviceProvider.toLowerCase().startsWith(searchString.toLowerCase())));
-    }
+      async function getCentres() {
+        const response = await fetch(FORM_URL.System + "/Centres");
+        const data = await response.json();
+        setCentres(data);
+      }
+    }, [setReferrals, setCatchments, setCentres]);
 
     const DisplayCatchments = (catchmentIDs) => {
       if(catchments.length == 0)
         return "";
   
       return catchmentIDs
-        .map(id => catchments.find(x => x.catchment_id.toString() == id).name)
+        .map(id => catchments.find(x => x.catchment_id == id).name)
         .join(", "); 
     }
 
@@ -110,7 +114,7 @@ function ReviewReferral({location}) {
       if(catchments.length == 0)
         return "";    
         
-      return catchments.find(c => c.catchment_id.toString() == catchmentID).service_provider;  
+      return catchments.find(c => c.catchment_id == catchmentID).service_provider;  
     }
 
     const handleResumeDownload = (applicantID, submissionID) => async () => {
@@ -137,6 +141,10 @@ function ReviewReferral({location}) {
               // Clean up and remove the link
               link.parentNode.removeChild(link);
             });
+    }
+
+    const handleUpdateReferralsToDisplay = () => {
+
     }
 
     const ReferralTable = () => {
@@ -168,7 +176,6 @@ function ReviewReferral({location}) {
     
       const ReferralRow = (props) => {
         const [open, setOpen] = React.useState(false);
-        console.log(props.referral);
     
         return (
           <React.Fragment>
@@ -179,13 +186,13 @@ function ReviewReferral({location}) {
                   </IconButton>
                 </TableCell>
                 <TableCell component="th" scope="row" className={classes.noBorder}>
-                    {GetServiceProvider(props.referral.catchment)}
+                    {GetServiceProvider(props.referral.catchmentID)}
                 </TableCell>
                 <TableCell component="th" scope="row" className={classes.noBorder}>
-                    {props.referral.catchment}
+                    {catchments.find(c => c.catchment_id == props.referral.catchmentID).name}
                 </TableCell>
                 <TableCell component="th" scope="row" className={classes.noBorder}>
-                    {props.referral.centre}
+                    {centres.find(c => c.centre_id == props.referral.centreID).name}
                 </TableCell>
                 <TableCell component="th" scope="row" className={classes.noBorder}>
                     {props.referral.applicants.length}
@@ -281,7 +288,7 @@ function ReviewReferral({location}) {
 
     return(
         <div className="container">
-          {jobOrder && catchments &&
+          {jobOrder && catchments && centres &&
             <div>
               <div className="row">
                   <div className="col-md-12">
