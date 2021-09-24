@@ -57,3 +57,41 @@ export const createSubmission = async (req: any, res: express.Response) => {
     return res.status(500).send("Internal Server Error");
   }
 };
+
+// Set Clients to Approved //
+export const setClientsToApproved = async (req: any, res: express.Response) => {
+  console.log("POST request received to " + req.get("host") + req.originalUrl);
+  console.log("request body: ");
+  console.log(req.body);
+
+  try {
+    let applicantIDs = req.body;
+    console.log(applicantIDs);
+
+    await submissionService.setClientsToApproved(applicantIDs);
+    return res.status(200).json("Client applications successfully set to Approved");
+
+  } catch(e) {
+    console.log(e);
+    return res.status(500).send("Internal Server Error");
+  }
+};
+
+// Set Clients to Flagged //
+export const setClientsToFlagged = async (req: any, res: express.Response) => {
+  console.log("POST request received to " + req.get("host") + req.originalUrl);
+  console.log("request body: ");
+  console.log(req.body);
+
+  try {
+    let applicantIDs = req.body;
+    console.log(applicantIDs);
+
+    await submissionService.setClientsToFlagged(applicantIDs);
+    return res.status(200).json("Client applications successfully set to Flagged");
+
+  } catch(e) {
+    console.log(e);
+    return res.status(500).send("Internal Server Error");
+  }
+};

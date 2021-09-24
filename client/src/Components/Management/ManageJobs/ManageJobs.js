@@ -115,7 +115,7 @@ function ManageJobs() {
     .catch(err => {
       console.log(err);
     });
-    setForceUpdate(forceUpdate + 1);
+    setForceUpdate(forceUpdate + 1); // force re-render
   }
 
   const createData = (id, employer, position, status, startDate, deadline, catchments, location, submissions, created, lastEdit, editedBy) => {

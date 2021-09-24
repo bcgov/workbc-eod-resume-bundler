@@ -154,7 +154,7 @@ export const createSubmission = async (createBody: CreateSubmission, files: any)
           applicant.resume?.fileName,
           applicant.resume?.fileType,
           applicant.consent,
-          "Active",
+          "Pending", // default status is Pending
           createBody.user,
           new Date()
           ]
@@ -173,6 +173,36 @@ export const createSubmission = async (createBody: CreateSubmission, files: any)
   return submissionID;
 }
 
+// Set Client Applications to Approved //
+export const setClientsToApproved = async (applicantIDs: string[]) => {
+  await db.query(
+  `UPDATE client_applications SET Status = 'Approved' WHERE client_application_id IN (${applicantIDs.map(a => "'" + a + "'").join(',')})`
+  )
+  .catch((err: any) => {
+      console.error("error while querying: ", err);
+      throw new Error(err.message);
+  });
+
+  return;
+}
+
+// Set Client Applications to Flagged //
+export const setClientsToFlagged = async (applicantIDs: string[]) => {
+  await db.query(
+  `UPDATE client_applications SET Status = 'Flagged' WHERE client_application_id IN (${applicantIDs.map(a => "'" + a + "'").join(',')})`
+  )
+  .catch((err: any) => {
+      console.error("error while querying: ", err);
+      throw new Error(err.message);
+  });
+
+  return;
+}
+
+
+
+
+// Helper Functions //
 function _base64ToArrayBuffer(base64: any) {
   var binary_string = window.atob(base64);
   var len = binary_string.length;
