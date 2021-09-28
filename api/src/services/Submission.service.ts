@@ -1,7 +1,10 @@
 import { JobOrder } from "../interfaces/JobOrder.interface";
 import { Submission, CreateSubmission, ClientApplication, Resume } from "../interfaces/Submission.interface";
+import nodemailer, { Transporter } from "nodemailer";
+import { MailOptions } from "nodemailer/lib/json-transport";
 const fs = require("fs");
 const db = require('../db/db');
+const PDFMerger = require('pdf-merger-js');
 const { customAlphabet } = require('nanoid');
 const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz',10);
 
@@ -199,16 +202,69 @@ export const setClientsToFlagged = async (applicantIDs: string[]) => {
   return;
 }
 
+// Bundle and Send PDF //
+export const bundleAndSend = async (clientApplicationIDs: String[]) => {
+  try {
+      // Bundle PDFs //
+      let mergedPdf: any = null;
+      await db.query(
+        `SELECT 
+          client_application_id,
+          encode(ca.resume_file, 'base64') AS resume_file
+        FROM client_applications ca
+        WHERE ca.client_application_id IN (${clientApplicationIDs.map(a => "'" + a + "'").join(',')})`
+      )
+      .then(async (resp: any) => {
+        const merger = new PDFMerger();
+        await Promise.all(resp.rows.map(async (row: any) => await merger.add(Buffer.from(row.resume_file, "base64"))));
+        mergedPdf = await merger.saveAsBuffer();
+      })
+      .catch((err: any) => {
+          console.error("error while querying: ", err);
+          throw new Error(err.message);
+      });
 
+      // Send Emails //
+      let transporter: Transporter = nodemailer.createTransport({
+        host: "apps.smtp.gov.bc.ca",
+        port: 25,
+        secure: false,
+        tls: {
+            rejectUnauthorized: false
+        } // true for 465, false for other ports
+      });
 
-
-// Helper Functions //
-function _base64ToArrayBuffer(base64: any) {
-  var binary_string = window.atob(base64);
-  var len = binary_string.length;
-  var bytes = new Uint8Array(len);
-  for (var i = 0; i < len; i++) {
-      bytes[i] = binary_string.charCodeAt(i);
+      await transporter.verify()
+      .then(function (r) {
+          console.log("Transporter connected.")
+          // send mail with defined transport object
+          let message: MailOptions = {
+              from: 'Resume Bundler <donotreply@gov.bc.ca>', // sender address
+              to: 'branko.bajic@gov.bc.ca',// list of receivers
+              subject: "pdf bundle", // Subject line
+              html: "hi",
+              attachments: [
+                {
+                  filename: "bundled-resumes.pdf",
+                  content: mergedPdf,
+                  contentType: "application/pdf"
+                }
+              ]
+          };
+          let info = transporter.sendMail(message, (error, info) => {
+            if (error) {
+                throw new Error("An error occurred while sending the email, please try again. If the error persists please try again later.");
+            } else {
+                console.log("Message sent: %s", info.messageId);
+                return;
+            }
+          });
+      }).catch(function (e) {
+          console.log(e)
+          throw new Error("Error connecting to transporter");
+      });
+  } catch (error) {
+      console.log(error);
+      throw new Error("Error bundling");
   }
-  return bytes.buffer;
 }

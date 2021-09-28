@@ -80,6 +80,20 @@ function ReviewReferral({location}) {
     const [checkedClients, setCheckedClients] = useState([]);
     const [forceUpdate, setForceUpdate] = useState(0);
 
+    const [openRows, setOpenRows] = React.useState([]);
+    const handleRowToggle = (rowID) => {
+      const currentIndex = openRows.indexOf(rowID);
+      const newOpenRows = [...openRows];
+
+      if (currentIndex === -1) {
+        newOpenRows.push(rowID);
+      } else {
+        newOpenRows.splice(currentIndex, 1);
+      }
+
+      setOpenRows(newOpenRows);
+    };
+
     useEffect(async () => {
       await getReferrals();
       await getCatchments();
@@ -237,7 +251,10 @@ function ReviewReferral({location}) {
     const handleBundleClicked = () => () => {
       history.push({
         pathname: '/bundle',
-        props: referrals.filter(r => r.status === "Approved")
+        props: { 
+          submissions: referrals,
+          jobOrder: jobOrder
+        }
       });
     }
 
@@ -246,6 +263,7 @@ function ReviewReferral({location}) {
     }
 
     const ReferralTable = () => {
+
         return (
             <TableContainer>
               <Table className={classes.table}>
@@ -271,16 +289,19 @@ function ReviewReferral({location}) {
             </TableContainer>
         );
       }
-    
+
       const ReferralRow = (props) => {
         const [open, setOpen] = React.useState(false);
-    
+
         return (
           <React.Fragment>
             <TableRow>
                 <TableCell className={classes.noBorder}>
-                  <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
-                    {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                  <IconButton aria-label="expand row" size="small" onClick={() => {
+                    setOpen(!open)
+                    handleRowToggle(props.referral.submissionID)}
+                  }>
+                    {open || openRows.indexOf(props.referral.submissionID) !== -1 ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
                   </IconButton>
                 </TableCell>
                 <TableCell component="th" scope="row" className={classes.noBorder}>
@@ -298,7 +319,7 @@ function ReviewReferral({location}) {
             </TableRow>
             <TableRow>
               <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-                <Collapse in={open} timeout="auto">
+                <Collapse in={open || openRows.indexOf(props.referral.submissionID) !== -1} timeout="auto">
                   <ApplicantTable applicants={props.referral.applicants} submission={props.referral}/>
                 </Collapse>
               </TableCell>

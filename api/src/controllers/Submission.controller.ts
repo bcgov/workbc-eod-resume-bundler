@@ -66,7 +66,6 @@ export const setClientsToApproved = async (req: any, res: express.Response) => {
 
   try {
     let applicantIDs = req.body;
-    console.log(applicantIDs);
 
     await submissionService.setClientsToApproved(applicantIDs);
     return res.status(200).json("Client applications successfully set to Approved");
@@ -85,10 +84,27 @@ export const setClientsToFlagged = async (req: any, res: express.Response) => {
 
   try {
     let applicantIDs = req.body;
-    console.log(applicantIDs);
 
     await submissionService.setClientsToFlagged(applicantIDs);
     return res.status(200).json("Client applications successfully set to Flagged");
+
+  } catch(e) {
+    console.log(e);
+    return res.status(500).send("Internal Server Error");
+  }
+};
+
+// Bundle and Send Emails //
+export const bundleAndSend = async (req: express.Request, res: express.Response) => {
+  console.log("GET request received to " + req.get("host") + req.originalUrl);
+  console.log("request body: ");
+  console.log(req.body);
+
+  try {
+    let applicantIDs = req.body.clientApplicationIDs;
+
+    await submissionService.bundleAndSend(applicantIDs);
+    return res.status(200).send();
 
   } catch(e) {
     console.log(e);

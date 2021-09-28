@@ -21,7 +21,7 @@ function SubmitToJobOrder(props) {
 
   let initialValues = {
     catchment: 1,
-    centre: "Centre A",
+    centre: 1,
     applicants: applicants,
     jobID: props.location.jobID,
     user: keycloak.tokenParsed?.preferred_username
