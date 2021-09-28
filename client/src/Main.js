@@ -12,6 +12,8 @@ import ViewJobOrders from './Components/External/ViewJobOrders'
 import ViewSubmissions from './Components/External/ViewSubmissions'
 import SubmitToJobOrder from './Components/External/SubmitToJobOrder'
 import SubmitToJobOrderSuccess from './Components/External/SubmitToJobOrderSuccess'
+import Bundle from './Components/Management/ManageJobs/Bundle'
+import BundleSuccess from './Components/Management/ManageJobs/BundleSuccess'
 
 
 function Main() {
@@ -28,10 +30,8 @@ function Main() {
                     <PrivateRoute component={ViewSubmissions} roles={['eod-staff', 'eod-contractor']} path="/submissionsExternal" />
                     <PrivateRoute component={SubmitToJobOrder} roles={['eod-staff', 'eod-contractor']} path="/submitToJobOrder" />
                     <PrivateRoute component={SubmitToJobOrderSuccess} roles={['eod-staff', 'eod-contractor']} path="/submitToJobOrderSuccess" />
-                    {/* <Route exact component={ViewJobOrders} path="/jobOrdersExternal" />
-                    <Route exact component={ViewSubmissions} path="/submissionsExternal" />
-                    <Route exact component={SubmitToJobOrder} path="/submitToJobOrder" />
-                    <Route exact component={SubmitToJobOrderSuccess} path="/submitToJobOrderSuccess" /> */}
+                    <PrivateRoute component={Bundle} roles={['eod-staff', 'eod-contractor']} path="/bundle" />
+                    <PrivateRoute component={BundleSuccess} roles={['eod-staff', 'eod-contractor']} path="/bundleSuccess" />
                     <Route exact path="/loginLanding" component={LoginLanding} />
                     <Route exact path="/" component={Home} />
                 </Switch>

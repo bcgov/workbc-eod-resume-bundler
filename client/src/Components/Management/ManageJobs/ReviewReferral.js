@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
 import { FORM_URL } from '../../../constants/form';
 import { makeStyles } from '@material-ui/core/styles';
 import SearchBar from '../../../utils/SearchBar';
@@ -16,6 +17,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import FlagIcon from '@material-ui/icons/Flag';
 import CheckIcon from '@material-ui/icons/Check';
 import Collapse from '@material-ui/core/Collapse';
+import Checkbox from "@material-ui/core/Checkbox";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -67,31 +69,74 @@ const b64toBlob = (b64Data, contentType='', sliceSize=512) => {
 
 function ReviewReferral({location}) {
     const classes = useStyles();
+    let history = useHistory();
 
-    console.log(location.props);
     let jobOrder = location.props;
 
     const [referrals, setReferrals] = useState([[]]);
     const [referralsToDisplay, setReferralsToDisplay] = useState([]);
-  
+    const [catchments, setCatchments] = useState();
+    const [centres, setCentres] = useState();
+    const [checkedClients, setCheckedClients] = useState([]);
+    const [forceUpdate, setForceUpdate] = useState(0);
+
+    const [openRows, setOpenRows] = React.useState([]);
+    const handleRowToggle = (rowID) => {
+      const currentIndex = openRows.indexOf(rowID);
+      const newOpenRows = [...openRows];
+
+      if (currentIndex === -1) {
+        newOpenRows.push(rowID);
+      } else {
+        newOpenRows.splice(currentIndex, 1);
+      }
+
+      setOpenRows(newOpenRows);
+    };
+
     useEffect(async () => {
       await getReferrals();
+      await getCatchments();
+      await getCentres();
   
       async function getReferrals() {
         const response = await fetch(FORM_URL.Submissions);
         const data = await response.json();
-        const referrals = data.submissions;
+        const referrals = data.submissions.sort((a,b) => a.catchmentID > b.catchmentID ? 1 : -1);
+        referrals.forEach(r => {
+          r.applicants.sort((a,b) => a.clientApplicationID > b.clientApplicationID ? 1 : -1);       
+        });
         setReferrals(referrals);
         setReferralsToDisplay(referrals);
       }
-    }, [setReferrals]);
 
-    const handleUpdateReferralsToDisplay = (searchString) => {
-      //setReferralsToDisplay(referrals.filter(s => s.serviceProvider.toLowerCase().startsWith(searchString.toLowerCase())));
+      async function getCatchments() {
+        const response = await fetch(FORM_URL.System + "/Catchments");
+        const data = await response.json();
+        setCatchments(data);
+      }
+
+      async function getCentres() {
+        const response = await fetch(FORM_URL.System + "/Centres");
+        const data = await response.json();
+        setCentres(data);
+      }
+    }, [setReferrals, setCatchments, setCentres, forceUpdate]);
+
+    const DisplayCatchments = (catchmentIDs) => {
+      if(catchments.length == 0)
+        return "";
+  
+      return catchmentIDs
+        .map(id => catchments.find(x => x.catchment_id == id).name)
+        .join(", "); 
     }
 
-    const DisplayCatchments = (catchments) => {
-        return catchments.map(c => parseInt(c.substring(2)).toString()).join(", "); // TODO: currently throws a warning regarding keys for lists
+    const GetServiceProvider = (catchmentID) => {
+      if(catchments.length == 0)
+        return "";    
+        
+      return catchments.find(c => c.catchment_id == catchmentID).service_provider;  
     }
 
     const handleResumeDownload = (applicantID, submissionID) => async () => {
@@ -120,7 +165,105 @@ function ReviewReferral({location}) {
             });
     }
 
+    const handleCheckboxChange = (event, clientApplicationID) => {
+      if (event.target.checked){
+        checkedClients.push(clientApplicationID);
+      }
+      else{
+        checkedClients.splice(checkedClients.indexOf(clientApplicationID));
+      }
+    }
+
+    const handleApproveSelectedClicked = () => async () => {
+      await fetch(FORM_URL.Submissions + "/setClientsToApproved", {
+        method: "POST",
+        credentials: 'include',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(checkedClients) // send all checked rows
+      })
+      .then(() => {
+        setCheckedClients([]);
+        setForceUpdate(forceUpdate + 1); // force re-render
+      })
+      .catch(err => {
+        console.log(err);
+      });
+    }
+
+    const handleFlagSelectedClicked = () => async () => {
+      await fetch(FORM_URL.Submissions + "/setClientsToFlagged", {
+        method: "POST",
+        credentials: 'include',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(checkedClients) // send all checked rows
+      })
+      .then(() => {
+        setCheckedClients([]);
+        setForceUpdate(forceUpdate + 1); // force re-render
+      })
+      .catch(err => {
+        console.log(err);
+      });
+    }
+
+    const handleApproveButtonClicked = (clientID) => async () => {
+      await fetch(FORM_URL.Submissions + "/setClientsToApproved", {
+        method: "POST",
+        credentials: 'include',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify([clientID]) // send client ID
+      })
+      .then(() => {
+        setForceUpdate(forceUpdate + 1); // force re-render
+      })
+      .catch(err => {
+        console.log(err);
+      });
+    }
+
+    const handleFlagButtonClicked = (clientID) => async () => {
+      await fetch(FORM_URL.Submissions + "/setClientsToFlagged", {
+        method: "POST",
+        credentials: 'include',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify([clientID]) // send client ID
+      })
+      .then(() => {
+        setForceUpdate(forceUpdate + 1); // force re-render
+      })
+      .catch(err => {
+        console.log(err);
+      });
+    }
+
+    const handleBundleClicked = () => () => {
+      history.push({
+        pathname: '/bundle',
+        props: { 
+          submissions: referrals,
+          jobOrder: jobOrder
+        }
+      });
+    }
+
+    const handleUpdateReferralsToDisplay = () => {
+
+    }
+
     const ReferralTable = () => {
+
         return (
             <TableContainer>
               <Table className={classes.table}>
@@ -146,26 +289,29 @@ function ReviewReferral({location}) {
             </TableContainer>
         );
       }
-    
+
       const ReferralRow = (props) => {
         const [open, setOpen] = React.useState(false);
-    
+
         return (
           <React.Fragment>
             <TableRow>
                 <TableCell className={classes.noBorder}>
-                  <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
-                    {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                  <IconButton aria-label="expand row" size="small" onClick={() => {
+                    setOpen(!open)
+                    handleRowToggle(props.referral.submissionID)}
+                  }>
+                    {open || openRows.indexOf(props.referral.submissionID) !== -1 ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
                   </IconButton>
                 </TableCell>
                 <TableCell component="th" scope="row" className={classes.noBorder}>
-                    {/* TODO */}
+                    {GetServiceProvider(props.referral.catchmentID)}
                 </TableCell>
                 <TableCell component="th" scope="row" className={classes.noBorder}>
-                    {props.referral.catchment}
+                    {catchments.find(c => c.catchment_id == props.referral.catchmentID).name}
                 </TableCell>
                 <TableCell component="th" scope="row" className={classes.noBorder}>
-                    {props.referral.centre}
+                    {centres.find(c => c.centre_id == props.referral.centreID).name}
                 </TableCell>
                 <TableCell component="th" scope="row" className={classes.noBorder}>
                     {props.referral.applicants.length}
@@ -173,7 +319,7 @@ function ReviewReferral({location}) {
             </TableRow>
             <TableRow>
               <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-                <Collapse in={open} timeout="auto" unmountOnExit>
+                <Collapse in={open || openRows.indexOf(props.referral.submissionID) !== -1} timeout="auto">
                   <ApplicantTable applicants={props.referral.applicants} submission={props.referral}/>
                 </Collapse>
               </TableCell>
@@ -188,6 +334,7 @@ function ReviewReferral({location}) {
               <Table className={classes.table} aria-label="simple table">
                 <TableHead className={classes.tableHeader}>
                   <TableRow>
+                    <TableCell></TableCell> {/* empty column for checkbox */}
                     <TableCell style={{fontWeight: "bold"}}>ID</TableCell>
                     <TableCell style={{fontWeight: "bold"}} align="left">Client Name</TableCell>
                     <TableCell style={{fontWeight: "bold"}} align="left">Client Case #</TableCell>
@@ -217,12 +364,17 @@ function ReviewReferral({location}) {
       const ApplicantRow = ({ applicant, submission }) => {
         return (
           <TableRow>
+            <TableCell padding="checkbox">
+              <Checkbox
+                onChange={event => handleCheckboxChange(event, applicant.clientApplicationID)}
+              />
+            </TableCell>
             <TableCell component="th" scope="applicant">
-                {submission.submissionID}
+                {applicant.clientApplicationID}
             </TableCell>
             <TableCell align="left">{applicant.clientName}</TableCell>
             <TableCell align="left">{applicant.clientCaseNumber}</TableCell>
-            <TableCell align="left">{submission.createdDate.substring(0, 10)}</TableCell>
+            <TableCell align="left">{submission.createdDate.substring(0, 10)}</TableCell> {/* substring to remove timestamp */}
             <TableCell align="left">
               <button 
                 type="button" 
@@ -238,10 +390,10 @@ function ReviewReferral({location}) {
               <button className="btn btn-primary btn-sm" type="button"> 
                   <VisibilityIcon style={{color: "white"}}></VisibilityIcon> 
               </button>
-              <button className="btn btn-primary btn-sm" type="button">
+              <button className="btn btn-primary btn-sm" type="button" onClick={handleFlagButtonClicked(applicant.clientApplicationID)}>
                   <FlagIcon style={{color: "white"}}></FlagIcon>
               </button>
-              <button className="btn btn-primary btn-sm" type="button">
+              <button className="btn btn-primary btn-sm" type="button" onClick={handleApproveButtonClicked(applicant.clientApplicationID)}>
                   <CheckIcon style={{color: "white"}}></CheckIcon>
               </button>
             </TableCell>
@@ -261,7 +413,7 @@ function ReviewReferral({location}) {
 
     return(
         <div className="container">
-          {jobOrder && 
+          {jobOrder && catchments && centres &&
             <div>
               <div className="row">
                   <div className="col-md-12">
@@ -294,7 +446,7 @@ function ReviewReferral({location}) {
                           Location: {jobOrder.location}
                       </div>
                       <div>
-                          Referrals: {jobOrder.referrals}
+                          Referrals: {referrals.length}
                       </div>
                       <div>
                           Last Edit: {jobOrder.lastEdit}
@@ -312,6 +464,17 @@ function ReviewReferral({location}) {
                           label={"Find Referral"}
                       />
                       <ReferralTable/>
+                      <div className="d-flex row justify-content-end mt-5">
+                        <button className="btn btn-success mr-5" onClick={handleFlagSelectedClicked()}>
+                          Flag Selected
+                        </button>
+                        <button className="btn btn-success mr-5" onClick={handleApproveSelectedClicked()}>
+                          Approve Selected
+                        </button>
+                        <button className="btn btn-success mr-5" onClick={handleBundleClicked()}>
+                          Bundle/Send Approved
+                        </button>
+                      </div>
                   </div>
               </div>
             </div>

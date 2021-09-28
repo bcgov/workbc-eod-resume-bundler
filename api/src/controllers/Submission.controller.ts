@@ -42,15 +42,69 @@ export const createSubmission = async (req: any, res: express.Response) => {
 
   try {
     let body: CreateSubmission = {
-      catchment: req.body.catchment,
-      centre: req.body.centre,
+      catchmentID: req.body.catchment,
+      centreID: req.body.centre,
       jobID: req.body.jobID,
       applicants: req.body.applicants,
       user: req.body.user
     }
 
-    let createdID: string = await submissionService.createSubmission(req.body, req.files);
+    let createdID: string = await submissionService.createSubmission(body, req.files);
     return res.status(200).json({ createdID : createdID });
+
+  } catch(e) {
+    console.log(e);
+    return res.status(500).send("Internal Server Error");
+  }
+};
+
+// Set Clients to Approved //
+export const setClientsToApproved = async (req: any, res: express.Response) => {
+  console.log("POST request received to " + req.get("host") + req.originalUrl);
+  console.log("request body: ");
+  console.log(req.body);
+
+  try {
+    let applicantIDs = req.body;
+
+    await submissionService.setClientsToApproved(applicantIDs);
+    return res.status(200).json("Client applications successfully set to Approved");
+
+  } catch(e) {
+    console.log(e);
+    return res.status(500).send("Internal Server Error");
+  }
+};
+
+// Set Clients to Flagged //
+export const setClientsToFlagged = async (req: any, res: express.Response) => {
+  console.log("POST request received to " + req.get("host") + req.originalUrl);
+  console.log("request body: ");
+  console.log(req.body);
+
+  try {
+    let applicantIDs = req.body;
+
+    await submissionService.setClientsToFlagged(applicantIDs);
+    return res.status(200).json("Client applications successfully set to Flagged");
+
+  } catch(e) {
+    console.log(e);
+    return res.status(500).send("Internal Server Error");
+  }
+};
+
+// Bundle and Send Emails //
+export const bundleAndSend = async (req: express.Request, res: express.Response) => {
+  console.log("GET request received to " + req.get("host") + req.originalUrl);
+  console.log("request body: ");
+  console.log(req.body);
+
+  try {
+    let applicantIDs = req.body.clientApplicationIDs;
+
+    await submissionService.bundleAndSend(applicantIDs);
+    return res.status(200).send();
 
   } catch(e) {
     console.log(e);

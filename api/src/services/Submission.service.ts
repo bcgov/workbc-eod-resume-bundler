@@ -1,7 +1,10 @@
 import { JobOrder } from "../interfaces/JobOrder.interface";
 import { Submission, CreateSubmission, ClientApplication, Resume } from "../interfaces/Submission.interface";
+import nodemailer, { Transporter } from "nodemailer";
+import { MailOptions } from "nodemailer/lib/json-transport";
 const fs = require("fs");
 const db = require('../db/db');
+const PDFMerger = require('pdf-merger-js');
 const { customAlphabet } = require('nanoid');
 const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz',10);
 
@@ -13,8 +16,8 @@ export const getSubmissions = async () => {
         `SELECT 
           s.submission_id,
           s.job_id,
-          s.catchment,
-          s.centre,
+          s.catchment_id,
+          s.centre_id,
           s.created_date,
           s.created_by,
           ca.client_application_id,
@@ -51,8 +54,8 @@ export const getSubmissions = async () => {
             let submission: Submission = {
               submissionID: a.submission_id,
               jobID: a.job_id,
-              catchment: a.catchment,
-              centre: a.centre,
+              catchmentID: a.catchment_id,
+              centreID: a.centre_id,
               jobOrderInfo: job,
               applicants: [applicant],
               createdDate: a.created_date,
@@ -124,13 +127,13 @@ export const createSubmission = async (createBody: CreateSubmission, files: any)
   let applicants = JSON.parse(createBody.applicants.toString());
   await db.query(
     `INSERT INTO submissions (
-        submission_id, job_id, catchment, centre, bundled, created_by, created_date)
+        submission_id, job_id, catchment_id, centre_id, bundled, created_by, created_date)
         VALUES 
         ($1, $2, $3, $4, $5, $6, $7)`,
         [submissionID,
         createBody.jobID,
-        createBody.catchment,
-        createBody.centre,
+        createBody.catchmentID,
+        createBody.centreID,
         false,
         createBody.user,
         new Date()
@@ -141,20 +144,20 @@ export const createSubmission = async (createBody: CreateSubmission, files: any)
       const clientApplicationID: string = nanoid();
       await db.query(
         `INSERT INTO client_applications (
-          client_application_id, submission_id, catchment, centre, client_name, client_case_number, resume_file, resume_file_name, resume_file_type, consent, status, created_by, created_date)
+          client_application_id, submission_id, catchment_id, centre_id, client_name, client_case_number, resume_file, resume_file_name, resume_file_type, consent, status, created_by, created_date)
           VALUES 
           ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
           [clientApplicationID,
           submissionID,
-          createBody.catchment,
-          createBody.centre,
+          createBody.catchmentID,
+          createBody.centreID,
           applicant.clientName,
           applicant.clientCaseNumber,
           files[applicant.applicantID].data,
           applicant.resume?.fileName,
           applicant.resume?.fileType,
           applicant.consent,
-          "Active",
+          "Pending", // default status is Pending
           createBody.user,
           new Date()
           ]
@@ -173,12 +176,95 @@ export const createSubmission = async (createBody: CreateSubmission, files: any)
   return submissionID;
 }
 
-function _base64ToArrayBuffer(base64: any) {
-  var binary_string = window.atob(base64);
-  var len = binary_string.length;
-  var bytes = new Uint8Array(len);
-  for (var i = 0; i < len; i++) {
-      bytes[i] = binary_string.charCodeAt(i);
+// Set Client Applications to Approved //
+export const setClientsToApproved = async (applicantIDs: string[]) => {
+  await db.query(
+  `UPDATE client_applications SET Status = 'Approved' WHERE client_application_id IN (${applicantIDs.map(a => "'" + a + "'").join(',')})`
+  )
+  .catch((err: any) => {
+      console.error("error while querying: ", err);
+      throw new Error(err.message);
+  });
+
+  return;
+}
+
+// Set Client Applications to Flagged //
+export const setClientsToFlagged = async (applicantIDs: string[]) => {
+  await db.query(
+  `UPDATE client_applications SET Status = 'Flagged' WHERE client_application_id IN (${applicantIDs.map(a => "'" + a + "'").join(',')})`
+  )
+  .catch((err: any) => {
+      console.error("error while querying: ", err);
+      throw new Error(err.message);
+  });
+
+  return;
+}
+
+// Bundle and Send PDF //
+export const bundleAndSend = async (clientApplicationIDs: String[]) => {
+  try {
+      // Bundle PDFs //
+      let mergedPdf: any = null;
+      await db.query(
+        `SELECT 
+          client_application_id,
+          encode(ca.resume_file, 'base64') AS resume_file
+        FROM client_applications ca
+        WHERE ca.client_application_id IN (${clientApplicationIDs.map(a => "'" + a + "'").join(',')})`
+      )
+      .then(async (resp: any) => {
+        const merger = new PDFMerger();
+        await Promise.all(resp.rows.map(async (row: any) => await merger.add(Buffer.from(row.resume_file, "base64"))));
+        mergedPdf = await merger.saveAsBuffer();
+      })
+      .catch((err: any) => {
+          console.error("error while querying: ", err);
+          throw new Error(err.message);
+      });
+
+      // Send Emails //
+      let transporter: Transporter = nodemailer.createTransport({
+        host: "apps.smtp.gov.bc.ca",
+        port: 25,
+        secure: false,
+        tls: {
+            rejectUnauthorized: false
+        } // true for 465, false for other ports
+      });
+
+      await transporter.verify()
+      .then(function (r) {
+          console.log("Transporter connected.")
+          // send mail with defined transport object
+          let message: MailOptions = {
+              from: 'Resume Bundler <donotreply@gov.bc.ca>', // sender address
+              to: 'branko.bajic@gov.bc.ca',// list of receivers
+              subject: "pdf bundle", // Subject line
+              html: "hi",
+              attachments: [
+                {
+                  filename: "bundled-resumes.pdf",
+                  content: mergedPdf,
+                  contentType: "application/pdf"
+                }
+              ]
+          };
+          let info = transporter.sendMail(message, (error, info) => {
+            if (error) {
+                throw new Error("An error occurred while sending the email, please try again. If the error persists please try again later.");
+            } else {
+                console.log("Message sent: %s", info.messageId);
+                return;
+            }
+          });
+      }).catch(function (e) {
+          console.log(e)
+          throw new Error("Error connecting to transporter");
+      });
+  } catch (error) {
+      console.log(error);
+      throw new Error("Error bundling");
   }
-  return bytes.buffer;
 }
