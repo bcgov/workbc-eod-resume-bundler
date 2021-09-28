@@ -18,6 +18,40 @@
 
 -- GRANT ALL ON SCHEMA public TO postgres;
 
+CREATE TABLE IF NOT EXISTS public.catchments
+(
+    catchment_id integer NOT NULL,
+    name character varying COLLATE pg_catalog."default" NOT NULL,
+    service_provider character varying COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT catchments_pkey PRIMARY KEY (catchment_id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE public.catchments
+    OWNER to postgres;
+
+
+
+CREATE TABLE IF NOT EXISTS public.centres
+(
+    centre_id integer NOT NULL,
+    catchment_id integer NOT NULL,
+    name character varying COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT centres_pkey PRIMARY KEY (centre_id),
+    CONSTRAINT centres_fkey FOREIGN KEY (catchment_id)
+        REFERENCES public.catchments (catchment_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE public.centres
+    OWNER to postgres;
+
+    
+
 CREATE TABLE IF NOT EXISTS public.job_orders
 (
     job_id character varying COLLATE pg_catalog."default" NOT NULL,
@@ -49,13 +83,21 @@ CREATE TABLE IF NOT EXISTS public.submissions
 (
     submission_id character varying COLLATE pg_catalog."default" NOT NULL,
     job_id character varying COLLATE pg_catalog."default" NOT NULL,
-    catchment character varying COLLATE pg_catalog."default" NOT NULL,
-    centre character varying COLLATE pg_catalog."default" NOT NULL,
+    catchment_id integer NOT NULL,
+    centre_id integer NOT NULL,
     bundled boolean,
     created_date date,
     created_by character varying COLLATE pg_catalog."default",
     CONSTRAINT submissions_pkey PRIMARY KEY (submission_id),
-    CONSTRAINT job_orders_fkey FOREIGN KEY (job_id)
+    CONSTRAINT submissions_fkey_catchments FOREIGN KEY (catchment_id)
+        REFERENCES public.catchments (catchment_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT submissions_fkey_centres FOREIGN KEY (centre_id)
+        REFERENCES public.centres (centre_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT submissions_fkey_job_orders FOREIGN KEY (job_id)
         REFERENCES public.job_orders (job_id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
@@ -71,8 +113,8 @@ CREATE TABLE IF NOT EXISTS public.client_applications
 (
     client_application_id character varying COLLATE pg_catalog."default" NOT NULL,
     submission_id character varying COLLATE pg_catalog."default" NOT NULL,
-    catchment character varying COLLATE pg_catalog."default" NOT NULL,
-    centre character varying COLLATE pg_catalog."default" NOT NULL,
+    catchment_id integer NOT NULL,
+    centre_id integer NOT NULL,
     client_name character varying COLLATE pg_catalog."default" NOT NULL,
     client_case_number character varying COLLATE pg_catalog."default" NOT NULL,
     resume_file bytea,
@@ -85,10 +127,23 @@ CREATE TABLE IF NOT EXISTS public.client_applications
     bundled boolean,
     created_date date,
     created_by character varying COLLATE pg_catalog."default",
-    CONSTRAINT client_applications_pkey PRIMARY KEY (client_application_id)
+    CONSTRAINT client_applications_pkey PRIMARY KEY (client_application_id),
+    CONSTRAINT client_applications_fkey_catchments FOREIGN KEY (catchment_id)
+        REFERENCES public.catchments (catchment_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT client_applications_fkey_centres FOREIGN KEY (centre_id)
+        REFERENCES public.centres (centre_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT client_applications_fkey_submissions FOREIGN KEY (submission_id)
+        REFERENCES public.submissions (submission_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
 )
 
 TABLESPACE pg_default;
 
 ALTER TABLE public.client_applications
     OWNER to postgres;
+
