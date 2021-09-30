@@ -4,6 +4,7 @@ import { FORM_URL } from '../../constants/form'
 import ApplicantForm from './ApplicantForm';
 import { useKeycloak } from '@react-keycloak/web';
 import { useHistory } from 'react-router-dom';
+import * as yup from 'yup';
 
 function SubmitToJobOrder(props) {
   const { keycloak } = useKeycloak();
@@ -15,7 +16,7 @@ function SubmitToJobOrder(props) {
         clientName: "", 
         clientCaseNumber: "", 
         consent: false,
-        resume: {}
+        resume: null
       }
   ]);
 
@@ -26,6 +27,20 @@ function SubmitToJobOrder(props) {
     jobID: props.location.jobID,
     user: keycloak.tokenParsed?.preferred_username
   }
+
+  const SubmissionValidationSchema = yup.object().shape({
+    catchment: yup.number().required("required"),
+    centre: yup.number().required("required"),
+    applicants: yup.array().of(
+        yup.object({
+            applicantID: yup.number(),
+            clientName: yup.string().required("required"),
+            clientCaseNumber: yup.string().required("required"),
+            consent: yup.boolean().oneOf([true], "confirmation required"),
+            resume: yup.object().required().typeError("please upload a resume")
+        })
+    )
+  });
 
   const [catchments, setCatchments] = useState([]);
   const [centres, setCentres] = useState([]);
@@ -65,6 +80,7 @@ function SubmitToJobOrder(props) {
                 <Formik
                   initialValues={initialValues}
                   enableReinitialize={true}
+                  validationSchema={SubmissionValidationSchema}
                   onSubmit={(values, { resetForm, setErrors, setStatus, setSubmitting }) => {
                     let formData = new FormData();
                     formData.append("catchment", values.catchment);
@@ -171,7 +187,7 @@ function SubmitToJobOrder(props) {
                                           applicantID: applicants.length,
                                           clientName: "", 
                                           clientCaseNumber: "",
-                                          resume: {},
+                                          resume: null,
                                           consent: false
                                        }));
                                     }}>

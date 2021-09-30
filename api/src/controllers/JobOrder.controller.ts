@@ -1,7 +1,7 @@
 import * as express from "express";
 import { ValidationError } from "yup";
 import * as jobOrderService from "../services/JobOrder.service";
-var JobOrderValidationSchema = require('../schemas/JobOrderValidationSchema');
+import { JobOrderValidationSchema } from "../schemas/JobOrderValidationSchema";
 
 // Get Job Orders //
 export const getJobOrders = async (req: express.Request, res: express.Response) => {
