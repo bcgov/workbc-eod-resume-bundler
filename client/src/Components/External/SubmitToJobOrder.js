@@ -36,8 +36,8 @@ function SubmitToJobOrder(props) {
             applicantID: yup.number(),
             clientName: yup.string().required("required"),
             clientCaseNumber: yup.string().required("required"),
-            consent: yup.boolean().oneOf([true], "confirmation required"),
-            resume: yup.object().required().typeError("please upload a resume")
+            consent: yup.boolean().oneOf([true], "required"),
+            resume: yup.object().required().typeError("required")
         })
     )
   });

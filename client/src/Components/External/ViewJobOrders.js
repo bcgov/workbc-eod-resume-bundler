@@ -9,12 +9,12 @@ import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import IconButton from '@material-ui/core/IconButton';
 import Collapse from '@material-ui/core/Collapse';
 import SearchBar from '../../utils/SearchBar';
+import ViewJobOrderModal from './ViewJobOrderModal';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -61,16 +61,44 @@ function ViewJobOrders() {
   const classes = useStyles();
   const history = useHistory();
 
+  const [openRows, setOpenRows] = React.useState([]);
+  const handleRowToggle = (rowID) => {
+    const currentIndex = openRows.indexOf(rowID);
+    const newOpenRows = [...openRows];
+
+    if (currentIndex === -1) {
+      newOpenRows.push(rowID);
+    } else {
+      newOpenRows.splice(currentIndex, 1);
+    }
+
+    setOpenRows(newOpenRows);
+  };
+
   const [jobOrders, setJobOrders] = useState([]);
   const [employers, setEmployers] = useState([]);
   const [employersToDisplay, setEmployersToDisplay] = useState([]);
+  const [catchments, setCatchments] = useState([]);
 
   const handleUpdateEmployersToDisplay = (searchString) => {
     setEmployersToDisplay(employers.filter(e => e.toLowerCase().startsWith(searchString.toLowerCase())));
   }
 
+  const [showView, setShowView] = useState({});
+  const handleViewClose = jobID => () => {
+    setShowView(showView => ({
+      ...showView,
+      [jobID] : false}))
+  }
+  const handleViewShow = jobID => () => {
+    setShowView(showView => ({
+      ...showView,
+      [jobID] : true}));
+  }
+
   useEffect(async () => {
     await getJobOrders();
+    await getCatchments();
 
     async function getJobOrders() {
       const response = await fetch(FORM_URL.JobOrders);
@@ -91,18 +119,13 @@ function ViewJobOrders() {
       setEmployersToDisplay(uniqueEmployers);
     }
 
-  }, [setJobOrders]);
+    async function getCatchments() {
+      const response = await fetch(FORM_URL.System + "/Catchments");
+      const data = await response.json();
+      setCatchments(data);
+    }
 
-  const createJobData = (id, position, location, openDate, deadline, vacancies) => {
-      return {
-          id,
-          position,
-          location,
-          openDate,
-          deadline,
-          vacancies
-      };
-  }
+  }, [setJobOrders, setCatchments]);
 
   const getJobOrdersForEmployer = (employer) => {
     return jobOrders.filter(jo => jo.employer == employer);
@@ -138,8 +161,11 @@ function ViewJobOrders() {
     <React.Fragment>
       <TableRow>
           <TableCell className={classes.noBorder}>
-            <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
-              {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+            <IconButton aria-label="expand row" size="small" onClick={() => {
+                setOpen(!open)
+                handleRowToggle(props.employer)}
+              }>
+                {open || openRows.indexOf(props.employer) !== -1 ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
             </IconButton>
           </TableCell>
           <TableCell component="th" scope="row" className={classes.noBorder}>
@@ -148,7 +174,7 @@ function ViewJobOrders() {
       </TableRow>
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-          <Collapse in={open} timeout="auto" unmountOnExit>
+          <Collapse in={open || openRows.indexOf(props.employer) !== -1} timeout="auto" unmountOnExit>
             <JobTable jobOrders={getJobOrdersForEmployer(props.employer)}></JobTable>
           </Collapse>
         </TableCell>
@@ -176,17 +202,7 @@ function ViewJobOrders() {
             <TableBody>
               { props.jobOrders && (
                 props.jobOrders?.map(jobOrder => (
-                  <JobRow 
-                    key={jobOrder.job_id} 
-                    row={createJobData(
-                      jobOrder.job_id,
-                      jobOrder.position,
-                      jobOrder.location,
-                      jobOrder.start_date.substring(0, 10),
-                      jobOrder.deadline.substring(0, 10),
-                      jobOrder.vacancies
-                      )}>
-                  </JobRow>
+                  <JobRow jobOrder={jobOrder} />
                 ))                
               )}
             </TableBody>
@@ -195,39 +211,45 @@ function ViewJobOrders() {
     );
   }
 
-  const JobRow = (props) => {
-    const { row } = props;
-
+  const JobRow = ({jobOrder}) => {
     return (
-    <TableRow>
-        <TableCell component="th" scope="row">
-            {row.id}
-        </TableCell>
-        <TableCell align="left">{row.position}</TableCell>
-        <TableCell align="left">{row.location}</TableCell>
-        <TableCell align="left">{row.openDate}</TableCell>
-        <TableCell align="left">{row.deadline}</TableCell>
-        <TableCell align="left">{row.vacancies}</TableCell>
-        <TableCell align="center">
-            <button className="btn btn-primary btn-sm" type="button"> 
-                <VisibilityIcon style={{color: "white"}}></VisibilityIcon> 
-            </button>
-        </TableCell>
-        <TableCell align="right">
-            <div className="cold-md-6">
-                <a
-                    type="button"
-                    className="btn btn-block"
-                    style={{ backgroundColor: "grey", color: "white"}}
-                    onClick={() => history.push({
-                              pathname: "/submitToJobOrder",
-                              jobID: row.id
-                            })}>
-                Submit
-                </a>
-            </div>
-        </TableCell>
-    </TableRow>
+    <React.Fragment>
+      <TableRow>
+          <TableCell component="th" scope="row">
+              {jobOrder.job_id}
+          </TableCell>
+          <TableCell align="left">{jobOrder.position}</TableCell>
+          <TableCell align="left">{jobOrder.location}</TableCell>
+          <TableCell align="left">{jobOrder.start_date.substring(0, 10)}</TableCell>
+          <TableCell align="left">{jobOrder.deadline.substring(0, 10)}</TableCell>
+          <TableCell align="left">{jobOrder.vacancies}</TableCell>
+          <TableCell align="center">
+              <button className="btn btn-primary btn-sm" type="button" onClick={handleViewShow(jobOrder.job_id)}> 
+                  <VisibilityIcon style={{color: "white"}}></VisibilityIcon> 
+              </button>
+          </TableCell>
+          <TableCell align="right">
+              <div className="cold-md-6">
+                  <a
+                      type="button"
+                      className="btn btn-block"
+                      style={{ backgroundColor: "grey", color: "white"}}
+                      onClick={() => history.push({
+                                pathname: "/submitToJobOrder",
+                                jobID: jobOrder.job_id
+                              })}>
+                  Submit
+                  </a>
+              </div>
+          </TableCell>
+      </TableRow>
+      <ViewJobOrderModal 
+        jobOrder={jobOrder} 
+        catchments={catchments}
+        show={showView} 
+        handleClose={handleViewClose}>
+      </ViewJobOrderModal>
+    </React.Fragment>
     );
   }
 
