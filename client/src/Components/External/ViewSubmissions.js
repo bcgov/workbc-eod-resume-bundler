@@ -14,6 +14,7 @@ import IconButton from '@material-ui/core/IconButton';
 import EditIcon from '@material-ui/icons/Edit';
 import Collapse from '@material-ui/core/Collapse';
 import SearchBar from '../../utils/SearchBar';
+import ViewClientModal from './ViewClientModal';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -65,11 +66,36 @@ const b64toBlob = (b64Data, contentType='', sliceSize=512) => {
 function ViewSubmissions() {
   const classes = useStyles();
 
+  const [openRows, setOpenRows] = React.useState([]);
+  const handleRowToggle = (rowID) => {
+    const currentIndex = openRows.indexOf(rowID);
+    const newOpenRows = [...openRows];
+
+    if (currentIndex === -1) {
+      newOpenRows.push(rowID);
+    } else {
+      newOpenRows.splice(currentIndex, 1);
+    }
+
+    setOpenRows(newOpenRows);
+  };
+
   const [submissions, setSubmissions] = useState([[]]);
   const [submissionsToDisplay, setSubmissionsToDisplay] = useState([]);
-
   const handleUpdateSubmissionsToDisplay = (searchString) => {
     setSubmissionsToDisplay(submissions.filter(s => s.jobOrderInfo.employer.toLowerCase().startsWith(searchString.toLowerCase())));
+  }
+
+  const [showView, setShowView] = useState({});
+  const handleViewClose = clientID => () => {
+    setShowView(showView => ({
+      ...showView,
+      [clientID] : false}))
+  }
+  const handleViewShow = clientID => () => {
+    setShowView(showView => ({
+      ...showView,
+      [clientID] : true}));
   }
 
   const handleResumeDownload = (applicantID, submissionID) => async () => {
@@ -98,6 +124,10 @@ function ViewSubmissions() {
           });
   }
 
+  const handleViewSubmission = (submission, applicant) => {
+
+  }
+
   useEffect(async () => {
     await getSubmissions();
 
@@ -105,10 +135,13 @@ function ViewSubmissions() {
       const response = await fetch(FORM_URL.Submissions);
       const data = await response.json();
       const submissions = data.submissions;
+      console.log(submissions)
       setSubmissions(submissions);
       setSubmissionsToDisplay(submissions);
     }
   }, [setSubmissions]);
+
+
 
   const SubmissionTable = () => {
     return (
@@ -147,8 +180,11 @@ function ViewSubmissions() {
       <React.Fragment>
         <TableRow>
             <TableCell className={classes.noBorder}>
-              <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
-                {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+              <IconButton aria-label="expand row" size="small" onClick={() => {
+                setOpen(!open)
+                handleRowToggle(props.submission.submissionID)}
+              }>
+                {open || openRows.indexOf(props.submission.submissionID) !== -1 ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
               </IconButton>
             </TableCell>
             <TableCell component="th" scope="row" className={classes.noBorder}>
@@ -175,8 +211,8 @@ function ViewSubmissions() {
         </TableRow>
         <TableRow>
           <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-            <Collapse in={open} timeout="auto" unmountOnExit>
-              <ApplicantTable applicants={props.submission.applicants} submissionID={props.submission.submissionID}/>
+            <Collapse in={open || openRows.indexOf(props.submission.submissionID) !== -1} timeout="auto" unmountOnExit>
+              <ApplicantTable applicants={props.submission.applicants} submission={props.submission}/>
             </Collapse>
           </TableCell>
         </TableRow>
@@ -201,7 +237,7 @@ function ViewSubmissions() {
                 props.applicants?.map(a => (
                   <ApplicantRow 
                     applicant={a}
-                    submissionID={props.submissionID}
+                    submission={props.submission}
                   />
                 ))                
               )}
@@ -211,31 +247,39 @@ function ViewSubmissions() {
     );
   }
 
-  const ApplicantRow = ({ applicant, submissionID }) => {
+  const ApplicantRow = ({ applicant, submission }) => {
     return (
-      <TableRow>
-        <TableCell component="th" scope="applicant">
-            {applicant.clientCaseNumber}
-        </TableCell>
-        <TableCell align="left">{applicant.clientName}</TableCell>
-        <TableCell align="left">
-          <button 
-            type="button" 
-            class="btn btn-link" 
-            onClick={handleResumeDownload(applicant.clientApplicationID, submissionID)}>
-              View 
+      <React.Fragment>
+        <TableRow>
+          <TableCell component="th" scope="applicant">
+              {applicant.clientCaseNumber}
+          </TableCell>
+          <TableCell align="left">{applicant.clientName}</TableCell>
+          <TableCell align="left">
+            <button 
+              type="button" 
+              class="btn btn-link" 
+              onClick={handleResumeDownload(applicant.clientApplicationID, submission.submissionID)}>
+                View 
+              </button>
+          </TableCell>
+          <TableCell align="left">{applicant.status}</TableCell>
+          <TableCell className="flex-row">
+            <button className="btn btn-primary btn-sm" type="button" onClick={handleViewShow(applicant.clientApplicationID)}> 
+                <VisibilityIcon style={{color: "white"}}></VisibilityIcon> 
             </button>
-        </TableCell>
-        <TableCell align="left">{applicant.status}</TableCell>
-        <TableCell className="flex-row">
-          <button className="btn btn-primary btn-sm" type="button"> 
-              <VisibilityIcon style={{color: "white"}}></VisibilityIcon> 
-          </button>
-          <button className="btn btn-primary btn-sm" type="button">
-              <EditIcon style={{color: "white"}}></EditIcon>
-          </button>
-        </TableCell>
-      </TableRow>
+            <button className="btn btn-primary btn-sm" type="button">
+                <EditIcon style={{color: "white"}}></EditIcon>
+            </button>
+          </TableCell>
+        </TableRow>
+        <ViewClientModal 
+          submission={submission} 
+          applicant={applicant}
+          show={showView} 
+          handleClose={handleViewClose}>
+        </ViewClientModal>
+      </React.Fragment>
     );
   }
 

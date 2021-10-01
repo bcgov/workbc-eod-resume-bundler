@@ -113,7 +113,8 @@ function SubmitToJobOrder(props) {
                             setSubmitting(false);
                             h.push({
                               pathname: '/submitToJobOrderSuccess',
-                              createdID: res.createdID
+                              createdID: res.createdID,
+                              jobID: props.location.jobID
                           });
                         },
                         (err) => {
@@ -167,7 +168,7 @@ function SubmitToJobOrder(props) {
                                   { applicants.length > 1 ? 
                                   <button 
                                     type="button" 
-                                    class="btn btn-danger"
+                                    className="btn btn-danger"
                                     style={{ marginBottom: "0.5rem" }}
                                     onClick={() => {    
                                       setApplicants(values.applicants.slice(0, -1));
@@ -179,7 +180,7 @@ function SubmitToJobOrder(props) {
                                 <div>
                                   <button 
                                     type="button" 
-                                    class="btn btn-primary"
+                                    className="btn btn-primary"
                                     style={{ marginBottom: "0.5rem" }}
                                     onClick={() => {   
                                       setApplicants(values.applicants.concat(
