@@ -10,4 +10,6 @@ router.post("/", submissionController.createSubmission);
 router.post("/setClientsToApproved", submissionController.setClientsToApproved);
 router.post("/setClientsToFlagged", submissionController.setClientsToFlagged);
 
+router.put("/:submissionID/applications/:applicationID", submissionController.editClientApplication);
+
 module.exports = router;

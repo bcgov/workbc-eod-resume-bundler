@@ -1,5 +1,5 @@
 import { JobOrder } from "../interfaces/JobOrder.interface";
-import { Submission, CreateSubmission, ClientApplication, Resume } from "../interfaces/Submission.interface";
+import { Submission, CreateSubmission, ClientApplication, Resume, UpdateClientApplication } from "../interfaces/Submission.interface";
 import nodemailer, { Transporter } from "nodemailer";
 import { MailOptions } from "nodemailer/lib/json-transport";
 const fs = require("fs");
@@ -282,4 +282,26 @@ export const bundleAndSend = async (clientApplicationIDs: String[]) => {
       console.log(error);
       throw new Error("Error bundling");
   }
+}
+
+// Edit Client Application //
+export const editClientApplication = async (clientApplicationID: string, updateBody: UpdateClientApplication) => {
+  console.log(updateBody);
+  await db.query(
+      ` UPDATE client_applications
+        SET catchment_id = ${updateBody.catchmentID},
+            centre_id = ${updateBody.centreID},
+            client_name = '${updateBody.clientName}',
+            client_case_number = '${updateBody.clientCaseNumber}',
+            edited_by = '${updateBody.user}',
+            edited_date = CURRENT_DATE
+      WHERE client_application_id = '${clientApplicationID}'`
+    )
+  .then((resp: any) => {
+    return;
+  })
+  .catch((err: any) => {
+      console.error("error while querying: ", err);
+      throw new Error(err.message);
+    });
 }

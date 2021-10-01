@@ -15,6 +15,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import Collapse from '@material-ui/core/Collapse';
 import SearchBar from '../../utils/SearchBar';
 import ViewClientModal from './ViewClientModal';
+import EditClientModal from './EditClientModal';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -66,6 +67,9 @@ const b64toBlob = (b64Data, contentType='', sliceSize=512) => {
 function ViewSubmissions() {
   const classes = useStyles();
 
+  const [forceUpdate, setForceUpdate] = useState(0);
+  const [catchments, setCatchments] = useState([]);
+  const [centres, setCentres] = useState([]);
   const [openRows, setOpenRows] = React.useState([]);
   const handleRowToggle = (rowID) => {
     const currentIndex = openRows.indexOf(rowID);
@@ -95,6 +99,19 @@ function ViewSubmissions() {
   const handleViewShow = clientID => () => {
     setShowView(showView => ({
       ...showView,
+      [clientID] : true}));
+  }
+
+  const [showEdit, setShowEdit] = useState({});
+  const handleEditClose = clientID => () => {
+    console.log(clientID)
+    setShowEdit(showEdit => ({
+      ...showEdit,
+      [clientID] : false}))
+  }
+  const handleEditShow = clientID => () => {
+    setShowEdit(showEdit => ({
+      ...showEdit,
       [clientID] : true}));
   }
 
@@ -130,16 +147,32 @@ function ViewSubmissions() {
 
   useEffect(async () => {
     await getSubmissions();
+    await getCatchments();
+    await getCentres();
 
     async function getSubmissions() {
       const response = await fetch(FORM_URL.Submissions);
       const data = await response.json();
-      const submissions = data.submissions;
-      console.log(submissions)
+      const submissions = data.submissions.sort((a,b) => a.catchmentID > b.catchmentID ? 1 : -1);
+      submissions.forEach(s => {
+        s.applicants.sort((a,b) => a.clientApplicationID > b.clientApplicationID ? 1 : -1);       
+      });
       setSubmissions(submissions);
       setSubmissionsToDisplay(submissions);
     }
-  }, [setSubmissions]);
+
+    async function getCatchments() {
+      const response = await fetch(FORM_URL.System + "/Catchments");
+      const data = await response.json();
+      setCatchments(data);
+    }
+
+    async function getCentres() {
+      const response = await fetch(FORM_URL.System + "/Centres");
+      const data = await response.json();
+      setCentres(data);
+    }
+  }, [setSubmissions, setCatchments, setCentres, forceUpdate]);
 
 
 
@@ -268,7 +301,7 @@ function ViewSubmissions() {
             <button className="btn btn-primary btn-sm" type="button" onClick={handleViewShow(applicant.clientApplicationID)}> 
                 <VisibilityIcon style={{color: "white"}}></VisibilityIcon> 
             </button>
-            <button className="btn btn-primary btn-sm" type="button">
+            <button className="btn btn-primary btn-sm" type="button" onClick={handleEditShow(applicant.clientApplicationID)}>
                 <EditIcon style={{color: "white"}}></EditIcon>
             </button>
           </TableCell>
@@ -279,12 +312,23 @@ function ViewSubmissions() {
           show={showView} 
           handleClose={handleViewClose}>
         </ViewClientModal>
+        <EditClientModal 
+          submission={submission} 
+          applicant={applicant}
+          catchments={catchments}
+          centres={centres}
+          show={showEdit} 
+          handleClose={handleEditClose}
+          forceUpdate={forceUpdate}
+          setForceUpdate={setForceUpdate}>
+        </EditClientModal>
       </React.Fragment>
     );
   }
 
   return (
     <div className="container">
+      {submissions && catchments && centres &&
         <div className="row">
             <div className="col-md-12">
               <h1>Resume Bundler - My Submissions</h1>  
@@ -297,6 +341,12 @@ function ViewSubmissions() {
               <SubmissionTable/>
             </div>
         </div>
+      }
+      {(!submissions || !catchments || !centres) && 
+        <h2>
+          Error loading page. Please go back and re-select the job order you wish to submit to.
+        </h2>
+      }
     </div>
   )
 }

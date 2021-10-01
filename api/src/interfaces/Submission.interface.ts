@@ -35,3 +35,11 @@ export interface Resume {
     fileType: string,
     buffer?: ArrayBuffer
 }
+
+export interface UpdateClientApplication {
+    catchmentID: number,
+    centreID: number,
+    clientName: string,
+    clientCaseNumber: string,
+    user: string
+}
