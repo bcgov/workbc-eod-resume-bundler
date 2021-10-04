@@ -71,14 +71,18 @@ objects:
       server {
         listen 8080;
         root /var/www/html/build/;
-        location /api/providerForm {
+        location /JobOrders/ {
           proxy_pass ${API_URL};
         }
-        location /api/JobOrders {
+        location /Submissions/ {
           proxy_pass ${API_URL};
         }
-        location /api/Submissions {
+        location /System/ {
           proxy_pass ${API_URL};
+        }
+        location / {
+          try_files $uri /index.html;
+          add_header Cache-Control 'no-cache';
         }
         location / {
           try_files $uri /index.html;
