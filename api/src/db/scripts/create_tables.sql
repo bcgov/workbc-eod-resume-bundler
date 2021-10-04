@@ -127,6 +127,8 @@ CREATE TABLE IF NOT EXISTS public.client_applications
     bundled boolean,
     created_date date,
     created_by character varying COLLATE pg_catalog."default",
+    edited_date date,
+    edited_by character varying COLLATE pg_catalog."default",
     CONSTRAINT client_applications_pkey PRIMARY KEY (client_application_id),
     CONSTRAINT client_applications_fkey_catchments FOREIGN KEY (catchment_id)
         REFERENCES public.catchments (catchment_id) MATCH SIMPLE
