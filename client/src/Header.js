@@ -36,11 +36,15 @@ function Header() {
           </div>
           <ul className="nav navbar-nav ml-auto">
             <li className="nav-item">
-            {(!keycloak.authenticated && initialized) ? 
-              <a className="btn btn-bcgold" href="/loginLanding">Login</a>
-              :
-              <a className="btn btn-bcgold" onClick={() => keycloak.logout()}>Logout</a>
-            }
+              {initialized &&
+                <>
+                  {(!keycloak.authenticated && initialized) ?
+                    <a className="btn btn-bcgold" href="/loginLanding">Login</a>
+                    :
+                    <a className="btn btn-bcgold" href={`https://logontest7.gov.bc.ca/clp-cgi/logoff.cgi?retnow=1&returl=${keycloak.createLogoutUrl()}`}>Logout</a>
+                  }
+                </>
+              }
             </li>
           </ul>
         </div>
