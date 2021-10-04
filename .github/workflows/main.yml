@@ -32,4 +32,3 @@ jobs:
           cmd: |
             'start-build eod-resume-bundler -n ${{secrets.PROJECT_TOOLS}}'
             'start-build eod-resume-bundler-api -n ${{secrets.PROJECT_TOOLS}}'
-            'start-build eod-resume-bundler-static -n ${{secrets.PROJECT_TOOLS}}'
