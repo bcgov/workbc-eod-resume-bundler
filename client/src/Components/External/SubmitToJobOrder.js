@@ -10,6 +10,9 @@ function SubmitToJobOrder(props) {
   const { keycloak } = useKeycloak();
   const h = useHistory();
 
+  const [catchment, setCatchment] = React.useState(1);
+  const [centre, setCentre] = React.useState(1);
+
   let [applicants, setApplicants] = useState([
       { 
         applicantID: 0,
@@ -21,8 +24,8 @@ function SubmitToJobOrder(props) {
   ]);
 
   let initialValues = {
-    catchment: 1,
-    centre: 1,
+    catchment: catchment,
+    centre: centre,
     applicants: applicants,
     jobID: props.location.jobID,
     user: keycloak.tokenParsed?.preferred_username
@@ -135,6 +138,10 @@ function SubmitToJobOrder(props) {
                                         <Field
                                             as="select"
                                             name="catchment"
+                                            onChange={e => {
+                                              handleChange(e);
+                                              setCatchment(e.target.value);
+                                            }}
                                             className="form-control">
                                             { catchments.map(c => (
                                               <option value={c.catchment_id}>{c.name}</option>
@@ -151,6 +158,10 @@ function SubmitToJobOrder(props) {
                                         <Field
                                             as="select"
                                             name="centre"
+                                            onChange={e => {
+                                              handleChange(e);
+                                              setCentre(e.target.value);
+                                            }}
                                             className="form-control">
                                             {displayCentresForCatchment(values.catchment)}
                                         </Field>
