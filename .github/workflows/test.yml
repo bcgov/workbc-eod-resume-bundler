@@ -1,13 +1,10 @@
 # This is a basic workflow that will start a build with every push
 
-name: CD
+name: Test Build
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
-on:
-  push:
-    branches: [ main ]
-    paths: ['client/**', 'api/**']
+on: workflow_dispatch
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -31,5 +28,5 @@ jobs:
           parameters: '{"apitoken": "${{ secrets.API_TOKEN }}", "acceptUntrustedCerts": "true"}'
           # Oc command to be executed
           cmd: |
-            'start-build eod-resume-bundler -n ${{secrets.PROJECT_TOOLS}}'
+            'start-build eod-resume-bundler -n ${{secrets.PROJECT_TOOLS}} -e REACT_APP_KEYCLOAK_URL=${{secrets.REACT_APP_KEYCLOAK_URL_TEST}}'
             'start-build eod-resume-bundler-api -n ${{secrets.PROJECT_TOOLS}}'
