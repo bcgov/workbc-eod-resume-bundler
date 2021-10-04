@@ -3,7 +3,7 @@ import { Modal } from 'react-bootstrap';
 const ViewJobOrderModal = ({jobOrder, catchments, show, handleClose}) => {
 
     const getCatchmentNames = (catchmentIDs) => {
-        return catchmentIDs.map(id => catchments[id].name).join(", ");
+        return catchmentIDs.map(id => catchments[id-1].name).join(", ");
     }
     return (
         <Modal show={show[jobOrder.job_id]} onHide={handleClose(jobOrder.job_id)} size="xl">
