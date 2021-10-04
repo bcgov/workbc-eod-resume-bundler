@@ -44,6 +44,11 @@ function SubmitToJobOrder({ applicants, setFieldValue }) {
                                         type="text"
                                         className="form-control"
                                     />
+                                    <ErrorMessage
+                                        name={`applicants[${index}].clientName`}
+                                        className="field-error">
+                                        { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                                    </ErrorMessage>
                                 </div>
                                 <div className="form-group col-md-6">
                                     <label className="control-label">Client Case Number</label>
@@ -52,6 +57,11 @@ function SubmitToJobOrder({ applicants, setFieldValue }) {
                                         type="text"
                                         className="form-control"
                                     />
+                                    <ErrorMessage
+                                        name={`applicants[${index}].clientCaseNumber`}
+                                        className="field-error">
+                                        { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                                    </ErrorMessage>
                                 </div>
                             </div>
                             <div className="form-group">
@@ -92,6 +102,11 @@ function SubmitToJobOrder({ applicants, setFieldValue }) {
                                         </div>
                                     )}
                                 </Dropzone>
+                                <ErrorMessage
+                                    name={`applicants[${index}].resume`}
+                                    className="field-error">
+                                    { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                                </ErrorMessage>
                             </div>
                             <div className="form-group">
                                 <label>
@@ -101,6 +116,11 @@ function SubmitToJobOrder({ applicants, setFieldValue }) {
                                         style={{marginRight: "5px"}}/>
                                     I confirm that I have received written consent from the client to disclose their information to the employer
                                 </label>
+                                <ErrorMessage
+                                    name={`applicants[${index}].consent`}
+                                    className="field-error">
+                                    { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                                </ErrorMessage>
                             </div>
                         </div>
                     ))}

@@ -22,7 +22,10 @@ function SubmitToJobOrderSuccess(props) {
                     type="button"
                     onClick={
                         () => {
-                            history.push('/submitToJobOrder');
+                            history.push({
+                                pathname: "/submitToJobOrder",
+                                jobID: props.location.jobID
+                            })
                         }
                     }> 
                     Submit Another

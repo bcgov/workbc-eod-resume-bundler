@@ -1,6 +1,6 @@
-var yup = require('yup')
+var yup = require('yup');
 
-var JobOrderValidationSchema = yup.object().shape({
+export const JobOrderValidationSchema = yup.object().shape({
     employer: yup.string().required({ key: "employer", value: "employer is required field" }),
     position: yup.string().required({ key: "position", value: "position is a required field" }),
     startDate: yup.date().typeError({ key: "startDate", value: "a start date must be selected" }),
@@ -15,5 +15,3 @@ var JobOrderValidationSchema = yup.object().shape({
     user: yup.string().required(),
     status: yup.string().required()
 });
-
-module.exports = JobOrderValidationSchema;

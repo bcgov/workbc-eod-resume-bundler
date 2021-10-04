@@ -1,5 +1,7 @@
 import * as express from "express";
-import { CreateSubmission } from "../interfaces/Submission.interface";
+import { ValidationError } from "yup";
+import { CreateSubmission, UpdateClientApplication } from "../interfaces/Submission.interface";
+import { SubmissionValidationSchema } from "../schemas/SubmissionValidationSchema";
 import * as submissionService from "../services/Submission.service";
 
 // Get Submissions //
@@ -41,17 +43,24 @@ export const createSubmission = async (req: any, res: express.Response) => {
   console.log(req.body);
 
   try {
-    let body: CreateSubmission = {
-      catchmentID: req.body.catchment,
-      centreID: req.body.centre,
-      jobID: req.body.jobID,
-      applicants: req.body.applicants,
-      user: req.body.user
-    }
+    SubmissionValidationSchema.validate(req.body, { abortEarly: false })
+    .then(async () => {
+      let body: CreateSubmission = {
+        catchmentID: req.body.catchment,
+        centreID: req.body.centre,
+        jobID: req.body.jobID,
+        applicants: req.body.applicants,
+        user: req.body.user
+      }
 
-    let createdID: string = await submissionService.createSubmission(body, req.files);
-    return res.status(200).json({ createdID : createdID });
-
+      let createdID: string = await submissionService.createSubmission(body, req.files);
+      return res.status(200).json({ createdID : createdID });
+    })
+    .catch((validationErrors: ValidationError) => {
+      console.error("validation unsuccessful: ", validationErrors);
+      return res.status(400).send(validationErrors.errors.reduce((prev: any, curr: any) => ({ ...prev, [curr.key]: curr.value}), {}));
+    });
+    
   } catch(e) {
     console.log(e);
     return res.status(500).send("Internal Server Error");
@@ -104,6 +113,30 @@ export const bundleAndSend = async (req: express.Request, res: express.Response)
     let applicantIDs = req.body.clientApplicationIDs;
 
     await submissionService.bundleAndSend(applicantIDs);
+    return res.status(200).send();
+
+  } catch(e) {
+    console.log(e);
+    return res.status(500).send("Internal Server Error");
+  }
+};
+
+// Edit Client Application //
+export const editClientApplication = async (req: express.Request, res: express.Response) => {
+  console.log("PUT request received to " + req.get("host") + req.originalUrl);
+  console.log("request body: ");
+  console.log(req.body);
+
+  try {
+    let updateBody: UpdateClientApplication = //TODO: validation
+      {
+        catchmentID: req.body.catchment,
+        centreID: req.body.centre,
+        clientName: req.body.clientName,
+        clientCaseNumber: req.body.clientCaseNumber,
+        user: req.body.user 
+      }
+    await submissionService.editClientApplication(req.params.applicationID, updateBody);
     return res.status(200).send();
 
   } catch(e) {
