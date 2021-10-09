@@ -4,9 +4,12 @@ import nodemailer, { Transporter } from "nodemailer";
 import { MailOptions } from "nodemailer/lib/json-transport";
 const fs = require("fs");
 const db = require('../db/db');
-const PDFMerger = require('pdf-merger-js');
+const PDFMerger = require('easy-pdf-merge');
+const flattener = require('pdf-flatten');
 const { customAlphabet } = require('nanoid');
 const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz',10);
+const hummus = require('hummus');
+const memoryStreams = require('memory-streams');
 
 // Get Submissions //
 export const getSubmissions = async () => {
@@ -221,7 +224,7 @@ export const setClientsToFlagged = async (applicantIDs: string[]) => {
 export const bundleAndSend = async (clientApplicationIDs: String[]) => {
   try {
       // Bundle PDFs //
-      let mergedPdf: any = null;
+      let mergedPDF: Buffer;
       await db.query(
         `SELECT 
           client_application_id,
@@ -230,9 +233,11 @@ export const bundleAndSend = async (clientApplicationIDs: String[]) => {
         WHERE ca.client_application_id IN (${clientApplicationIDs.map(a => "'" + a + "'").join(',')})`
       )
       .then(async (resp: any) => {
-        const merger = new PDFMerger();
-        await Promise.all(resp.rows.map(async (row: any) => await merger.add(Buffer.from(row.resume_file, "base64"))));
-        mergedPdf = await merger.saveAsBuffer();
+        // Merge all the pdfs //
+        await Promise.all(resp.rows.map(async (row: any) => {
+          const pdf: Buffer = Buffer.from(row.resume_file, "base64");
+          mergedPDF = combinePDFBuffers(mergedPDF, pdf);
+        }));
       })
       .catch((err: any) => {
           console.error("error while querying: ", err);
@@ -255,18 +260,18 @@ export const bundleAndSend = async (clientApplicationIDs: String[]) => {
           // send mail with defined transport object
           let message: MailOptions = {
               from: 'Resume Bundler <donotreply@gov.bc.ca>', // sender address
-              to: 'branko.bajic@gov.bc.ca',// list of receivers
-              subject: "pdf bundle", // Subject line
-              html: "hi",
+              to: 'branko.bajic@gov.bc.ca', // list of receivers TODO
+              subject: "New Bundled Resumes", // subject line
+              html: "Please see attached for bundled resumes", // email body
               attachments: [
                 {
                   filename: "bundled-resumes.pdf",
-                  content: mergedPdf,
+                  content: mergedPDF,
                   contentType: "application/pdf"
                 }
               ]
           };
-          let info = transporter.sendMail(message, (error, info) => {
+          transporter.sendMail(message, (error, info) => {
             if (error) {
                 throw new Error("An error occurred while sending the email, please try again. If the error persists please try again later.");
             } else {
@@ -305,3 +310,33 @@ export const editClientApplication = async (clientApplicationID: string, updateB
       throw new Error(err.message);
     });
 }
+
+
+
+
+// HELPER FUNCTIONS //
+const combinePDFBuffers = (firstBuffer: Buffer, secondBuffer: Buffer) => {
+  if (!firstBuffer)
+    return secondBuffer;
+    
+  var outStream = new memoryStreams.WritableStream();
+
+  try {
+      var firstPDFStream = new hummus.PDFRStreamForBuffer(firstBuffer);
+      var secondPDFStream = new hummus.PDFRStreamForBuffer(secondBuffer);
+
+      var pdfWriter = hummus.createWriterToModify(firstPDFStream, new hummus.PDFStreamForResponse(outStream));
+      pdfWriter.appendPDFPagesFromPDF(secondPDFStream);
+      pdfWriter.end();
+      var newBuffer = outStream.toBuffer();
+      outStream.end();
+
+      return newBuffer;
+  }
+  catch(e){
+      outStream.end();
+      if (e instanceof Error) {
+        throw new Error('Error during PDF combination: ' + e.message);
+      }
+  }
+};
