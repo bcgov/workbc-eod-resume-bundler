@@ -14,7 +14,8 @@ export interface ClientApplication {
     clientCaseNumber: string,
     resume: Resume,
     consent: boolean,
-    status: string
+    status: string,
+    bundled: boolean
 }
 
 export interface Submission {

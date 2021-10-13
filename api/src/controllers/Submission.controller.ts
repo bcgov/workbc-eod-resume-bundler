@@ -112,7 +112,7 @@ export const bundleAndSend = async (req: express.Request, res: express.Response)
   try {
     let applicantIDs = req.body.clientApplicationIDs;
 
-    await submissionService.bundleAndSend(applicantIDs);
+    await submissionService.bundleAndSend(applicantIDs, req.body.email);
     return res.status(200).send();
 
   } catch(e) {

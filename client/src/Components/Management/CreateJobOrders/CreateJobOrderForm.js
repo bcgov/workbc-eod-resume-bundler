@@ -34,7 +34,13 @@ const CreateJobOrderForm = () => {
         async function getCatchments() {
           const response = await fetch(FORM_URL.System + "/Catchments");
           const data = await response.json();
-          setCatchments(data);
+          setCatchments(data.map(c => {
+              return (
+              {
+                  key: c.catchment_id,
+                  value: c
+              });
+          }));
         }
       }, [setCatchments]);
 

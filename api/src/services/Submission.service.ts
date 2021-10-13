@@ -30,6 +30,7 @@ export const getSubmissions = async () => {
           ca.client_case_number,
           ca.consent,
           ca.status,
+          ca.bundled,
           ca.resume_file_name,
           ca.resume_file_type,
           jo.employer,
@@ -63,7 +64,8 @@ export const getSubmissions = async () => {
               clientCaseNumber: a.client_case_number,
               consent: a.consent,
               status: a.status,
-              resume: resume
+              resume: resume,
+              bundled: a.bundled
             }
 
             let submission: Submission = {
@@ -89,7 +91,8 @@ export const getSubmissions = async () => {
               clientCaseNumber: a.client_case_number,
               consent: a.consent,
               status: a.status,
-              resume: resume
+              resume: resume,
+              bundled: a.bundled
             }
 
             submissions[a.submission_id].applicants.push(applicant);
@@ -221,7 +224,7 @@ export const setClientsToFlagged = async (applicantIDs: string[]) => {
 }
 
 // Bundle and Send PDF //
-export const bundleAndSend = async (clientApplicationIDs: String[]) => {
+export const bundleAndSend = async (clientApplicationIDs: String[], email: String) => {
   try {
       // Bundle PDFs //
       let mergedPDF: Buffer;
@@ -255,12 +258,12 @@ export const bundleAndSend = async (clientApplicationIDs: String[]) => {
       });
 
       await transporter.verify()
-      .then(function (r) {
+      .then(async function (r) {
           console.log("Transporter connected.")
           // send mail with defined transport object
           let message: MailOptions = {
               from: 'Resume Bundler <donotreply@gov.bc.ca>', // sender address
-              to: 'branko.bajic@gov.bc.ca', // list of receivers TODO
+              to: <string>email, // list of receivers TODO
               subject: "New Bundled Resumes", // subject line
               html: "Please see attached for bundled resumes", // email body
               attachments: [
@@ -278,6 +281,14 @@ export const bundleAndSend = async (clientApplicationIDs: String[]) => {
                 console.log("Message sent: %s", info.messageId);
                 return;
             }
+          });
+
+          await db.query( // Set bundled statuses to true
+            `UPDATE client_applications SET Bundled = true WHERE client_application_id IN (${clientApplicationIDs.map(a => "'" + a + "'").join(',')})`
+          )
+          .catch((err: any) => {
+            console.error("error while querying: ", err);
+            throw new Error(err.message);
           });
       }).catch(function (e) {
           console.log(e)

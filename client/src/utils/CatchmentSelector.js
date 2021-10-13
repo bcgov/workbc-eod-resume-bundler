@@ -1,7 +1,5 @@
 import React, { useMemo, useState, useCallback } from 'react'
-import { withRouter, useHistory } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles';
-import { useKeycloak } from '@react-keycloak/web'
 import Grid from '@material-ui/core/Grid';
 import List from '@material-ui/core/List';
 import Card from '@material-ui/core/Card';
@@ -77,14 +75,14 @@ const CatchmentSelector = ({ field, catchments, form, ...props }) => {
     };
 
     const handleCheckedRight = () => {
-        form.setFieldValue("catchments", right.concat(leftChecked));
+        form.setFieldValue("catchments", right.concat(leftChecked).map(c => c.value));
         setRight(right.concat(leftChecked));
         setLeft(not(left, leftChecked));
         setChecked(not(checked, leftChecked));
     };
 
     const handleCheckedLeft = () => {
-        form.setFieldValue("catchments", not(right, rightChecked));
+        form.setFieldValue("catchments", not(right, rightChecked).map(c => c.value));
         setLeft(left.concat(rightChecked));
         setRight(not(right, rightChecked));
         setChecked(not(checked, rightChecked));
@@ -112,20 +110,20 @@ const CatchmentSelector = ({ field, catchments, form, ...props }) => {
             />
             <Divider />
             <List className={classes.list} dense component="div" role="list">
-                {items.map((value) => {
-                    const labelId = `transfer-list-all-item-${value.catchment_id}-label`;
+                {items.map((catchment) => {
+                    const labelId = `transfer-list-all-item-${catchment.value.catchment_id}-label`;
 
                     return (
-                        <ListItem key={value.catchment_id} role="listitem" button onClick={handleToggle(value)}>
+                        <ListItem key={catchment.value.catchment_id} role="listitem" button onClick={handleToggle(catchment)}>
                             <ListItemIcon>
                                 <Checkbox
-                                    checked={checked.indexOf(value) !== -1}
+                                    checked={checked.indexOf(catchment) !== -1}
                                     tabIndex={-1}
                                     disableRipple
                                     inputProps={{ 'aria-labelledby': labelId }}
                                 />
                             </ListItemIcon>
-                            <ListItemText id={labelId} primary={`${value.name}`} />
+                            <ListItemText id={labelId} primary={`${catchment.value.name}`} />
                         </ListItem>
                     );
                 })}
@@ -144,7 +142,7 @@ const CatchmentSelector = ({ field, catchments, form, ...props }) => {
         <Grid item>
             <CustomList
                 items={left}
-                title="Choices">
+                title="Select All">
             </CustomList>
         </Grid>
         <Grid item>
@@ -174,7 +172,7 @@ const CatchmentSelector = ({ field, catchments, form, ...props }) => {
         <Grid item>
             <CustomList
                     items={right}
-                    title="Chosen">
+                    title="Selected">
             </CustomList>
         </Grid>
     </Grid>);
