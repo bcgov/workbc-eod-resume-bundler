@@ -33,9 +33,9 @@ export const createJobOrder = async (body: any) => {
     await db.query(
     `INSERT INTO job_orders (
         job_id, employer, position, start_date, deadline, location, vacancies, catchments,
-        other_information, job_description, status, created_by, created_date)
+        minimum_requirements, other_information, job_description, status, created_by, created_date)
         VALUES 
-        ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
+        ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
         [jobID,
         body.employer,
         body.position,
@@ -46,6 +46,7 @@ export const createJobOrder = async (body: any) => {
         body.catchments
             .map((c: any) => c.catchment_id)
             .sort((a: number, b: number) => { return a - b }),
+        body.minimumRequirements,
         body.otherInformation,
         body.jobDescriptionFile,
         body.status,

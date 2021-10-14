@@ -159,7 +159,7 @@ function ViewJobOrders() {
     const [open, setOpen] = React.useState(false);
     return (
     <React.Fragment>
-      <TableRow>
+      <TableRow style={{ backgroundColor: 'rgba(0,0,0,0.05)' }}>
           <TableCell className={classes.noBorder}>
             <IconButton aria-label="expand row" size="small" onClick={() => {
                 setOpen(!open)

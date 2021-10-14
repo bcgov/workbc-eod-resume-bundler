@@ -17,6 +17,7 @@ function SubmitToJobOrder(props) {
       { 
         applicantID: 0,
         clientName: "", 
+        preferredName: "",
         clientCaseNumber: "", 
         consent: false,
         resume: null
@@ -85,7 +86,7 @@ function SubmitToJobOrder(props) {
                   enableReinitialize={true}
                   validationSchema={SubmissionValidationSchema}
                   onSubmit={(values, { resetForm, setErrors, setStatus, setSubmitting }) => {
-                    let formData = new FormData();
+                    let formData = new FormData(); // use form data to be able to send resume buffers to API
                     formData.append("catchment", values.catchment);
                     formData.append("centre", values.centre);
                     formData.append("applicants", JSON.stringify(values.applicants));
@@ -198,6 +199,7 @@ function SubmitToJobOrder(props) {
                                         {
                                           applicantID: applicants.length,
                                           clientName: "", 
+                                          preferredName: "",
                                           clientCaseNumber: "",
                                           resume: null,
                                           consent: false

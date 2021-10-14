@@ -61,6 +61,7 @@ export const getSubmissions = async () => {
             let applicant: ClientApplication = {
               clientApplicationID: a.client_application_id,
               clientName: a.client_name,
+              preferredName: a.preferred_name,
               clientCaseNumber: a.client_case_number,
               consent: a.consent,
               status: a.status,
@@ -88,6 +89,7 @@ export const getSubmissions = async () => {
             let applicant: ClientApplication = {
               clientApplicationID: a.client_application_id,
               clientName: a.client_name,
+              preferredName: a.preferred_name,
               clientCaseNumber: a.client_case_number,
               consent: a.consent,
               status: a.status,
@@ -165,14 +167,15 @@ export const createSubmission = async (createBody: CreateSubmission, files: any)
       const clientApplicationID: string = nanoid();
       await db.query(
         `INSERT INTO client_applications (
-          client_application_id, submission_id, catchment_id, centre_id, client_name, client_case_number, resume_file, resume_file_name, resume_file_type, consent, status, created_by, created_date)
+          client_application_id, submission_id, catchment_id, centre_id, client_name, preferred_name, client_case_number, resume_file, resume_file_name, resume_file_type, consent, status, created_by, created_date)
           VALUES 
-          ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
+          ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
           [clientApplicationID,
           submissionID,
           createBody.catchmentID,
           createBody.centreID,
           applicant.clientName,
+          applicant.preferredName,
           applicant.clientCaseNumber,
           files[applicant.applicantID].data,
           applicant.resume?.fileName,

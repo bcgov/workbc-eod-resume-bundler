@@ -2,9 +2,12 @@ import React from 'react'
 import logo from './bcid-logo-rev-en.svg'
 import logoSmall from './bcid-symbol-rev.svg'
 import { useKeycloak } from '@react-keycloak/web'
+import { useHistory } from 'react-router-dom'
 
 function Header() {
-  const { keycloak, initialized } = useKeycloak()
+  const { keycloak, initialized } = useKeycloak();
+  let history = useHistory();
+
   return (
     <header>
       <nav className="navbar navbar-expand-lg navbar-dark">
@@ -39,7 +42,14 @@ function Header() {
             {(!keycloak.authenticated && initialized) ? 
               <a className="btn btn-bcgold" href="/loginLanding">Login</a>
               :
-              <a className="btn btn-bcgold" onClick={() => keycloak.logout()}>Logout</a>
+              <a 
+                className="btn btn-bcgold" 
+                onClick={
+                  () => {
+                    history.push("/logoutSuccess");
+                    keycloak.logout();
+                  }
+                }>Logout</a>
             }
             </li>
           </ul>
