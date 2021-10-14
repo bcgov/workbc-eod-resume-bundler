@@ -2,9 +2,12 @@ import React from 'react'
 import logo from './bcid-logo-rev-en.svg'
 import logoSmall from './bcid-symbol-rev.svg'
 import { useKeycloak } from '@react-keycloak/web'
+import { useHistory } from 'react-router-dom'
 
 function Header() {
-  const { keycloak, initialized } = useKeycloak()
+  const { keycloak, initialized } = useKeycloak();
+  let history = useHistory();
+
   return (
     <header>
       <nav className="navbar navbar-expand-lg navbar-dark">

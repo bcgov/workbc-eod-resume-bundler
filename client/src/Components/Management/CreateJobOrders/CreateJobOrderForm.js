@@ -34,7 +34,13 @@ const CreateJobOrderForm = () => {
         async function getCatchments() {
           const response = await fetch(FORM_URL.System + "/Catchments");
           const data = await response.json();
-          setCatchments(data);
+          setCatchments(data.map(c => {
+              return (
+              {
+                  key: c.catchment_id,
+                  value: c
+              });
+          }));
         }
       }, [setCatchments]);
 
@@ -47,6 +53,7 @@ const CreateJobOrderForm = () => {
         vacancies: 1,
         catchments: [],
         jobDescriptionFile: {},
+        minimumRequirements: "",
         otherInformation: "",
         status: "Open",
         user: keycloak.tokenParsed.preferred_username
@@ -59,17 +66,21 @@ const CreateJobOrderForm = () => {
         deadline: yup.date().typeError("a deadline must be selected"),
         location: yup.string().required("location is a required field"),
         catchments: yup.array().min(1, "please select a catchment"),
+        minimumRequirements: yup.string().max(1000, "over 1000 characters"),
         otherInformation: yup.string().max(1000, "over 1000 characters")
     });
 
     const showErrors = () => {
         return (
             <div>
-                <div className="alert alert-dismissible alert-danger">
-                <button type="button" className="close" data-dismiss="alert">×</button>
-                <strong>Please enter required information and try again</strong>
-                </div>
-            </div>
+                {/* disabling until I can figure out a way to not have the error show up randomly */}
+            </div> 
+            // <div>
+            //     <div className="alert alert-dismissible alert-danger">
+            //     <button type="button" className="close" data-dismiss="alert">×</button>
+            //     <strong>Please enter required information and try again</strong>
+            //     </div>
+            // </div>
         );
     }
 
@@ -182,6 +193,23 @@ const CreateJobOrderForm = () => {
                         className="field-error">
                         { msg => <div style={{ color: 'red' }}>{msg}</div> }
                     </ErrorMessage>
+                    <div className="form-group">
+                        <label 
+                            className="col-form-label control-label" 
+                            htmlFor="minimumRequirements">
+                            Minimum requirements
+                        </label>
+                        <small className="text-muted" id="minimumRequirements"> (1000 characters max.)</small>
+                        <Field
+                            as="textarea"
+                            className="form-control"
+                            id="minimumRequirements"
+                            name="minimumRequirements"
+                            rows="4"
+                            maxLength="1000"
+                        />
+                        <small>{values.minimumRequirements.length}/1000</small>
+                    </div>
                     <div className="form-group">
                         <label className="col-form-label control-label" htmlFor="otherInformation">Other information
                         </label>

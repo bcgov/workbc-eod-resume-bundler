@@ -70,6 +70,7 @@ const b64toBlob = (b64Data, contentType='', sliceSize=512) => {
 function ReviewReferral({location}) {
     const classes = useStyles();
     let history = useHistory();
+    const MAX_CATCHMENTS = 4;
 
     let jobOrder = location.props;
 
@@ -106,6 +107,7 @@ function ReviewReferral({location}) {
         referrals.forEach(r => {
           r.applicants.sort((a,b) => a.clientApplicationID > b.clientApplicationID ? 1 : -1);       
         });
+        console.log(referrals)
         setReferrals(referrals);
         setReferralsToDisplay(referrals);
       }
@@ -404,7 +406,7 @@ function ReviewReferral({location}) {
                   Notify
                 </button>
             </TableCell>
-            <TableCell align="left">{"No"}</TableCell>
+            <TableCell align="left">{applicant.bundled ? "Yes" : "No"}</TableCell>
             <TableCell align="left">{applicant.status}</TableCell>
           </TableRow>
         );
@@ -423,41 +425,53 @@ function ReviewReferral({location}) {
               <div className="row">
                   <div className="column" style= {{ textAlign: "left", marginLeft: "7px", marginRight: "20px" }}>
                       <div>
-                          Job ID: {jobOrder.id}
+                          <b>Job ID:</b> {jobOrder.id}
                       </div>
                       <div>
-                          Employer: {jobOrder.employer}
+                          <b>Employer:</b> {jobOrder.employer}
                       </div>
                       <div>
-                          Position: {jobOrder.position}
+                          <b>Position:</b> {jobOrder.position}
                       </div>
                       <div>
-                          Created: {jobOrder.created}
+                          <b>Created:</b> {jobOrder.created}
                       </div>
                       <div>
-                          Deadline: {jobOrder.deadline}
+                          <b>Deadline:</b> {jobOrder.deadline}
                       </div>
                   </div>
-                  <div className="column ml-5" style= {{ textAlign: "left", marginRight: "7px", marginLeft: "20px" }}>
+                  <div className="column" style= {{ textAlign: "left", marginRight: "7px", marginLeft: "20px" }}>
                       <div>
-                          Catchments: {DisplayCatchments(jobOrder.catchments)}
+                          <b>Location:</b> {jobOrder.location}
                       </div>
                       <div>
-                          Location: {jobOrder.location}
+                          <b>Referrals:</b> {referrals.length}
                       </div>
                       <div>
-                          Referrals: {referrals.length}
+                          <b>Last Edit:</b> {jobOrder.lastEdit ? jobOrder.lastEdit : "N/A"}
                       </div>
                       <div>
-                          Last Edit: {jobOrder.lastEdit}
+                          <b>Edited By:</b> {jobOrder.editedBy ? jobOrder.editedBy : "N/A"}
                       </div>
-                      <div>
-                          Edited By: {jobOrder.editedBy}
-                      </div>
+                      { jobOrder.catchments.length <= MAX_CATCHMENTS && 
+                        <div>
+                          <b>Catchments:</b> { DisplayCatchments(jobOrder.catchments) }
+                        </div>
+                      }
+                      { jobOrder.catchments.length == catchments.length && 
+                        <div>
+                          <b>Catchments:</b> All
+                        </div>
+                      }
                   </div>
               </div>
+              { jobOrder.catchments.length > MAX_CATCHMENTS && jobOrder.catchments.length != catchments.length && // Put catchments in a separate row if there's more than 4 of them
+                  <div className="row mt-2">
+                    <b>Catchments:</b> { DisplayCatchments(jobOrder.catchments) }
+                  </div>
+              }
               <div className="row">
-                  <div className="col-md-12"> 
+                  <div className="col-md-12 mt-3"> 
                       <SearchBar
                           handleUpdate={handleUpdateReferralsToDisplay}
                           paginationCount={referralsToDisplay.length}

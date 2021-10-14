@@ -11,10 +11,12 @@ export interface CreateSubmission {
 export interface ClientApplication {
     clientApplicationID: string,
     clientName: string,
+    preferredName: string,
     clientCaseNumber: string,
     resume: Resume,
     consent: boolean,
-    status: string
+    status: string,
+    bundled: boolean
 }
 
 export interface Submission {

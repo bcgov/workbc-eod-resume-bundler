@@ -195,9 +195,7 @@ function ViewSubmissions() {
             <TableBody>
               { submissionsToDisplay && (
                 submissionsToDisplay?.map(submission => (
-                  <SubmissionRow 
-                    submission={submission}>
-                  </SubmissionRow>
+                  <SubmissionRow submission={submission} />
                 ))                
               )}
             </TableBody>
@@ -211,7 +209,7 @@ function ViewSubmissions() {
 
     return (
       <React.Fragment>
-        <TableRow>
+        <TableRow style={{ backgroundColor: 'rgba(0,0,0,0.05)' }}>
             <TableCell className={classes.noBorder}>
               <IconButton aria-label="expand row" size="small" onClick={() => {
                 setOpen(!open)
@@ -291,7 +289,7 @@ function ViewSubmissions() {
           <TableCell align="left">
             <button 
               type="button" 
-              class="btn btn-link" 
+              className="btn btn-link" 
               onClick={handleResumeDownload(applicant.clientApplicationID, submission.submissionID)}>
                 View 
               </button>

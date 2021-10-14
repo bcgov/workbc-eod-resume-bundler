@@ -1,17 +1,8 @@
 import React, { useMemo, useState, useCallback } from 'react'
-import { withRouter, useHistory } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles';
-import { useKeycloak } from '@react-keycloak/web'
 import Grid from '@material-ui/core/Grid';
-import List from '@material-ui/core/List';
-import Card from '@material-ui/core/Card';
-import CardHeader from '@material-ui/core/CardHeader';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
-import Divider from '@material-ui/core/Divider';
+import CustomList from './CustomList';
 
 function not(a, b) {
     return a.filter((value) => b.indexOf(value) === -1);
@@ -77,107 +68,71 @@ const CatchmentSelector = ({ field, catchments, form, ...props }) => {
     };
 
     const handleCheckedRight = () => {
-        form.setFieldValue("catchments", right.concat(leftChecked));
+        form.setFieldValue("catchments", right.concat(leftChecked).map(c => c.value));
         setRight(right.concat(leftChecked));
         setLeft(not(left, leftChecked));
         setChecked(not(checked, leftChecked));
     };
 
     const handleCheckedLeft = () => {
-        form.setFieldValue("catchments", not(right, rightChecked));
+        form.setFieldValue("catchments", not(right, rightChecked).map(c => c.value));
         setLeft(left.concat(rightChecked));
         setRight(not(right, rightChecked));
         setChecked(not(checked, rightChecked));
     };
 
-    const CustomList = (props) => {
-        let title = props.title;
-        let items = props.items;
-        
-        return (
-        <Card>
-            <CardHeader
-                className={classes.cardHeader}
-                avatar={
-                    <Checkbox
-                        onClick={handleToggleAll(items)}
-                        checked={numberOfChecked(items) === items.length && items.length !== 0}
-                        indeterminate={numberOfChecked(items) !== items.length && numberOfChecked(items) !== 0}
-                        disabled={items.length === 0}
-                        inputProps={{ 'aria-label': 'all items selected' }}
-                    />
-                }
-                title={title}
-                subheader={`${numberOfChecked(items)}/${items.length} selected`}
-            />
-            <Divider />
-            <List className={classes.list} dense component="div" role="list">
-                {items.map((value) => {
-                    const labelId = `transfer-list-all-item-${value.catchment_id}-label`;
-
-                    return (
-                        <ListItem key={value.catchment_id} role="listitem" button onClick={handleToggle(value)}>
-                            <ListItemIcon>
-                                <Checkbox
-                                    checked={checked.indexOf(value) !== -1}
-                                    tabIndex={-1}
-                                    disableRipple
-                                    inputProps={{ 'aria-labelledby': labelId }}
-                                />
-                            </ListItemIcon>
-                            <ListItemText id={labelId} primary={`${value.name}`} />
-                        </ListItem>
-                    );
-                })}
-                <ListItem />
-            </List>
-        </Card>);
-    };
-
     return (
-    <Grid
-        container
-        spacing={2}
-        alignItems="center"
-        className={classes.root}
-    >
-        <Grid item>
-            <CustomList
-                items={left}
-                title="Choices">
-            </CustomList>
-        </Grid>
-        <Grid item>
-            <Grid container direction="column" alignItems="center">
-                <Button
-                    variant="outlined"
-                    size="small"
-                    className={classes.button}
-                    onClick={handleCheckedRight}
-                    disabled={leftChecked.length === 0}
-                    aria-label="move selected right"
-                >
-                    &gt;
-                </Button>
-                <Button
-                    variant="outlined"
-                    size="small"
-                    className={classes.button}
-                    onClick={handleCheckedLeft}
-                    disabled={rightChecked.length === 0}
-                    aria-label="move selected left"
-                >
-                    &lt;
-                </Button>
+        <Grid
+            container
+            spacing={2}
+            alignItems="center"
+            className={classes.root}
+        >
+            <Grid item>
+                <CustomList
+                    items = {left}
+                    title = "Select All"
+                    handleToggle = {handleToggle}
+                    handleToggleAll = {handleToggleAll}
+                    checked = {checked}
+                    numberOfChecked = {numberOfChecked}>
+                </CustomList>
             </Grid>
-        </Grid>
-        <Grid item>
-            <CustomList
-                    items={right}
-                    title="Chosen">
-            </CustomList>
-        </Grid>
-    </Grid>);
+            <Grid item>
+                <Grid container direction="column" alignItems="center">
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        className={classes.button}
+                        onClick={handleCheckedRight}
+                        disabled={leftChecked.length === 0}
+                        aria-label="move selected right"
+                    >
+                        &gt;
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        className={classes.button}
+                        onClick={handleCheckedLeft}
+                        disabled={rightChecked.length === 0}
+                        aria-label="move selected left"
+                    >
+                        &lt;
+                    </Button>
+                </Grid>
+            </Grid>
+            <Grid item>
+                <CustomList
+                        items = {right}
+                        title = "Selected"
+                        handleToggle = {handleToggle}
+                        handleToggleAll = {handleToggleAll}
+                        checked = {checked}
+                        numberOfChecked = {numberOfChecked}>
+                </CustomList>
+            </Grid>
+        </Grid>);
 }
 
 export default CatchmentSelector;

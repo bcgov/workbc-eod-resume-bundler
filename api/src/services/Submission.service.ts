@@ -4,9 +4,12 @@ import nodemailer, { Transporter } from "nodemailer";
 import { MailOptions } from "nodemailer/lib/json-transport";
 const fs = require("fs");
 const db = require('../db/db');
-const PDFMerger = require('pdf-merger-js');
+const PDFMerger = require('easy-pdf-merge');
+const flattener = require('pdf-flatten');
 const { customAlphabet } = require('nanoid');
 const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz',10);
+const hummus = require('hummus');
+const memoryStreams = require('memory-streams');
 
 // Get Submissions //
 export const getSubmissions = async () => {
@@ -27,6 +30,7 @@ export const getSubmissions = async () => {
           ca.client_case_number,
           ca.consent,
           ca.status,
+          ca.bundled,
           ca.resume_file_name,
           ca.resume_file_type,
           jo.employer,
@@ -57,10 +61,12 @@ export const getSubmissions = async () => {
             let applicant: ClientApplication = {
               clientApplicationID: a.client_application_id,
               clientName: a.client_name,
+              preferredName: a.preferred_name,
               clientCaseNumber: a.client_case_number,
               consent: a.consent,
               status: a.status,
-              resume: resume
+              resume: resume,
+              bundled: a.bundled
             }
 
             let submission: Submission = {
@@ -83,10 +89,12 @@ export const getSubmissions = async () => {
             let applicant: ClientApplication = {
               clientApplicationID: a.client_application_id,
               clientName: a.client_name,
+              preferredName: a.preferred_name,
               clientCaseNumber: a.client_case_number,
               consent: a.consent,
               status: a.status,
-              resume: resume
+              resume: resume,
+              bundled: a.bundled
             }
 
             submissions[a.submission_id].applicants.push(applicant);
@@ -159,14 +167,15 @@ export const createSubmission = async (createBody: CreateSubmission, files: any)
       const clientApplicationID: string = nanoid();
       await db.query(
         `INSERT INTO client_applications (
-          client_application_id, submission_id, catchment_id, centre_id, client_name, client_case_number, resume_file, resume_file_name, resume_file_type, consent, status, created_by, created_date)
+          client_application_id, submission_id, catchment_id, centre_id, client_name, preferred_name, client_case_number, resume_file, resume_file_name, resume_file_type, consent, status, created_by, created_date)
           VALUES 
-          ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
+          ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
           [clientApplicationID,
           submissionID,
           createBody.catchmentID,
           createBody.centreID,
           applicant.clientName,
+          applicant.preferredName,
           applicant.clientCaseNumber,
           files[applicant.applicantID].data,
           applicant.resume?.fileName,
@@ -218,10 +227,10 @@ export const setClientsToFlagged = async (applicantIDs: string[]) => {
 }
 
 // Bundle and Send PDF //
-export const bundleAndSend = async (clientApplicationIDs: String[]) => {
+export const bundleAndSend = async (clientApplicationIDs: String[], email: String) => {
   try {
       // Bundle PDFs //
-      let mergedPdf: any = null;
+      let mergedPDF: Buffer;
       await db.query(
         `SELECT 
           client_application_id,
@@ -230,9 +239,11 @@ export const bundleAndSend = async (clientApplicationIDs: String[]) => {
         WHERE ca.client_application_id IN (${clientApplicationIDs.map(a => "'" + a + "'").join(',')})`
       )
       .then(async (resp: any) => {
-        const merger = new PDFMerger();
-        await Promise.all(resp.rows.map(async (row: any) => await merger.add(Buffer.from(row.resume_file, "base64"))));
-        mergedPdf = await merger.saveAsBuffer();
+        // Merge all the pdfs //
+        await Promise.all(resp.rows.map(async (row: any) => {
+          const pdf: Buffer = Buffer.from(row.resume_file, "base64");
+          mergedPDF = combinePDFBuffers(mergedPDF, pdf);
+        }));
       })
       .catch((err: any) => {
           console.error("error while querying: ", err);
@@ -250,29 +261,37 @@ export const bundleAndSend = async (clientApplicationIDs: String[]) => {
       });
 
       await transporter.verify()
-      .then(function (r) {
+      .then(async function (r) {
           console.log("Transporter connected.")
           // send mail with defined transport object
           let message: MailOptions = {
               from: 'Resume Bundler <donotreply@gov.bc.ca>', // sender address
-              to: 'branko.bajic@gov.bc.ca',// list of receivers
-              subject: "pdf bundle", // Subject line
-              html: "hi",
+              to: <string>email, // list of receivers TODO
+              subject: "New Bundled Resumes", // subject line
+              html: "Please see attached for bundled resumes", // email body
               attachments: [
                 {
                   filename: "bundled-resumes.pdf",
-                  content: mergedPdf,
+                  content: mergedPDF,
                   contentType: "application/pdf"
                 }
               ]
           };
-          let info = transporter.sendMail(message, (error, info) => {
+          transporter.sendMail(message, (error, info) => {
             if (error) {
                 throw new Error("An error occurred while sending the email, please try again. If the error persists please try again later.");
             } else {
                 console.log("Message sent: %s", info.messageId);
                 return;
             }
+          });
+
+          await db.query( // Set bundled statuses to true
+            `UPDATE client_applications SET Bundled = true WHERE client_application_id IN (${clientApplicationIDs.map(a => "'" + a + "'").join(',')})`
+          )
+          .catch((err: any) => {
+            console.error("error while querying: ", err);
+            throw new Error(err.message);
           });
       }).catch(function (e) {
           console.log(e)
@@ -305,3 +324,33 @@ export const editClientApplication = async (clientApplicationID: string, updateB
       throw new Error(err.message);
     });
 }
+
+
+
+
+// HELPER FUNCTIONS //
+const combinePDFBuffers = (firstBuffer: Buffer, secondBuffer: Buffer) => {
+  if (!firstBuffer)
+    return secondBuffer;
+    
+  var outStream = new memoryStreams.WritableStream();
+
+  try {
+      var firstPDFStream = new hummus.PDFRStreamForBuffer(firstBuffer);
+      var secondPDFStream = new hummus.PDFRStreamForBuffer(secondBuffer);
+
+      var pdfWriter = hummus.createWriterToModify(firstPDFStream, new hummus.PDFStreamForResponse(outStream));
+      pdfWriter.appendPDFPagesFromPDF(secondPDFStream);
+      pdfWriter.end();
+      var newBuffer = outStream.toBuffer();
+      outStream.end();
+
+      return newBuffer;
+  }
+  catch(e){
+      outStream.end();
+      if (e instanceof Error) {
+        throw new Error('Error during PDF combination: ' + e.message);
+      }
+  }
+};

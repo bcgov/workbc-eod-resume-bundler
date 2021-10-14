@@ -51,6 +51,21 @@ function SubmitToJobOrder({ applicants, setFieldValue }) {
                                     </ErrorMessage>
                                 </div>
                                 <div className="form-group col-md-6">
+                                    <label className="control-label">Preferred Name</label>
+                                    <Field
+                                        name={`applicants[${index}].preferredName`}
+                                        type="text"
+                                        className="form-control"
+                                    />
+                                    <ErrorMessage
+                                        name={`applicants[${index}].preferredName`}
+                                        className="field-error">
+                                        { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                                    </ErrorMessage>
+                                </div>
+                            </div>
+                            <div className="form-row">
+                                <div className="form-group col-md-6">
                                     <label className="control-label">Client Case Number</label>
                                     <Field
                                         name={`applicants[${index}].clientCaseNumber`}

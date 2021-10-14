@@ -14,11 +14,11 @@ import SubmitToJobOrder from './Components/External/SubmitToJobOrder'
 import SubmitToJobOrderSuccess from './Components/External/SubmitToJobOrderSuccess'
 import Bundle from './Components/Management/ManageJobs/Bundle'
 import BundleSuccess from './Components/Management/ManageJobs/BundleSuccess'
+import LogoutSuccess from './Components/Login/LogoutSuccess'
 
 
 function Main() {
-    return (
-        
+    return (     
         <main role="main">
                 <Switch>
                     <PrivateRoute component={CreateJobOrder} roles={['eod-staff']} path="/createJobOrder"   />
@@ -33,11 +33,11 @@ function Main() {
                     <PrivateRoute component={Bundle} roles={['eod-staff', 'eod-contractor']} path="/bundle" />
                     <PrivateRoute component={BundleSuccess} roles={['eod-staff', 'eod-contractor']} path="/bundleSuccess" />
                     <Route exact path="/loginLanding" component={LoginLanding} />
+                    <Route exact path="/logoutSuccess" component={LogoutSuccess} />
                     <Route exact path="/" component={Home} />
                 </Switch>
         </main>
     )
-    
 }
 
 export default Main

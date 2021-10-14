@@ -22,7 +22,7 @@ function CreateJobOrderSuccess(props) {
                     type="button"
                     onClick={
                         () => {
-                            history.push('/createJobOrder');
+                            history.push("/createJobOrder");
                         }
                     }> 
                     Create Another
@@ -32,7 +32,7 @@ function CreateJobOrderSuccess(props) {
                     type="button"
                     onClick={
                         () => {
-                            history.push('/manageJobs');
+                            history.push("/manageJobs");
                         }
                     }> 
                     Manage Jobs

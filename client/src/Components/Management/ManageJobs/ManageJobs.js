@@ -77,7 +77,13 @@ function ManageJobs() {
     async function getCatchments() {
       const response = await fetch(FORM_URL.System + "/Catchments");
       const data = await response.json();
-      setCatchments(data);
+      setCatchments(data.map(c => {
+        return (
+        {
+            key: c.catchment_id,
+            value: c
+        });
+      }));
     }
   }, [setJobOrders, setCatchments, forceUpdate]);
 
@@ -169,7 +175,7 @@ function ManageJobs() {
       return "";
 
     return catchmentIDs
-      .map(id => catchments.find(x => x.catchment_id == id).name)
+      .map(id => catchments.find(x => x.value.catchment_id == id).value.name)
       .join(", "); 
   }
 
@@ -257,10 +263,12 @@ function ManageJobs() {
               <EditJobFields />
               <br></br>
               <h5>Catchments Job will be available to</h5>
-              {catchments.length > 0 && <FastField 
-                name="catchments"
-                component={CatchmentSelector} 
-                catchments={props.catchments} />
+              {catchments.length > 0 && 
+                <FastField 
+                  name="catchments"
+                  component={CatchmentSelector} 
+                  catchments={props.catchments} 
+                />
               }
             </Form>
           </Formik>
@@ -284,7 +292,7 @@ function ManageJobs() {
   
     return (
       <React.Fragment>
-        <TableRow>
+        <TableRow style={{ backgroundColor: 'rgba(0,0,0,0.05)' }}>
           <TableCell>
             <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
               {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
