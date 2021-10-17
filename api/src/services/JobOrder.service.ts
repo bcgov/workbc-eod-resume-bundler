@@ -1,3 +1,4 @@
+import { UpdateJobOrder } from "../interfaces/JobOrder.interface";
 import { Catchment } from "../interfaces/System.interface";
 
 const db = require('../db/db');
@@ -74,3 +75,34 @@ export const setToClosed = async (jobOrderID: string) => {
 
     return;
 }
+
+// Edit Job Order //
+export const editJobOrder = async (jobID: string, updateBody: UpdateJobOrder) => {
+    console.log(        ` UPDATE job_orders
+    SET employer = '${updateBody.employer}',
+        position = '${updateBody.position}',
+        start_date = '${updateBody.startDate}',
+        deadline = '${updateBody.deadline}',
+        catchments = '{${updateBody.catchments.join(',')}}',
+        edited_by = '${updateBody.user}',
+        edited_date = CURRENT_DATE
+  WHERE job_id = '${jobID}'`)
+    await db.query(
+        ` UPDATE job_orders
+          SET employer = '${updateBody.employer}',
+              position = '${updateBody.position}',
+              start_date = '${updateBody.startDate}',
+              deadline = '${updateBody.deadline}',
+              catchments = '{${updateBody.catchments.join(',')}}',
+              edited_by = '${updateBody.user}',
+              edited_date = CURRENT_DATE
+        WHERE job_id = '${jobID}'`
+    )
+    .then((resp: any) => {
+      return;
+    })
+    .catch((err: any) => {
+        console.error("error while querying: ", err);
+        throw new Error(err.message);
+    });
+  }

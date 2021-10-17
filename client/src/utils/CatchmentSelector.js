@@ -35,12 +35,12 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const CatchmentSelector = ({ field, catchments, form, ...props }) => {
+const CatchmentSelector = ({ field, catchments, form, initialSelected }) => {
     const classes = useStyles();
 
     const [checked, setChecked] = React.useState([]);
-    const [left, setLeft] = React.useState(catchments);
-    const [right, setRight] = React.useState([]);
+    const [right, setRight] = React.useState(initialSelected ? initialSelected : []);
+    const [left, setLeft] = React.useState(not(catchments, right));
     const leftChecked = intersection(checked, left);
     const rightChecked = intersection(checked, right);
 

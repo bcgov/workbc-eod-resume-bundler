@@ -3,5 +3,17 @@ export interface JobOrder {
     employer: string,
     position: string,
     location: string,
-    catchmentName?: string
+    catchmentName?: string,
+    startDate: Date,
+    deadline: Date,
+}
+
+export interface UpdateJobOrder {
+    employer: string,
+    position: string,
+    location: string,
+    startDate: Date,
+    deadline: Date,
+    catchments: string[],
+    user: string
 }

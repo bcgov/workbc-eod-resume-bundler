@@ -35,7 +35,9 @@ export const getSubmissions = async () => {
           ca.resume_file_type,
           jo.employer,
           jo.position,
-          jo.location
+          jo.location,
+          jo.start_date,
+          jo.deadline
         FROM submissions s
         INNER JOIN job_orders jo ON jo.job_id = s.job_id
         LEFT JOIN client_applications ca ON ca.submission_id = s.submission_id
@@ -55,7 +57,9 @@ export const getSubmissions = async () => {
               jobOrderID: a.job_id,
               employer: a.employer,
               position: a.position,
-              location: a.location
+              location: a.location,
+              startDate: a.start_date,
+              deadline: a.deadline
             }
 
             let applicant: ClientApplication = {
@@ -305,7 +309,6 @@ export const bundleAndSend = async (clientApplicationIDs: String[], email: Strin
 
 // Edit Client Application //
 export const editClientApplication = async (clientApplicationID: string, updateBody: UpdateClientApplication) => {
-  console.log(updateBody);
   await db.query(
       ` UPDATE client_applications
         SET catchment_id = ${updateBody.catchmentID},

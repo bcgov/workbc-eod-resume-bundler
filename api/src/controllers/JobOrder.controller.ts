@@ -2,6 +2,7 @@ import * as express from "express";
 import { ValidationError } from "yup";
 import * as jobOrderService from "../services/JobOrder.service";
 import { JobOrderValidationSchema } from "../schemas/JobOrderValidationSchema";
+import { UpdateJobOrder } from "../interfaces/JobOrder.interface";
 
 // Get Job Orders //
 export const getJobOrders = async (req: express.Request, res: express.Response) => {
@@ -54,6 +55,32 @@ export const setToClosed = async (req: express.Request, res: express.Response) =
   try {
     await jobOrderService.setToClosed(req.params.id);
     return res.status(200).send(`Successfully updated ${req.params.id}`);
+
+  } catch(e) {
+    console.log(e);
+    return res.status(500).send("Internal Server Error");
+  }
+};
+
+// Edit Job Order //
+export const editJobOrder = async (req: express.Request, res: express.Response) => {
+  console.log("PUT request received to " + req.get("host") + req.originalUrl);
+  console.log("request body: ");
+  console.log(req.body);
+
+  try {
+    let updateBody: UpdateJobOrder = {
+      employer: req.body.employer,
+      position: req.body.position,
+      location: req.body.location,
+      startDate: req.body.startDate,
+      deadline: req.body.deadline,
+      catchments: req.body.catchments.map((c: any) => c.catchment_id),
+      user: req.body.user
+    }
+
+    await jobOrderService.editJobOrder(req.params.jobID, updateBody);
+    return res.status(200).send();
 
   } catch(e) {
     console.log(e);

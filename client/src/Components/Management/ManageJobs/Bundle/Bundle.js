@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import CircularProgress from '@material-ui/core/CircularProgress'
-import { FORM_URL } from '../../../constants/form';
+import { FORM_URL } from '../../../../constants/form';
 import { useHistory } from 'react-router-dom';
 
 function Bundle({location}) {

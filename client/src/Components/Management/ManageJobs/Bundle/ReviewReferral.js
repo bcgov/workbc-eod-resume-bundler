@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import { FORM_URL } from '../../../constants/form';
+import { FORM_URL } from '../../../../constants/form';
 import { makeStyles } from '@material-ui/core/styles';
-import SearchBar from '../../../utils/SearchBar';
+import SearchBar from '../../../../utils/SearchBar';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -126,6 +126,7 @@ function ReviewReferral({location}) {
     }, [setReferrals, setCatchments, setCentres, forceUpdate]);
 
     const DisplayCatchments = (catchmentIDs) => {
+      console.log(catchmentIDs)
       if(catchments.length == 0)
         return "";
   
@@ -455,7 +456,7 @@ function ReviewReferral({location}) {
                       </div>
                       { jobOrder.catchments.length <= MAX_CATCHMENTS && 
                         <div>
-                          <b>Catchments:</b> { DisplayCatchments(jobOrder.catchments) }
+                          <b>Catchments:</b> { DisplayCatchments(jobOrder.catchments.map(c => c.key)) }
                         </div>
                       }
                       { jobOrder.catchments.length == catchments.length && 
@@ -467,7 +468,7 @@ function ReviewReferral({location}) {
               </div>
               { jobOrder.catchments.length > MAX_CATCHMENTS && jobOrder.catchments.length != catchments.length && // Put catchments in a separate row if there's more than 4 of them
                   <div className="row mt-2">
-                    <b>Catchments:</b> { DisplayCatchments(jobOrder.catchments) }
+                    <b>Catchments:</b> { DisplayCatchments(jobOrder.catchments.map(c => c.key)) }
                   </div>
               }
               <div className="row">

@@ -5,5 +5,6 @@ export const router = express.Router();
 router.get("/", jobOrderController.getJobOrders);
 router.post("/", jobOrderController.createJobOrder);
 router.post("/:id/setClosed", jobOrderController.setToClosed);
+router.put("/:jobID", jobOrderController.editJobOrder);
 
 module.exports = router;
