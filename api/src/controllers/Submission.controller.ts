@@ -133,6 +133,7 @@ export const editClientApplication = async (req: express.Request, res: express.R
         catchmentID: req.body.catchment,
         centreID: req.body.centre,
         clientName: req.body.clientName,
+        preferredName: req.body.preferredName,
         clientCaseNumber: req.body.clientCaseNumber,
         user: req.body.user 
       }

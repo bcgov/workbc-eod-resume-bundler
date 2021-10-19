@@ -9,6 +9,7 @@ const EditClientModal = ({submission, applicant, catchments, centres, show, hand
         catchment: submission.catchmentID,
         centre: submission.centreID,
         clientName: applicant.clientName,
+        preferredName: applicant.preferredName,
         clientCaseNumber: applicant.clientCaseNumber,
         user: keycloak.tokenParsed?.preferred_username
       }
@@ -119,6 +120,22 @@ const EditClientModal = ({submission, applicant, catchments, centres, show, hand
                                                 { msg => <div style={{ color: 'red' }}>{msg}</div> }
                                             </ErrorMessage>
                                         </div>
+                                        <div className="form-group col-md-6">
+                                            <label className="control-label">Preferred Name</label>
+                                            <Field
+                                                name="preferredName"
+                                                type="text"
+                                                className="form-control"
+                                            />
+                                            <ErrorMessage
+                                                name="preferredName"
+                                                className="field-error">
+                                                { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                                            </ErrorMessage>
+                                        </div>
+                                    </div>
+
+                                    <div className="form-row">
                                         <div className="form-group col-md-6">
                                             <label className="control-label">Client Case Number</label>
                                             <Field

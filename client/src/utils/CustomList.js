@@ -36,7 +36,7 @@ const CustomList = ({title, items, handleToggle, handleToggleAll, checked, numbe
             className={classes.cardHeader}
             avatar={
                 <Checkbox
-                    onClick={() => handleToggleAll(items)}
+                    onClick={handleToggleAll(items)}
                     checked={numberOfChecked(items) === items.length && items.length !== 0}
                     indeterminate={numberOfChecked(items) !== items.length && numberOfChecked(items) !== 0}
                     disabled={items.length === 0}

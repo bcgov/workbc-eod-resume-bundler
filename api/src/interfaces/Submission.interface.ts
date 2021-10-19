@@ -42,6 +42,7 @@ export interface UpdateClientApplication {
     catchmentID: number,
     centreID: number,
     clientName: string,
+    preferredName: string,
     clientCaseNumber: string,
     user: string
 }

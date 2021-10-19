@@ -103,11 +103,12 @@ function ReviewReferral({location}) {
       async function getReferrals() {
         const response = await fetch(FORM_URL.Submissions);
         const data = await response.json();
-        const referrals = data.submissions.sort((a,b) => a.catchmentID > b.catchmentID ? 1 : -1);
+        const referrals = data.submissions
+          .filter(s => s.jobID == jobOrder.id)
+          .sort((a,b) => a.catchmentID > b.catchmentID ? 1 : -1);
         referrals.forEach(r => {
           r.applicants.sort((a,b) => a.clientApplicationID > b.clientApplicationID ? 1 : -1);       
         });
-        console.log(referrals)
         setReferrals(referrals);
         setReferralsToDisplay(referrals);
       }
@@ -126,7 +127,6 @@ function ReviewReferral({location}) {
     }, [setReferrals, setCatchments, setCentres, forceUpdate]);
 
     const DisplayCatchments = (catchmentIDs) => {
-      console.log(catchmentIDs)
       if(catchments.length == 0)
         return "";
   

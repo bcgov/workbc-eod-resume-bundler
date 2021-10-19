@@ -111,7 +111,6 @@ function ManageJobs() {
   }
 
   const handleReviewReferral = (props) => () => {
-    console.log(props);
     history.push({
       pathname: '/reviewReferral',
       props
@@ -325,7 +324,7 @@ function ManageJobs() {
                       jobOrder.location,
                       jobOrder.submissions,
                       jobOrder.created_date.substring(0, 10),
-                      jobOrder.edited_date.substring(0, 10),
+                      jobOrder.edited_date?.substring(0, 10),
                       jobOrder.edited_by
                       )}>
                   </Row>);

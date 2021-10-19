@@ -27,6 +27,7 @@ export const getSubmissions = async () => {
           s.created_by,
           ca.client_application_id,
           ca.client_name,
+          ca.preferred_name,
           ca.client_case_number,
           ca.consent,
           ca.status,
@@ -314,6 +315,7 @@ export const editClientApplication = async (clientApplicationID: string, updateB
         SET catchment_id = ${updateBody.catchmentID},
             centre_id = ${updateBody.centreID},
             client_name = '${updateBody.clientName}',
+            preferred_name = '${updateBody.preferredName}',
             client_case_number = '${updateBody.clientCaseNumber}',
             edited_by = '${updateBody.user}',
             edited_date = CURRENT_DATE
