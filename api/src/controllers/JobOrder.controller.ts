@@ -62,6 +62,22 @@ export const setToClosed = async (req: express.Request, res: express.Response) =
   }
 };
 
+// Open Job Order //
+export const setToOpen = async (req: express.Request, res: express.Response) => {
+  console.log("POST request received to " + req.get("host") + req.originalUrl);
+  console.log("request params: ");
+  console.log(req.params);
+
+  try {
+    await jobOrderService.setToOpen(req.params.id);
+    return res.status(200).send(`Successfully updated ${req.params.id}`);
+
+  } catch(e) {
+    console.log(e);
+    return res.status(500).send("Internal Server Error");
+  }
+};
+
 // Edit Job Order //
 export const editJobOrder = async (req: express.Request, res: express.Response) => {
   console.log("PUT request received to " + req.get("host") + req.originalUrl);

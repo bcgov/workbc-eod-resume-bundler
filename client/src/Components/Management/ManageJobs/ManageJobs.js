@@ -20,6 +20,7 @@ import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import CircularProgress from '@material-ui/core/CircularProgress'
 import EditJobModal from './Edit/EditJobModal';
+import ViewJobModal from './View/ViewJobModal';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -110,6 +111,20 @@ function ManageJobs() {
       [jobID] : true}));
   }
 
+  const [showView, setShowView] = useState({});
+
+  const handleViewClose = (jobID) => () => {
+    setShowView(showView => ({
+      ...showView,
+      [jobID] : false}));
+  }
+  
+  const handleViewShow = jobID => () => {
+    setShowView(showView => ({
+      ...showView,
+      [jobID] : true}));
+  }
+
   const handleReviewReferral = (props) => () => {
     history.push({
       pathname: '/reviewReferral',
@@ -132,7 +147,22 @@ function ManageJobs() {
     setForceUpdate(forceUpdate + 1); // force re-render
   }
 
-  const createData = (id, employer, position, status, startDate, deadline, catchments, location, submissions, created, lastEdit, editedBy) => {
+  const setStatusOpen = jobID => async () => {
+    await fetch(FORM_URL.JobOrders + "/" + jobID + "/setOpen", {
+      method: "POST",
+      credentials: 'include',
+      headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+      }
+    })
+    .catch(err => {
+      console.log(err);
+    });
+    setForceUpdate(forceUpdate + 1); // force re-render
+  }
+
+  const createData = (id, employer, position, status, startDate, deadline, catchments, location, submissions, vacancies, minimumRequirements, otherInformation, createdBy, created, lastEdit, editedBy) => {
       return {
           id,
           employer,
@@ -143,6 +173,10 @@ function ManageJobs() {
           catchments,
           location,
           submissions,
+          vacancies,
+          minimumRequirements,
+          otherInformation,
+          createdBy,
           created,
           lastEdit,
           editedBy
@@ -155,7 +189,7 @@ function ManageJobs() {
                       <EditIcon style={{color: "white"}}></EditIcon>
                     </button>
     
-    let viewIcon =  <button key="viewIcon" className="btn btn-primary btn-sm" type="button" style={{minWidth: "10px", paddingTop: "0.5rem", paddingBottom: "0.5rem"}}> 
+    let viewIcon =  <button key="viewIcon" className="btn btn-primary btn-sm" type="button" onClick={handleViewShow(props.jobID)} style={{minWidth: "10px", paddingTop: "0.5rem", paddingBottom: "0.5rem"}}> 
                       <VisibilityIcon style={{color: "white"}}></VisibilityIcon> 
                     </button>
     
@@ -163,7 +197,7 @@ function ManageJobs() {
                         <CancelIcon style={{color: "white"}}></CancelIcon> 
                       </button>
     
-    let openIcon = <button key="openIcon" className="btn btn-primary btn-sm" type="button" style={{minWidth: "10px", paddingTop: "0.5rem", paddingBottom: "0.5rem"}}> 
+    let openIcon = <button key="openIcon" className="btn btn-primary btn-sm" type="button" onClick={setStatusOpen(props.jobID)} style={{minWidth: "10px", paddingTop: "0.5rem", paddingBottom: "0.5rem"}}> 
                       <MeetingRoomIcon style={{color: "white"}}></MeetingRoomIcon> 
                     </button>
       
@@ -243,6 +277,18 @@ function ManageJobs() {
                     <div>
                         <b>Created:</b> {row.created}
                     </div>
+                    { row.catchments.length <= 4 &&
+                      <div>
+                        <b>Catchments:</b> {DisplayCatchments(row.catchments.map(c => {
+                          return c.key;
+                        }))}
+                      </div>
+                    }
+                    { row.catchments.length == catchments.length &&
+                      <div>
+                        <b>Catchments:</b> All
+                      </div>
+                    }
                   </div>
                   <div className="column" style= {{ textAlign: "left", marginRight: "7px" }}>
                     <div>
@@ -263,7 +309,7 @@ function ManageJobs() {
                   </div>
                 </div>
                 <div className="row mt-2">
-                  { row.catchments.length > 4 &&
+                  { row.catchments.length > 4 && row.catchments.length != catchments.length &&
                     <div>
                       <b>Catchments:</b> {DisplayCatchments(row.catchments.map(c => {
                         return c.key;
@@ -282,6 +328,11 @@ function ManageJobs() {
           handleShow={handleEditShow}
           handleClose={handleEditClose} >
         </EditJobModal>
+        <ViewJobModal 
+          job={row}
+          show={showView}
+          handleClose={handleViewClose} >
+        </ViewJobModal>
       </React.Fragment>
     );
   });
@@ -323,6 +374,10 @@ function ManageJobs() {
                       jobOrder.catchments,
                       jobOrder.location,
                       jobOrder.submissions,
+                      jobOrder.vacancies,
+                      jobOrder.minimum_requirements,
+                      jobOrder.other_information,
+                      jobOrder.created_by,
                       jobOrder.created_date.substring(0, 10),
                       jobOrder.edited_date?.substring(0, 10),
                       jobOrder.edited_by
