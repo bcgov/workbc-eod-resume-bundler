@@ -1,7 +1,7 @@
 import { Modal } from 'react-bootstrap';
 import { useKeycloak } from '@react-keycloak/web';
 import { Formik, Form, Field, FastField, FieldArray, ErrorMessage } from 'formik';
-import { FORM_URL } from '../../constants/form';
+import { FORM_URL } from '../../../constants/form';
 
 const EditClientModal = ({submission, applicant, catchments, centres, show, handleClose, forceUpdate, setForceUpdate}) => {
     const { keycloak } = useKeycloak();

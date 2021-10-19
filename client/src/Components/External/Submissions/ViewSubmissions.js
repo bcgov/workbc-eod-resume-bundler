@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FORM_URL } from '../../constants/form';
+import { FORM_URL } from '../../../constants/form';
 import { makeStyles } from '@material-ui/core/styles';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import Table from '@material-ui/core/Table';
@@ -13,7 +13,7 @@ import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import IconButton from '@material-ui/core/IconButton';
 import EditIcon from '@material-ui/icons/Edit';
 import Collapse from '@material-ui/core/Collapse';
-import SearchBar from '../../utils/SearchBar';
+import SearchBar from '../../../utils/SearchBar';
 import ViewClientModal from './ViewClientModal';
 import EditClientModal from './EditClientModal';
 
