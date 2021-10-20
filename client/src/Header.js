@@ -44,7 +44,7 @@ function Header() {
                   {(!keycloak.authenticated && initialized) ?
                     <a className="btn btn-bcgold" href="/loginLanding">Login</a>
                     :
-                    <a className="btn btn-bcgold" href={`https://logontest7.gov.bc.ca/clp-cgi/logoff.cgi?retnow=1&returl=${keycloak.createLogoutUrl()}`}>Logout</a>
+                    <a className="btn btn-bcgold" href={`https://logontest7.gov.bc.ca/clp-cgi/logoff.cgi?retnow=1&returl=${keycloak.createLogoutUrl({redirectUri: `${window.location.origin}/logoutSuccess`})}`}>Logout</a>
                   }
                 </>
               }
