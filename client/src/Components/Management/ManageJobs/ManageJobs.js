@@ -53,7 +53,7 @@ function not(a, b) {
 
 function ManageJobs() {
   let history = useHistory();
-  const classes = useStyles();
+  const MAX_CATCHMENTS = 3;
 
   const [jobOrders, setJobOrders] = useState([]);
   const [jobOrdersLoading, setJobOrdersLoading] = useState(true);
@@ -277,7 +277,7 @@ function ManageJobs() {
                     <div>
                         <b>Created:</b> {row.created}
                     </div>
-                    { row.catchments.length <= 4 &&
+                    { row.catchments.length <= MAX_CATCHMENTS &&
                       <div>
                         <b>Catchments:</b> {DisplayCatchments(row.catchments.map(c => {
                           return c.key;
@@ -309,7 +309,7 @@ function ManageJobs() {
                   </div>
                 </div>
                 <div className="row mt-2">
-                  { row.catchments.length > 4 && row.catchments.length != catchments.length &&
+                  { row.catchments.length > MAX_CATCHMENTS && row.catchments.length != catchments.length &&
                     <div>
                       <b>Catchments:</b> {DisplayCatchments(row.catchments.map(c => {
                         return c.key;

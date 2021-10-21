@@ -36,6 +36,26 @@ function Header() {
             <div className="navbar-nav">
               <a className="nav-item nav-link" href="/">Home</a>
             </div>
+            {keycloak.hasResourceRole('eod-staff') &&
+              <React.Fragment>
+                <div className="navbar-nav">
+                  <a className="nav-item nav-link" href="/createJobOrder">Create Job Order</a>
+                </div>
+                <div className="navbar-nav">
+                  <a className="nav-item nav-link" href="/manageJobs">Manage Jobs</a>
+                </div>
+              </React.Fragment>
+            }
+            {keycloak.hasResourceRole('eod-contractor') &&
+              <React.Fragment>
+                <div className="navbar-nav">
+                  <a className="nav-item nav-link" href="/jobOrdersExternal">View Job Orders</a>
+                </div>
+                <div className="navbar-nav">
+                  <a className="nav-item nav-link" href="/submissionsExternal">View Submissions</a>
+                </div>
+              </React.Fragment>
+            }
           </div>
           <ul className="nav navbar-nav ml-auto">
             <li className="nav-item">

@@ -1,7 +1,6 @@
 import { Modal } from 'react-bootstrap';
 
 const ViewJobModal = ({job, show, handleClose}) => {
-    console.log(job);
     return (
         <Modal show={show[job.id]} onHide={handleClose(job.id)} size="xl">
             <Modal.Header>
