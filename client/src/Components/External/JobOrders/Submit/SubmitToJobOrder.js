@@ -10,8 +10,8 @@ function SubmitToJobOrder(props) {
   const { keycloak } = useKeycloak();
   const h = useHistory();
 
-  const [catchment, setCatchment] = React.useState(1);
-  const [centre, setCentre] = React.useState(1);
+  const [catchment, setCatchment] = useState(1);
+  const [centre, setCentre] = useState(-1);
 
   let [applicants, setApplicants] = useState([
       { 
@@ -34,7 +34,7 @@ function SubmitToJobOrder(props) {
 
   const SubmissionValidationSchema = yup.object().shape({
     catchment: yup.number().required("required"),
-    centre: yup.number().required("required"),
+    centre: yup.number().min(0, "required"),
     applicants: yup.array().of(
         yup.object({
             applicantID: yup.number(),
@@ -79,11 +79,11 @@ function SubmitToJobOrder(props) {
         {props.location.jobID && catchments && centres &&
           <div className="row">
               <div className="col-md-12">
-                <h1>Resume Bundler - Submitting to Job Order {props.location.jobID}</h1>  
+                <h1>Resume Bundler - Submitting to {props.location.employer} Job Order {props.location.jobID} - {props.location.jobTitle}</h1>  
                 <p>Submit a Resume. Click on Add Another to add more than one resume at a time.</p>  
                 <Formik
                   initialValues={initialValues}
-                  enableReinitialize={true}
+                  enableReinitialize={false}
                   validationSchema={SubmissionValidationSchema}
                   onSubmit={(values, { resetForm, setErrors, setStatus, setSubmitting }) => {
                     let formData = new FormData(); // use form data to be able to send resume buffers to API
@@ -141,7 +141,7 @@ function SubmitToJobOrder(props) {
                                             name="catchment"
                                             onChange={e => {
                                               handleChange(e);
-                                              setCatchment(e.target.value);
+                                              setFieldValue("centre", -1); // reset centre on new catchment select
                                             }}
                                             className="form-control">
                                             { catchments.map(c => (
@@ -159,43 +159,37 @@ function SubmitToJobOrder(props) {
                                         <Field
                                             as="select"
                                             name="centre"
+                                            placeholder="Select One"
                                             onChange={e => {
                                               handleChange(e);
-                                              setCentre(e.target.value);
                                             }}
                                             className="form-control">
+                                            <option defaultValue>Select One</option>
                                             {displayCentresForCatchment(values.catchment)}
                                         </Field>
                                         <ErrorMessage
                                             name="centre"
                                             component="div"
-                                            className="field-error"
-                                        />
+                                            className="field-error">
+                                            { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                                        </ErrorMessage>
                                     </div>
                                 </div>
                                 <div>
-                                    <ApplicantForm applicants={values.applicants} setFieldValue={setFieldValue} />
-                                </div>
-                                <div>
-                                  { applicants.length > 1 ? 
-                                  <button 
-                                    type="button" 
-                                    className="btn btn-danger"
-                                    style={{ marginBottom: "0.5rem" }}
-                                    onClick={() => {    
-                                      setApplicants(values.applicants.slice(0, -1));
-                                    }}>
-                                    Remove
-                                  </button>
-                                  : null }
+                                    <ApplicantForm 
+                                      applicants={values.applicants} 
+                                      applicantsState={applicants}
+                                      setApplicants={setApplicants}
+                                      values={values}
+                                      setFieldValue={setFieldValue} />
                                 </div>
                                 <div>
                                   <button 
                                     type="button" 
                                     className="btn btn-primary"
                                     style={{ marginBottom: "0.5rem" }}
-                                    onClick={() => {   
-                                      setApplicants(values.applicants.concat(
+                                    onClick={() => {  
+                                      setFieldValue("applicants", values.applicants.concat(
                                         {
                                           applicantID: applicants.length,
                                           clientName: "", 

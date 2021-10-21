@@ -19,9 +19,9 @@ export const getSubmissions = async () => {
         `SELECT 
           s.submission_id,
           s.job_id,
-          s.catchment_id,
+          ca.catchment_id,
           cat.name AS catchment_name,
-          s.centre_id,
+          ca.centre_id,
           cen.name AS centre_name,
           s.created_date,
           s.created_by,
@@ -42,8 +42,8 @@ export const getSubmissions = async () => {
         FROM submissions s
         INNER JOIN job_orders jo ON jo.job_id = s.job_id
         LEFT JOIN client_applications ca ON ca.submission_id = s.submission_id
-        LEFT JOIN catchments cat ON cat.catchment_id = s.catchment_id
-        LEFT JOIN centres cen ON cen.centre_id = s.centre_id`
+        LEFT JOIN catchments cat ON cat.catchment_id = ca.catchment_id
+        LEFT JOIN centres cen ON cen.centre_id = ca.centre_id`
       )
     .then((resp: any) => {
         let submissions: {[id: string]: Submission} = {};
@@ -71,7 +71,11 @@ export const getSubmissions = async () => {
               consent: a.consent,
               status: a.status,
               resume: resume,
-              bundled: a.bundled
+              bundled: a.bundled,
+              catchmentID: a.catchment_id,
+              catchmentName: a.catchment_name,
+              centreID: a.centre_id,
+              centreName: a.centre_name
             }
 
             let submission: Submission = {
@@ -99,7 +103,11 @@ export const getSubmissions = async () => {
               consent: a.consent,
               status: a.status,
               resume: resume,
-              bundled: a.bundled
+              bundled: a.bundled,
+              catchmentID: a.catchment_id,
+              catchmentName: a.catchment_name,
+              centreID: a.centre_id,
+              centreName: a.centre_name
             }
 
             submissions[a.submission_id].applicants.push(applicant);

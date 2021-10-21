@@ -236,7 +236,9 @@ function ViewJobOrders() {
                       style={{ backgroundColor: "grey", color: "white"}}
                       onClick={() => history.push({
                                 pathname: "/submitToJobOrder",
-                                jobID: jobOrder.job_id
+                                jobID: jobOrder.job_id,
+                                employer: jobOrder.employer,
+                                jobTitle: jobOrder.position
                               })}>
                   Submit
                   </a>

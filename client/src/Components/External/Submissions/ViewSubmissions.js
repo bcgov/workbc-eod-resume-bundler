@@ -104,7 +104,6 @@ function ViewSubmissions() {
 
   const [showEdit, setShowEdit] = useState({});
   const handleEditClose = clientID => () => {
-    console.log(clientID)
     setShowEdit(showEdit => ({
       ...showEdit,
       [clientID] : false}))

@@ -3,7 +3,7 @@ import { Formik, Form, Field, FastField, FieldArray, ErrorMessage } from 'formik
 import Dropzone from 'react-dropzone';
 import { makeStyles } from '@material-ui/core/styles';
 
-function SubmitToJobOrder({ applicants, setFieldValue }) {
+function ApplicantForm({ applicants, setApplicants, applicantsState, values, setFieldValue }) {
     const useStyles = makeStyles((theme) => ({
         root: {
           '& > *': {
@@ -137,6 +137,22 @@ function SubmitToJobOrder({ applicants, setFieldValue }) {
                                     { msg => <div style={{ color: 'red' }}>{msg}</div> }
                                 </ErrorMessage>
                             </div>
+                            { applicants.length > 1 &&
+                                <button 
+                                    type="button" 
+                                    className="btn btn-danger mb-5"
+                                    style={{ marginBottom: "0.5rem" }}
+                                    onClick={(e) => {
+                                        let i = 0;
+                                        values.applicants.forEach(a => {
+                                            a.applicantID = i; // reset the applicant ids to 0,1,2,3...etc to allow filtering by index
+                                            i++;
+                                        });
+                                        setFieldValue("applicants", values.applicants.filter(a => a.applicantID != index));
+                                    }}>
+                                    Remove
+                                </button>
+                            }
                         </div>
                     ))}
                 </div>
@@ -146,4 +162,4 @@ function SubmitToJobOrder({ applicants, setFieldValue }) {
     );
 }
 
-export default SubmitToJobOrder;
+export default ApplicantForm;
