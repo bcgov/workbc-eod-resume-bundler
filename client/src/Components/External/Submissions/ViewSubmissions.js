@@ -87,7 +87,9 @@ function ViewSubmissions() {
   const [submissions, setSubmissions] = useState([[]]);
   const [submissionsToDisplay, setSubmissionsToDisplay] = useState([]);
   const handleUpdateSubmissionsToDisplay = (searchString) => {
-    setSubmissionsToDisplay(submissions.filter(s => s.jobOrderInfo.employer.toLowerCase().startsWith(searchString.toLowerCase())));
+    setSubmissionsToDisplay(submissions.filter(s => // search on client name and client case number
+      s.applicants.find(a => (a.clientName.toLowerCase().startsWith(searchString.toLowerCase())) || (a.clientCaseNumber.toLowerCase().startsWith(searchString.toLowerCase())))
+    )); 
   }
 
   const [showView, setShowView] = useState({});
@@ -152,7 +154,7 @@ function ViewSubmissions() {
     async function getSubmissions() {
       const response = await fetch(FORM_URL.Submissions);
       const data = await response.json();
-      const submissions = data.submissions.sort((a,b) => a.catchmentID > b.catchmentID ? 1 : -1);
+      const submissions = data.submissions.sort((a,b) => a.createdDate < b.createdDate ? 1 : -1);
       submissions.forEach(s => {
         s.applicants.sort((a,b) => a.clientApplicationID > b.clientApplicationID ? 1 : -1);       
       });

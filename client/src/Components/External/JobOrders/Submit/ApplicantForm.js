@@ -111,7 +111,7 @@ function ApplicantForm({ applicants, setApplicants, applicantsState, values, set
                                             { acceptedFiles.length > 0 && 
                                                 <div {...getRootProps({ style })}>
                                                     <input {...getInputProps()} />
-                                                    <p style={{ margin: "auto", paddingTop: "30px", paddingBottom: "30px", textAlign: "center" }}>{acceptedFiles[0].name}</p>
+                                                    <p style={{ margin: "auto", paddingTop: "30px", paddingBottom: "30px", textAlign: "center", backgroundColor: "#d9e7d8" }}>{acceptedFiles[0].name}</p>
                                                 </div>
                                             }
                                         </div>

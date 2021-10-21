@@ -19,7 +19,7 @@ const EditClientModal = ({submission, applicant, catchments, centres, show, hand
         catchment: yup.number().required("required"),
         centre: yup.number().min(0, "required"),
         clientName: yup.string().required("required"),
-        preferredName: yup.string().required("required"),
+        preferredName: yup.string(),
         clientCaseNumber: yup.string().required("required")
     });
 

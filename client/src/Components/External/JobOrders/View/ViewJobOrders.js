@@ -81,7 +81,7 @@ function ViewJobOrders() {
   const [catchments, setCatchments] = useState([]);
 
   const handleUpdateEmployersToDisplay = (searchString) => {
-    setEmployersToDisplay(employers.filter(e => e.toLowerCase().startsWith(searchString.toLowerCase())));
+    setEmployersToDisplay(employers.filter(e => e.location.toLowerCase().startsWith(searchString.toLowerCase())));
   }
 
   const [showView, setShowView] = useState({});
@@ -113,7 +113,7 @@ function ViewJobOrders() {
       jobOrders.map(jo => {
         let alreadyExists = uniqueEmployers.find(e => e == jo.employer);
         if (!alreadyExists)
-          uniqueEmployers.push(jo.employer);
+          uniqueEmployers.push(jo);
       });
       setEmployers(uniqueEmployers);
       setEmployersToDisplay(uniqueEmployers);
@@ -145,7 +145,7 @@ function ViewJobOrders() {
               { employersToDisplay && (
                 employersToDisplay?.map(employer => (
                   <EmployerRow 
-                    employer={employer}>
+                    employer={employer.employer}>
                   </EmployerRow>
                 ))                
               )}
