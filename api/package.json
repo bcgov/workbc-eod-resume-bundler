@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@graphile-contrib/pg-simplify-inflector": "^6.1.0",
+    "@types/axios": "^0.14.0",
     "@types/express-formidable": "^1.2.0",
     "@types/nodemailer": "^6.4.4",
+    "axios": "^0.23.0",
     "blob-util": "^2.0.2",
     "browserify-fs": "^1.0.0",
     "cookie-parser": "~1.4.4",
