@@ -1,20 +1,16 @@
-import { AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios"
 import { oesApi } from "../db/OESConfig";
+import { OESProfile } from "../interfaces/System.interface";
 
-export const getUserPermissions = async (token: string, params: any): Promise<any> => {
+export const getUserPermissions = async (userGUID: string): Promise<any> => {
     try{
         const resp: AxiosResponse = await oesApi.get("User/Permissions",{
             auth: {
                 username: process.env.OES_USER || "",
                 password: process.env.OES_PASS || ""
             },
-            headers: {
-                "KeycloakToken": token
-            },
             params: {
-                userGUID: params.userGUID,
-                username: params.username,
-                isIDIR: params.isIDIR
+                userGUID: userGUID
             }
         });
 
@@ -23,4 +19,27 @@ export const getUserPermissions = async (token: string, params: any): Promise<an
         console.error("error while calling OES: ", err)
         throw new Error(err.response?.status);
       }
+}
+
+export const getUserProfile = async (token: string): Promise<any> => {
+    try {
+        const resp: AxiosResponse = await oesApi.get("Profile",{
+            auth: {
+              username: process.env.OES_USER || "",
+              password: process.env.OES_PASS || ""
+            },
+            headers: {
+              "KeycloakToken": token
+            }
+          })
+          .catch(function (err: AxiosError){
+            console.log("error");
+            throw new Error(err.code);
+        });
+
+        return resp; 
+
+    } catch (err: any){
+        throw new Error(err.response?.status)
+    }
 }

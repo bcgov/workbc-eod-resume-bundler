@@ -41,8 +41,33 @@ export const getUserPermissions = async (req: express.Request, res: express.Resp
 
   try {
     let token: string = <string>req.headers.keycloaktoken;
-    let permissions: any = await systemService.getUserPermissions(token, req.body);
+    let userGUID: string = <string>req.headers.userguid;
+    let permissions: any = await systemService.getUserPermissions(token, userGUID);
     return res.status(200).json(permissions);
+
+  } catch(e: any | undefined) {
+    let statusCode: number = e.message;
+    if (statusCode == 401){
+        console.log("Authentication Error");
+        return res.status(401).send();
+    }
+    else{
+      //console.log(e);
+      return res.status(500).send("Internal Server Error");
+    }
+  }
+};
+
+// Get User Profile //
+export const getUserProfile = async (req: express.Request, res: express.Response) => {
+  console.log("GET request received to " + req.get("host") + req.originalUrl);
+  console.log("request body: ");
+  console.log(req.body);
+
+  try {
+    let token: string = <string>req.headers.keycloaktoken;
+    let profile: any = await systemService.getUserProfile(token);
+    return res.status(200).json(profile);
 
   } catch(e: any | undefined) {
     let statusCode: number = e.message;

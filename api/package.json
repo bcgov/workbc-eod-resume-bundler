@@ -36,6 +36,7 @@
     "helmet": "^4.1.0",
     "hummus": "^1.0.110",
     "js-base64": "^3.6.1",
+    "keycloak-connect": "^15.0.2",
     "memory-streams": "^0.1.3",
     "mongodb": "^3.6.9",
     "morgan": "~1.9.1",
