@@ -158,7 +158,8 @@ function ViewSubmissions() {
     async function getSubmissions() {
       const response = await fetch(FORM_URL.Submissions, {
         headers: {
-          "Authorization": "Bearer " + keycloak.token
+          "Authorization": "Bearer " + keycloak.token,
+          "User": keycloak.tokenParsed.preferred_username // only get submissions from the current user
         }
       });
       const data = await response.json();

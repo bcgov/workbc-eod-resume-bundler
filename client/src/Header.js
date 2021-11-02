@@ -1,12 +1,37 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react';
 import logo from './bcid-logo-rev-en.svg'
 import logoSmall from './bcid-symbol-rev.svg'
 import { useKeycloak } from '@react-keycloak/web'
 import { useHistory } from 'react-router-dom'
+import { FORM_URL } from './constants/form';
 
 function Header() {
   const { keycloak, initialized } = useKeycloak();
   let history = useHistory();
+
+  const [permissions, setPermissions] = useState();
+
+  useEffect(async () => {
+      if (initialized && keycloak.tokenParsed)
+          await getPermissions();
+  
+      async function getPermissions() {
+          let response = await fetch(FORM_URL.System + "/UserPermissions", {
+              method: "GET",
+              credentials: 'include',
+              headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json',
+                  'KeycloakToken': keycloak.token,
+                  'UserGUID': keycloak.tokenParsed.smgov_userguid,
+                  'Authorization': "Bearer " + keycloak.token
+              }
+          });
+
+          let permissions = await response.json();
+          setPermissions(permissions);
+      }
+  }, [initialized]);
 
   return (
     <header>
@@ -46,13 +71,13 @@ function Header() {
                 </div>
               </React.Fragment>
             }
-            {keycloak.hasResourceRole('eod-contractor') &&
+            {initialized && permissions?.hasAccess && keycloak.tokenParsed.identity_provider.includes("bceid") &&
               <React.Fragment>
                 <div className="navbar-nav">
                   <a className="nav-item nav-link" href="/jobOrdersExternal">View Job Orders</a>
                 </div>
                 <div className="navbar-nav">
-                  <a className="nav-item nav-link" href="/submissionsExternal">View Submissions</a>
+                  <a className="nav-item nav-link" href="/submissionsExternal">My Submissions</a>
                 </div>
               </React.Fragment>
             }

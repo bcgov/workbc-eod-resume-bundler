@@ -15,31 +15,21 @@ const keycloak = new Keycloak({
 const keycloakProviderInitConfig = {
   onLoad: 'check-sso',
 }
-/*
-const onKeycloakEvent = (event, error) => {
-  console.log('onKeycloakEvent', event, error)
-}
 
-const onKeycloakTokens = (tokens) => {
-  console.log('onKeycloakTokens', tokens)
-}
-*/
+
 function App() {
-
-
-
-    return (
-      <ReactKeycloakProvider
-        authClient={keycloak}
-        initConfig={keycloakProviderInitConfig}
-      >
-        <Router>
-          <Header />
-          <Main />
-          <Footer />
-        </Router>
-      </ReactKeycloakProvider>
-    );
+  return (
+    <ReactKeycloakProvider
+      authClient={keycloak}
+      initConfig={keycloakProviderInitConfig}
+    >
+      <Router>
+        <Header />
+        <Main />
+        <Footer />
+      </Router>
+    </ReactKeycloakProvider>
+  );
 }
 
 export default App;

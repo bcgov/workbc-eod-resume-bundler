@@ -12,7 +12,7 @@ const hummus = require('hummus');
 const memoryStreams = require('memory-streams');
 
 // Get Submissions //
-export const getSubmissions = async () => {
+export const getSubmissions = async (user: string) => {
     let res = null;
 
     await db.query(
@@ -43,7 +43,8 @@ export const getSubmissions = async () => {
         INNER JOIN job_orders jo ON jo.job_id = s.job_id
         LEFT JOIN client_applications ca ON ca.submission_id = s.submission_id
         LEFT JOIN catchments cat ON cat.catchment_id = ca.catchment_id
-        LEFT JOIN centres cen ON cen.centre_id = ca.centre_id`
+        LEFT JOIN centres cen ON cen.centre_id = ca.centre_id
+        WHERE s.created_by = '${user}'`
       )
     .then((resp: any) => {
         let submissions: {[id: string]: Submission} = {};
