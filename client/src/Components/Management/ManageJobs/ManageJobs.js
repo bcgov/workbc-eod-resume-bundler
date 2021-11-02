@@ -21,6 +21,7 @@ import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import CircularProgress from '@material-ui/core/CircularProgress'
 import EditJobModal from './Edit/EditJobModal';
 import ViewJobModal from './View/ViewJobModal';
+import { useKeycloak } from '@react-keycloak/web';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -53,7 +54,8 @@ function not(a, b) {
 
 function ManageJobs() {
   let history = useHistory();
-  const MAX_CATCHMENTS = 3;
+  const { keycloak, initialized } = useKeycloak();
+  const MAX_CATCHMENTS = 3; // max catchments to display
 
   const [jobOrders, setJobOrders] = useState([]);
   const [jobOrdersLoading, setJobOrdersLoading] = useState(true);
@@ -61,10 +63,15 @@ function ManageJobs() {
   const [forceUpdate, setForceUpdate] = useState(0);
 
   useEffect(async () => {
-    await getCatchments();
+    if (initialized)
+      await getCatchments();
 
     async function getCatchments() {
-      let response = await fetch(FORM_URL.System + "/Catchments")
+      let response = await fetch(FORM_URL.System + "/Catchments", {
+        headers: {
+          "Authorization": "Bearer " + keycloak.token
+        }
+      });
       let data = await response.json();
       setCatchments(data.map(c => {
         return (
@@ -77,12 +84,16 @@ function ManageJobs() {
   }, [forceUpdate]);
 
   useEffect(async () => {
-    if (catchments.length > 0){ // only load job orders once catchments are loaded (dependance)
+    if (catchments.length > 0 && initialized){ // only load job orders once catchments are loaded (dependance)
       await getJobOrders();
     }
     
     async function getJobOrders() {
-      const response = await fetch(FORM_URL.JobOrders);
+      const response = await fetch(FORM_URL.JobOrders, {
+        headers: {
+          "Authorization": "Bearer " + keycloak.token
+        }
+      });
       const data = await response.json();
       let jobs = data.jobs;
       jobs.forEach(job => {
@@ -139,6 +150,7 @@ function ManageJobs() {
       headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
+          "Authorization": "Bearer " + keycloak.token
       }
     })
     .catch(err => {
@@ -154,6 +166,7 @@ function ManageJobs() {
       headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
+          "Authorization": "Bearer " + keycloak.token
       }
     })
     .catch(err => {

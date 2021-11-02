@@ -15,6 +15,8 @@ import IconButton from '@material-ui/core/IconButton';
 import Collapse from '@material-ui/core/Collapse';
 import SearchBar from '../../../../utils/SearchBar';
 import ViewJobOrderModal from './ViewJobOrderModal';
+import { useKeycloak } from '@react-keycloak/web';
+import CircularProgress from '@material-ui/core/CircularProgress'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -60,6 +62,7 @@ const useStyles = makeStyles((theme) => ({
 function ViewJobOrders() {
   const classes = useStyles();
   const history = useHistory();
+  const { keycloak, initialized } = useKeycloak();
 
   const [openRows, setOpenRows] = React.useState([]);
   const handleRowToggle = (rowID) => {
@@ -97,11 +100,18 @@ function ViewJobOrders() {
   }
 
   useEffect(async () => {
-    await getJobOrders();
-    await getCatchments();
+    if (initialized) {
+      await getJobOrders();
+      await getCatchments();
+    }
 
     async function getJobOrders() {
-      const response = await fetch(FORM_URL.JobOrders);
+      const response = await fetch(FORM_URL.JobOrders, {
+        headers: {
+          "Authorization": "Bearer " + keycloak.token
+        }
+      });
+
       const data = await response.json();
       const jobOrders = data.jobs;
       setJobOrders(jobOrders);
@@ -120,12 +130,16 @@ function ViewJobOrders() {
     }
 
     async function getCatchments() {
-      const response = await fetch(FORM_URL.System + "/Catchments");
+      const response = await fetch(FORM_URL.System + "/Catchments", {
+        headers: {
+          "Authorization": "Bearer " + keycloak.token
+        }
+      });
       const data = await response.json();
       setCatchments(data);
     }
 
-  }, [setJobOrders, setCatchments]);
+  }, [initialized]);
 
   const getJobOrdersForEmployer = (employer) => {
     return jobOrders.filter(jo => jo.employer == employer);
@@ -261,12 +275,20 @@ function ViewJobOrders() {
             <div className="col-md-12">
               <h1>Resume Bundler - Available Job Orders</h1>  
               <p>View available job orders and submit resumes</p>  
-              <SearchBar
-                handleUpdate={handleUpdateEmployersToDisplay}
-                paginationCount={employersToDisplay.length}
-                label={"Search Jobs"}
-              ></SearchBar>
-              <EmployerTable></EmployerTable>
+              {(jobOrders.length > 0 && catchments.length > 0) && 
+                <div>
+                  <SearchBar
+                    handleUpdate={handleUpdateEmployersToDisplay}
+                    paginationCount={employersToDisplay.length}
+                    label={"Search Jobs"}>
+                  </SearchBar>         
+                  <EmployerTable />
+                </div>
+              }
+
+              {(jobOrders.length == 0 || catchments.length == 0) && // show spinner while fetching data
+                <CircularProgress />
+              }
             </div>
         </div>
     </div>

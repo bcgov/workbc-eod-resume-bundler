@@ -54,10 +54,10 @@ const EditClientModal = ({submission, applicant, catchments, centres, show, hand
                     onSubmit={(values, { resetForm, setErrors, setStatus, setSubmitting }) => {
                         fetch(FORM_URL.Submissions + "/" + submission.submissionID + "/applications/" + applicant.clientApplicationID, {
                             method: "PUT",
-                            credentials: 'include',
                             headers: {
                                 'Accept': 'application/json',
                                 'Content-Type': 'application/json',
+                                "Authorization": "Bearer " + keycloak.token
                             },
                             body: JSON.stringify(values)
                         })

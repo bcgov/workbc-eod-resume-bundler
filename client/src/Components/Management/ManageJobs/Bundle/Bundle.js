@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import CircularProgress from '@material-ui/core/CircularProgress'
 import { FORM_URL } from '../../../../constants/form';
 import { useHistory } from 'react-router-dom';
+import { useKeycloak } from '@react-keycloak/web';
 
 function Bundle({location}) {
     let history = useHistory();
+    const { keycloak } = useKeycloak();
     const jobOrder = location.props.jobOrder;
     const submissions = location.props.submissions;
     const [bundling, setBundling] = React.useState(false);
@@ -33,6 +35,7 @@ function Bundle({location}) {
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
+                "Authorization": "Bearer " + keycloak.token      
             },
             body:JSON.stringify(applicantsToSend)
         })

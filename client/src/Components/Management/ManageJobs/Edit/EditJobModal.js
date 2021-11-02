@@ -107,6 +107,7 @@ const EditJobModal = ({ job, catchments, show, handleShow, handleClose }) => {
                   headers: {
                       'Accept': 'application/json',
                       'Content-Type': 'application/json',
+                      "Authorization": "Bearer " + keycloak.token
                   },
                   body: JSON.stringify(values)
               })

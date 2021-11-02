@@ -35,11 +35,10 @@ function Home() {
 
     const handleRoles = () => {
         if (permissions){
-            console.log(permissions)
-            if (permissions.hasAccess && keycloak.tokenParsed.identity_provider.includes("bceid"))
+            if (permissions.hasAccess && keycloak.tokenParsed.identity_provider.includes("bceid")) // service providers use OES auth
                 return <LandingExternal />
             
-            if (permissions.hasAccess && keycloak.tokenParsed.identity_provider.includes("idir"))
+            else if (keycloak.hasResourceRole('eod-staff')) // ministry uses keycloak resource roles for auth
                 return <LandingInternal />
 
             else

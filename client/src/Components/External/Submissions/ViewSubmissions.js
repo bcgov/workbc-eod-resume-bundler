@@ -16,6 +16,7 @@ import Collapse from '@material-ui/core/Collapse';
 import SearchBar from '../../../utils/SearchBar';
 import ViewClientModal from './ViewClientModal';
 import EditClientModal from './EditClientModal';
+import { useKeycloak } from '@react-keycloak/web';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -66,6 +67,7 @@ const b64toBlob = (b64Data, contentType='', sliceSize=512) => {
 
 function ViewSubmissions() {
   const classes = useStyles();
+  const { keycloak, initialized } = useKeycloak();
 
   const [forceUpdate, setForceUpdate] = useState(0);
   const [catchments, setCatchments] = useState([]);
@@ -117,42 +119,48 @@ function ViewSubmissions() {
   }
 
   const handleResumeDownload = (applicantID, submissionID) => async () => {
-    await fetch(FORM_URL.Submissions + "/" + submissionID + "/applications/" + applicantID + "/downloadResume")
-          .then(async (response) => await response.json())
-          .then((data) => {
-            const blob = b64toBlob(data.buffer, "application/pdf");
+    await fetch(FORM_URL.Submissions + "/" + submissionID + "/applications/" + applicantID + "/downloadResume" , {
+      headers: {
+        "Authorization": "Bearer " + keycloak.token
+      },
+    })
+    .then(async (response) => await response.json())
+    .then((data) => {
+      const blob = b64toBlob(data.buffer, "application/pdf");
 
-            // Create link to blob
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute(
-              "download",
-              data.fileName,
-            );
-        
-            // Append to html link element page
-            document.body.appendChild(link);
-        
-            // Start download
-            link.click();
-        
-            // Clean up and remove the link
-            link.parentNode.removeChild(link);
-          });
-  }
-
-  const handleViewSubmission = (submission, applicant) => {
-
+      // Create link to blob
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute(
+        "download",
+        data.fileName,
+      );
+  
+      // Append to html link element page
+      document.body.appendChild(link);
+  
+      // Start download
+      link.click();
+  
+      // Clean up and remove the link
+      link.parentNode.removeChild(link);
+    });
   }
 
   useEffect(async () => {
-    await getSubmissions();
-    await getCatchments();
-    await getCentres();
+    if (initialized) {
+      await getSubmissions();
+      await getCatchments();
+      await getCentres();
+    }
 
     async function getSubmissions() {
-      const response = await fetch(FORM_URL.Submissions);
+      const response = await fetch(FORM_URL.Submissions, {
+        headers: {
+          "Authorization": "Bearer " + keycloak.token
+        }
+      });
       const data = await response.json();
       const submissions = data.submissions.sort((a,b) => a.createdDate < b.createdDate ? 1 : -1);
       submissions.forEach(s => {
@@ -163,17 +171,25 @@ function ViewSubmissions() {
     }
 
     async function getCatchments() {
-      const response = await fetch(FORM_URL.System + "/Catchments");
+      const response = await fetch(FORM_URL.System + "/Catchments", {
+        headers: {
+          "Authorization": "Bearer " + keycloak.token
+        }
+      });
       const data = await response.json();
       setCatchments(data);
     }
 
     async function getCentres() {
-      const response = await fetch(FORM_URL.System + "/Centres");
+      const response = await fetch(FORM_URL.System + "/Centres", {
+        headers: {
+          "Authorization": "Bearer " + keycloak.token
+        }
+      });
       const data = await response.json();
       setCentres(data);
     }
-  }, [setSubmissions, setCatchments, setCentres, forceUpdate]);
+  }, [initialized, forceUpdate]);
 
 
 

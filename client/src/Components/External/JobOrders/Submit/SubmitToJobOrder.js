@@ -7,7 +7,7 @@ import { useHistory } from 'react-router-dom';
 import * as yup from 'yup';
 
 function SubmitToJobOrder(props) {
-  const { keycloak } = useKeycloak();
+  const { keycloak, initialized } = useKeycloak();
   const h = useHistory();
 
   const [catchment, setCatchment] = useState(1);
@@ -50,21 +50,31 @@ function SubmitToJobOrder(props) {
   const [centres, setCentres] = useState([]);
   
   useEffect(async () => {
-    await getCatchments();
-    await getCentres();
+    if (initialized) {
+      await getCatchments();
+      await getCentres();
+    }
 
     async function getCatchments() {
-      const response = await fetch(FORM_URL.System + "/Catchments");
+      const response = await fetch(FORM_URL.System + "/Catchments", {
+        headers: {
+          "Authorization": "Bearer " + keycloak.token
+        }
+      });
       const data = await response.json();
       setCatchments(data);
     }
 
     async function getCentres() {
-      const response = await fetch(FORM_URL.System + "/Centres");
+      const response = await fetch(FORM_URL.System + "/Centres", {
+        headers: {
+          "Authorization": "Bearer " + keycloak.token
+        }
+      });
       const data = await response.json();
       setCentres(data);
     }
-  }, [setCatchments, setCentres]);
+  }, [initialized]);
 
   const displayCentresForCatchment = (catchmentID) => {
     return centres
@@ -100,6 +110,9 @@ function SubmitToJobOrder(props) {
                     fetch(FORM_URL.Submissions, {
                         method: "POST",
                         credentials: 'include',
+                        headers: {
+                          "Authorization": "Bearer " + keycloak.token
+                        },
                         body: formData
                     })
                     .then(

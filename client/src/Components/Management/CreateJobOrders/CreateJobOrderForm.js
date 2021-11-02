@@ -29,10 +29,15 @@ const CreateJobOrderForm = () => {
     }))
 
     useEffect(async () => {
-        await getCatchments();
+        if (initialized)
+            await getCatchments();
     
         async function getCatchments() {
-          const response = await fetch(FORM_URL.System + "/Catchments");
+          const response = await fetch(FORM_URL.System + "/Catchments", {
+              headers: {
+                  "Authorization": "Bearer " + keycloak.token
+              }
+          });
           const data = await response.json();
           setCatchments(data.map(c => {
               return (
@@ -96,6 +101,7 @@ const CreateJobOrderForm = () => {
                     headers: {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json',
+                        "Authorization": "Bearer " + keycloak.token
                     },
                     body: JSON.stringify(values),
                 })

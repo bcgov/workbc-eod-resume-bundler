@@ -21,17 +21,22 @@ function Main() {
     return (     
         <main role="main">
                 <Switch>
+                    {/* internal */}
                     <PrivateRoute component={CreateJobOrder} roles={['eod-staff']} path="/createJobOrder"   />
                     <PrivateRoute component={CreateJobOrderSuccess} roles={['eod-staff']} path="/createJobOrderSuccess" />
                     <PrivateRoute component={Form} roles={['elmsd-form']} path="/form"   />
                     <PrivateRoute component={ManageJobs} roles={['eod-staff']} path="/manageJobs"   />
                     <PrivateRoute component={ReviewReferral} roles={['eod-staff']} path="/reviewReferral"   />
-                    <PrivateRoute component={ViewJobOrders} roles={['eod-staff', 'eod-contractor']} path="/jobOrdersExternal" />
-                    <PrivateRoute component={ViewSubmissions} roles={['eod-staff', 'eod-contractor']} path="/submissionsExternal" />
-                    <PrivateRoute component={SubmitToJobOrder} roles={['eod-staff', 'eod-contractor']} path="/submitToJobOrder" />
-                    <PrivateRoute component={SubmitToJobOrderSuccess} roles={['eod-staff', 'eod-contractor']} path="/submitToJobOrderSuccess" />
                     <PrivateRoute component={Bundle} roles={['eod-staff', 'eod-contractor']} path="/bundle" />
                     <PrivateRoute component={BundleSuccess} roles={['eod-staff', 'eod-contractor']} path="/bundleSuccess" />
+
+                    {/* external */}
+                    <Route exact component={ViewJobOrders} path="/jobOrdersExternal" />
+                    <Route exact component={ViewSubmissions} path="/submissionsExternal" />
+                    <Route exact component={SubmitToJobOrder} path="/submitToJobOrder" />
+                    <Route exact component={SubmitToJobOrderSuccess} path="/submitToJobOrderSuccess" />
+
+                    {/* general */}
                     <Route exact path="/loginLanding" component={LoginLanding} />
                     <Route exact path="/logoutSuccess" component={LogoutSuccess} />
                     <Route exact path="/" component={Home} />
