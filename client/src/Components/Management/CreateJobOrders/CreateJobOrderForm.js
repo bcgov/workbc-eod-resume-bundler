@@ -65,14 +65,14 @@ const CreateJobOrderForm = () => {
     }
 
     const CreateJobOrderValidationSchema = yup.object().shape({
-        employer: yup.string().required("employer is required field"),
-        position: yup.string().required("position is a required field"),
-        startDate: yup.date().typeError("a start date must be selected"),
-        deadline: yup.date().typeError("a deadline must be selected"),
-        location: yup.string().required("location is a required field"),
-        catchments: yup.array().min(1, "please select a catchment"),
-        minimumRequirements: yup.string().max(1000, "over 1000 characters"),
-        otherInformation: yup.string().max(1000, "over 1000 characters")
+        employer: yup.string().required("required"),
+        position: yup.string().required("required"),
+        startDate: yup.date().typeError("required"),
+        deadline: yup.date().typeError("required"),
+        location: yup.string().required("required"),
+        catchments: yup.array().min(1, "required"),
+        minimumRequirements: yup.string().max(1000, "1000 characters max"),
+        otherInformation: yup.string().max(1000, "1000 characters max")
     });
 
     const showErrors = () => {
@@ -197,7 +197,7 @@ const CreateJobOrderForm = () => {
                     <ErrorMessage
                         name="catchments"
                         className="field-error">
-                        { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                        { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
                     </ErrorMessage>
                     <div className="form-group">
                         <label 

@@ -114,7 +114,7 @@ const EditClientModal = ({submission, applicant, catchments, centres, show, hand
                                                 name="centre"
                                                 component="div"
                                                 className="field-error">
-                                                { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                                                { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
                                             </ErrorMessage>
                                         </div>
                                     </div>
@@ -129,7 +129,7 @@ const EditClientModal = ({submission, applicant, catchments, centres, show, hand
                                             <ErrorMessage
                                                 name="clientName"
                                                 className="field-error">
-                                                { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                                                { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
                                             </ErrorMessage>
                                         </div>
                                         <div className="form-group col-md-6">
@@ -142,7 +142,7 @@ const EditClientModal = ({submission, applicant, catchments, centres, show, hand
                                             <ErrorMessage
                                                 name="preferredName"
                                                 className="field-error">
-                                                { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                                                { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
                                             </ErrorMessage>
                                         </div>
                                     </div>
@@ -158,7 +158,7 @@ const EditClientModal = ({submission, applicant, catchments, centres, show, hand
                                             <ErrorMessage
                                                 name="clientCaseNumber"
                                                 className="field-error">
-                                                { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                                                { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
                                             </ErrorMessage>
                                         </div>
                                     </div>

@@ -167,7 +167,7 @@ function SubmitToJobOrder(props) {
                                             name="catchment"
                                             component="div"
                                             className="field-error">
-                                            { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                                            { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
                                         </ErrorMessage>
                                     </div>
                                     <div className="form-group col-md-6">
@@ -187,7 +187,7 @@ function SubmitToJobOrder(props) {
                                             name="centre"
                                             component="div"
                                             className="field-error">
-                                            { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                                            { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
                                         </ErrorMessage>
                                     </div>
                                 </div>

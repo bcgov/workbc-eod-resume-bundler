@@ -47,7 +47,7 @@ function ApplicantForm({ applicants, setApplicants, applicantsState, values, set
                                     <ErrorMessage
                                         name={`applicants[${index}].clientName`}
                                         className="field-error">
-                                        { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                                        { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
                                     </ErrorMessage>
                                 </div>
                                 <div className="form-group col-md-6">
@@ -60,7 +60,7 @@ function ApplicantForm({ applicants, setApplicants, applicantsState, values, set
                                     <ErrorMessage
                                         name={`applicants[${index}].preferredName`}
                                         className="field-error">
-                                        { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                                        { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
                                     </ErrorMessage>
                                 </div>
                             </div>
@@ -75,7 +75,7 @@ function ApplicantForm({ applicants, setApplicants, applicantsState, values, set
                                     <ErrorMessage
                                         name={`applicants[${index}].clientCaseNumber`}
                                         className="field-error">
-                                        { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                                        { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
                                     </ErrorMessage>
                                 </div>
                             </div>
@@ -120,7 +120,7 @@ function ApplicantForm({ applicants, setApplicants, applicantsState, values, set
                                 <ErrorMessage
                                     name={`applicants[${index}].resume`}
                                     className="field-error">
-                                    { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                                    { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
                                 </ErrorMessage>
                             </div>
                             <div className="form-group">
@@ -134,7 +134,7 @@ function ApplicantForm({ applicants, setApplicants, applicantsState, values, set
                                 <ErrorMessage
                                     name={`applicants[${index}].consent`}
                                     className="field-error">
-                                    { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                                    { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
                                 </ErrorMessage>
                             </div>
                             { applicants.length > 1 &&
