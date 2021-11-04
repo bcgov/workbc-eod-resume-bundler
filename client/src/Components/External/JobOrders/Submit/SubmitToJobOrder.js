@@ -10,7 +10,7 @@ function SubmitToJobOrder(props) {
   const { keycloak, initialized } = useKeycloak();
   const h = useHistory();
 
-  const [catchment, setCatchment] = useState(1);
+  const [catchment, setCatchment] = useState(-1);
   const [centre, setCentre] = useState(-1);
 
   let [applicants, setApplicants] = useState([
@@ -33,7 +33,7 @@ function SubmitToJobOrder(props) {
   }
 
   const SubmissionValidationSchema = yup.object().shape({
-    catchment: yup.number().required("required"),
+    catchment: yup.number().min(0, "required"),
     centre: yup.number().min(0, "required"),
     applicants: yup.array().of(
         yup.object({
@@ -61,8 +61,8 @@ function SubmitToJobOrder(props) {
           "Authorization": "Bearer " + keycloak.token
         }
       });
-      const data = await response.json();
-      setCatchments(data);
+      const catchments = await response.json();
+      setCatchments(catchments.filter(c => props.location.userCatchments.indexOf(c.catchment_id) > -1)); // only show users catchments
     }
 
     async function getCentres() {
@@ -152,11 +152,13 @@ function SubmitToJobOrder(props) {
                                         <Field
                                             as="select"
                                             name="catchment"
+                                            placeholder="Select One"
                                             onChange={e => {
                                               handleChange(e);
                                               setFieldValue("centre", -1); // reset centre on new catchment select
                                             }}
                                             className="form-control">
+                                            <option defaultValue>Select One</option>
                                             { catchments.map(c => (
                                               <option value={c.catchment_id}>{c.name}</option>
                                             ))}
@@ -164,8 +166,9 @@ function SubmitToJobOrder(props) {
                                         <ErrorMessage
                                             name="catchment"
                                             component="div"
-                                            className="field-error"
-                                        />
+                                            className="field-error">
+                                            { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                                        </ErrorMessage>
                                     </div>
                                     <div className="form-group col-md-6">
                                         <label className="control-label" htmlFor="centre">WorkBC Centre</label>

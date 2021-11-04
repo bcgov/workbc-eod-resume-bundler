@@ -82,6 +82,7 @@ function ViewJobOrders() {
   const [employers, setEmployers] = useState([]);
   const [employersToDisplay, setEmployersToDisplay] = useState([]);
   const [catchments, setCatchments] = useState([]);
+  const [userCatchments, setUserCatchments] = useState([]);
 
   const handleUpdateEmployersToDisplay = (searchString) => {
     setEmployersToDisplay(employers.filter(e => e.location.toLowerCase().startsWith(searchString.toLowerCase())));
@@ -100,7 +101,31 @@ function ViewJobOrders() {
   }
 
   useEffect(async () => {
-    if (initialized) {
+    if (initialized && keycloak.tokenParsed) {
+      await getUserCatchments();
+    }
+
+    async function getUserCatchments() {
+      let response = await fetch(FORM_URL.System + "/UserPermissions", {
+          method: "GET",
+          credentials: 'include',
+          headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+              'KeycloakToken': keycloak.token,
+              'UserGUID': keycloak.tokenParsed.smgov_userguid,
+              'Authorization': "Bearer " + keycloak.token
+          }
+      });
+
+      let permissions = await response.json();
+      setUserCatchments(permissions.catchments);
+    }
+
+  }, [initialized]);
+
+  useEffect(async () => {
+    if (userCatchments.length > 0 && initialized) {// only fetch job orders & catchments once user catchments have been fetched (dependance)
       await getJobOrders();
       await getCatchments();
     }
@@ -113,7 +138,8 @@ function ViewJobOrders() {
       });
 
       const data = await response.json();
-      const jobOrders = data.jobs;
+      let jobOrders = data.jobs;
+      jobOrders = jobOrders.filter(j => j.catchments.some(c => userCatchments.indexOf(parseInt(c)) > -1)); // filter for jobs in catchments the user has access to
       setJobOrders(jobOrders);
       setJobEmployers(jobOrders);
     }
@@ -137,9 +163,8 @@ function ViewJobOrders() {
       });
       const data = await response.json();
       setCatchments(data);
-    }
-
-  }, [initialized]);
+    }    
+  }, [userCatchments]);
 
   const getJobOrdersForEmployer = (employer) => {
     return jobOrders.filter(jo => jo.employer == employer);
@@ -252,7 +277,8 @@ function ViewJobOrders() {
                                 pathname: "/submitToJobOrder",
                                 jobID: jobOrder.job_id,
                                 employer: jobOrder.employer,
-                                jobTitle: jobOrder.position
+                                jobTitle: jobOrder.position,
+                                userCatchments: userCatchments
                               })}>
                   Submit
                   </a>
@@ -296,3 +322,31 @@ function ViewJobOrders() {
 }
 
 export default ViewJobOrders
+
+// Helper functions //
+var contains = function(needle) {
+  // Per spec, the way to identify NaN is that it is not equal to itself
+  var findNaN = needle !== needle;
+  var indexOf;
+
+  if(!findNaN && typeof Array.prototype.indexOf === 'function') {
+      indexOf = Array.prototype.indexOf;
+  } else {
+      indexOf = function(needle) {
+          var i = -1, index = -1;
+
+          for(i = 0; i < this.length; i++) {
+              var item = this[i];
+
+              if((findNaN && item !== item) || item === needle) {
+                  index = i;
+                  break;
+              }
+          }
+
+          return index;
+      };
+  }
+
+  return indexOf.call(this, needle) > -1;
+};
