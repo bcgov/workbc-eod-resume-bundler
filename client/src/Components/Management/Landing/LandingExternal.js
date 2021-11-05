@@ -6,11 +6,23 @@ function LandingExternal() {
     return (
             <div>
                 <div className="row">
-                    <div className="col-md-6">
-                        <a href="/jobOrdersExternal" className="btn btn-lg BC-Gov-SecondaryButton">View Job Orders</a><br /><br />
+                    <div className="col-md-6" style={{display: "flex", justifyContent: "right"}}>
+                        <a 
+                            href="/jobOrdersExternal" 
+                            className="btn btn-outline-primary" 
+                            type="button"
+                            style={{fontSize: "2rem"}}>
+                            View Job Orders
+                        </a>
                     </div>
-                    <div className="cold-md-6">
-                        <a href="/submissionsExternal" className="btn btn-lg BC-Gov-SecondaryButton">My Submissions</a><br /><br />
+                    <div className="col-md-6">
+                        <a 
+                            href="/submissionsExternal" 
+                            className="btn btn-outline-primary" 
+                            type="button"
+                            style={{fontSize: "2rem"}}>
+                            My Submissions
+                        </a>
                     </div>
                 </div>
 

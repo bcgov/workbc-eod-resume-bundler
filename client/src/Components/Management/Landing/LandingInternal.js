@@ -4,11 +4,23 @@ function LandingInternal() {
     return (
             <div>
                 <div className="row">
-                    <div className="col-md-6">
-                        <a href="/createJobOrder" className="btn BC-Gov-SecondaryButton">Create Job Order</a><br /><br />
+                    <div className="col-md-6" style={{display: "flex", justifyContent: "right"}}>
+                        <a 
+                            href="/createJobOrder" 
+                            className="btn btn-outline-primary" 
+                            type="button"
+                            style={{fontSize: "2rem"}}>
+                            Create Job Order
+                        </a>
                     </div>
-                    <div className="cold-md-6">
-                        <a href="/manageJobs" className="btn BC-Gov-SecondaryButton">Manage Jobs / Review Referrals</a><br /><br />
+                    <div className="col-md-6">
+                        <a 
+                            href="/manageJobs" 
+                            className="btn btn-outline-primary" 
+                            type="button"
+                            style={{fontSize: "2rem"}}>
+                            Manage Jobs / Review Referrals
+                        </a>
                     </div>
                 </div>
             </div>
