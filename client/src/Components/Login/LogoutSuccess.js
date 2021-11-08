@@ -9,7 +9,7 @@ function LogoutSuccess(props) {
     return(
         <div className="container">
             { !keycloak.authenticated &&
-                <div className="col-md-12">
+                <div className="col-md-12 mt-3">
                         <div className="row">
                             <h1>You've successfully logged out.</h1>   
                         </div>

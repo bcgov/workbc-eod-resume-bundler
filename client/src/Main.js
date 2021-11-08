@@ -19,7 +19,7 @@ import LogoutSuccess from './Components/Login/LogoutSuccess'
 
 function Main() {
     return (     
-        <main role="main">
+        <main role="main" style={{paddingTop: "0", paddingBottom: "0", overflowX: "hidden", position: "relative", width: "100%"}}>
                 <Switch>
                     {/* internal */}
                     <PrivateRoute component={CreateJobOrder} roles={['eod-staff']} path="/createJobOrder"   />

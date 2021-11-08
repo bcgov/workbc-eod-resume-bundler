@@ -68,7 +68,7 @@ function Home() {
     }
 
     return (
-        <Container fluid style={{height: "100%", minHeight: "100%", display: "flex", marginLeft: "1vw"}}>
+        <Container fluid style={{height: "100%", minHeight: "100%", display: "flex", marginLeft: "1vw", position: "absolute"}}>
             <div className="row">
                 <div className="col">
 
@@ -107,7 +107,7 @@ function Home() {
                                         <HelpIcon style={{fontSize: "9rem", justifyContent: "right"}}/>
                                     </div>
                                     <div className="col-6">
-                                        <p style={{fontSize: "1.65rem", overflowWrap: "normal"}}>
+                                        <p style={{fontSize: "1.65rem", overflowWrap: "normal", lineHeight: "1.5"}}>
                                             If you have questions or encounter any difficulties with the process, please contact the EOD branch at <b>Employer.Support@workbc.ca</b>
                                         </p>
                                     </div>
@@ -118,7 +118,7 @@ function Home() {
                                 {/* Login button */}
                                 {!keycloak.authenticated &&
                                     <div className="row justify-content-center">
-                                        <div className="mt-5" align="center">
+                                        <div className="mt-5 mb-5" align="center">
                                             <a 
                                                 type="button" 
                                                 className="btn btn-lg btn-primary" 
@@ -135,8 +135,10 @@ function Home() {
                             </div>
                     }
                 </div>
-                <div className="col-4" style={{backgroundColor: "grey"}}>
-                    <div className="row mb-5" style={{justifyContent: "center"}}>
+
+                {/* Resources */}
+                <div className="col-4" style={{backgroundColor: "DarkGrey"}}>
+                    <div className="row mb-5 mt-3" style={{justifyContent: "center"}}>
                         <img
                             className="img-fluid d-none d-md-block"
                             src={WorkBCLogo}
@@ -157,7 +159,7 @@ function Home() {
                             and frequently asked questions, please review the following user manuals:
                         </p>
                     </div>
-                    <div className="row mb-5" style={{justifyContent: "center"}}>
+                    <div className="row mb-3" style={{justifyContent: "center"}}>
                         <button className="btn btn-primary btn-lg" style={{fontSize: "2rem"}}>
                             For Service Providers
                         </button>
