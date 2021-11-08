@@ -6,21 +6,21 @@ function LandingExternal() {
     return (
             <div>
                 <div className="row">
-                    <div className="col-md-6" style={{display: "flex", justifyContent: "right"}}>
+                    <div className="col-md-6" style={{display: "flex", justifyContent: "center"}}>
                         <a 
                             href="/jobOrdersExternal" 
                             className="btn btn-outline-primary" 
                             type="button"
-                            style={{fontSize: "2rem"}}>
+                            style={{fontSize: "1.5rem"}}>
                             View Job Orders
                         </a>
                     </div>
-                    <div className="col-md-6">
+                    <div className="col-md-6" style={{display: "flex", justifyContent: "left"}}>
                         <a 
                             href="/submissionsExternal" 
                             className="btn btn-outline-primary" 
                             type="button"
-                            style={{fontSize: "2rem"}}>
+                            style={{fontSize: "1.5rem"}}>
                             My Submissions
                         </a>
                     </div>
