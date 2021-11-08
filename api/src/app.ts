@@ -8,6 +8,7 @@ var bodyParser = require('body-parser')
 var cors = require('cors')
 const formidable = require('express-formidable');
 const fileUpload = require('express-fileupload');
+var Keycloak = require('keycloak-connect');
 
 var origin = process.env.ORIGIN_URL || process.env.OPENSHIFT_NODEJS_ORIGIN_URL || "http://localhost:3000"
 
@@ -16,6 +17,15 @@ const corsOptions = {
     credentials: true,
     optionsSuccessStatus: 200,
 };
+
+const kcConfig = {
+  clientId: process.env.AUTH_KEYCLOAK_CLIENT,
+  bearerOnly: process.env.AUTH_KEYCLOAK_BEARER_ONLY,
+  serverUrl: process.env.AUTH_KEYCLOAK_SERVER_URL,
+  realm: process.env.AUTH_KEYCLOAK_REALM
+};
+
+var keycloak = new Keycloak({}, kcConfig)
 
 var jobOrderRouter = require("./routes/JobOrder.route");
 var submissionRouter = require("./routes/Submission.route");
@@ -30,11 +40,12 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(helmet());
 app.use(fileUpload());
+app.use(keycloak.middleware());
 //app.use(formidable());
 
-app.use("/JobOrders", jobOrderRouter);
-app.use("/Submissions", submissionRouter);
-app.use("/System", systemRouter);
+app.use("/JobOrders", keycloak.protect(), jobOrderRouter);
+app.use("/Submissions", keycloak.protect(), submissionRouter);
+app.use("/System", keycloak.protect(), systemRouter);
 
 var port = process.env.PORT || '8000';
 app.listen( port, () => {

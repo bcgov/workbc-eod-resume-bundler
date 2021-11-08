@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import { FORM_URL } from '../../../constants/form';
+import { FORM_URL } from '../../../../constants/form';
 import { makeStyles } from '@material-ui/core/styles';
-import SearchBar from '../../../utils/SearchBar';
+import SearchBar from '../../../../utils/SearchBar';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -18,6 +18,7 @@ import FlagIcon from '@material-ui/icons/Flag';
 import CheckIcon from '@material-ui/icons/Check';
 import Collapse from '@material-ui/core/Collapse';
 import Checkbox from "@material-ui/core/Checkbox";
+import { useKeycloak } from '@react-keycloak/web';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -70,7 +71,8 @@ const b64toBlob = (b64Data, contentType='', sliceSize=512) => {
 function ReviewReferral({location}) {
     const classes = useStyles();
     let history = useHistory();
-    const MAX_CATCHMENTS = 4;
+    const { keycloak, initialized } = useKeycloak();
+    const MAX_CATCHMENTS = 4; // max catchments to display
 
     let jobOrder = location.props;
 
@@ -96,30 +98,45 @@ function ReviewReferral({location}) {
     };
 
     useEffect(async () => {
-      await getReferrals();
-      await getCatchments();
-      await getCentres();
-  
+      if (initialized) {
+        await getReferrals();
+        await getCatchments();
+        await getCentres();
+      }
+
       async function getReferrals() {
-        const response = await fetch(FORM_URL.Submissions);
+        const response = await fetch(FORM_URL.Submissions, {
+          headers: {
+            "Authorization": "Bearer " + keycloak.token
+          }
+        });
         const data = await response.json();
-        const referrals = data.submissions.sort((a,b) => a.catchmentID > b.catchmentID ? 1 : -1);
+        const referrals = data.submissions
+          .filter(s => s.jobID == jobOrder.id)
+          .sort((a,b) => a.catchmentID > b.catchmentID ? 1 : -1);
         referrals.forEach(r => {
           r.applicants.sort((a,b) => a.clientApplicationID > b.clientApplicationID ? 1 : -1);       
         });
-        console.log(referrals)
         setReferrals(referrals);
         setReferralsToDisplay(referrals);
       }
 
       async function getCatchments() {
-        const response = await fetch(FORM_URL.System + "/Catchments");
+        const response = await fetch(FORM_URL.System + "/Catchments", {
+          headers: {
+            "Authorization": "Bearer " + keycloak.token
+          }
+        });
         const data = await response.json();
         setCatchments(data);
       }
 
       async function getCentres() {
-        const response = await fetch(FORM_URL.System + "/Centres");
+        const response = await fetch(FORM_URL.System + "/Centres", {
+          headers: {
+            "Authorization": "Bearer " + keycloak.token
+          }
+        });
         const data = await response.json();
         setCentres(data);
       }
@@ -142,29 +159,33 @@ function ReviewReferral({location}) {
     }
 
     const handleResumeDownload = (applicantID, submissionID) => async () => {
-      await fetch(FORM_URL.Submissions + "/" + submissionID + "/applications/" + applicantID + "/downloadResume")
-            .then(async (response) => await response.json())
-            .then((data) => {
-              const blob = b64toBlob(data.buffer, "application/pdf");
-  
-              // Create link to blob
-              const url = URL.createObjectURL(blob);
-              const link = document.createElement('a');
-              link.href = url;
-              link.setAttribute(
-                "download",
-                data.fileName,
-              );
-          
-              // Append to html link element page
-              document.body.appendChild(link);
-          
-              // Start download
-              link.click();
-          
-              // Clean up and remove the link
-              link.parentNode.removeChild(link);
-            });
+      await fetch(FORM_URL.Submissions + "/" + submissionID + "/applications/" + applicantID + "/downloadResume", {
+        headers: {
+          "Authorization": "Bearer " + keycloak.token
+        }
+      })
+      .then(async (response) => await response.json())
+      .then((data) => {
+        const blob = b64toBlob(data.buffer, "application/pdf");
+
+        // Create link to blob
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute(
+          "download",
+          data.fileName,
+        );
+    
+        // Append to html link element page
+        document.body.appendChild(link);
+    
+        // Start download
+        link.click();
+    
+        // Clean up and remove the link
+        link.parentNode.removeChild(link);
+      });
     }
 
     const handleCheckboxChange = (event, clientApplicationID) => {
@@ -183,6 +204,7 @@ function ReviewReferral({location}) {
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
+            "Authorization": "Bearer " + keycloak.token
         },
         body: JSON.stringify(checkedClients) // send all checked rows
       })
@@ -202,6 +224,7 @@ function ReviewReferral({location}) {
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
+            "Authorization": "Bearer " + keycloak.token
         },
         body: JSON.stringify(checkedClients) // send all checked rows
       })
@@ -221,6 +244,7 @@ function ReviewReferral({location}) {
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
+            "Authorization": "Bearer " + keycloak.token
         },
         body: JSON.stringify([clientID]) // send client ID
       })
@@ -239,6 +263,7 @@ function ReviewReferral({location}) {
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
+            "Authorization": "Bearer " + keycloak.token
         },
         body: JSON.stringify([clientID]) // send client ID
       })
@@ -455,7 +480,7 @@ function ReviewReferral({location}) {
                       </div>
                       { jobOrder.catchments.length <= MAX_CATCHMENTS && 
                         <div>
-                          <b>Catchments:</b> { DisplayCatchments(jobOrder.catchments) }
+                          <b>Catchments:</b> { DisplayCatchments(jobOrder.catchments.map(c => c.key)) }
                         </div>
                       }
                       { jobOrder.catchments.length == catchments.length && 
@@ -467,7 +492,7 @@ function ReviewReferral({location}) {
               </div>
               { jobOrder.catchments.length > MAX_CATCHMENTS && jobOrder.catchments.length != catchments.length && // Put catchments in a separate row if there's more than 4 of them
                   <div className="row mt-2">
-                    <b>Catchments:</b> { DisplayCatchments(jobOrder.catchments) }
+                    <b>Catchments:</b> { DisplayCatchments(jobOrder.catchments.map(c => c.key)) }
                   </div>
               }
               <div className="row">

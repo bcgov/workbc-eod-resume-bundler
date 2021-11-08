@@ -3,7 +3,7 @@ import { Formik, Form, Field, FastField, FieldArray, ErrorMessage } from 'formik
 import Dropzone from 'react-dropzone';
 import { makeStyles } from '@material-ui/core/styles';
 
-function SubmitToJobOrder({ applicants, setFieldValue }) {
+function ApplicantForm({ applicants, setApplicants, applicantsState, values, setFieldValue }) {
     const useStyles = makeStyles((theme) => ({
         root: {
           '& > *': {
@@ -47,7 +47,7 @@ function SubmitToJobOrder({ applicants, setFieldValue }) {
                                     <ErrorMessage
                                         name={`applicants[${index}].clientName`}
                                         className="field-error">
-                                        { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                                        { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
                                     </ErrorMessage>
                                 </div>
                                 <div className="form-group col-md-6">
@@ -60,7 +60,7 @@ function SubmitToJobOrder({ applicants, setFieldValue }) {
                                     <ErrorMessage
                                         name={`applicants[${index}].preferredName`}
                                         className="field-error">
-                                        { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                                        { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
                                     </ErrorMessage>
                                 </div>
                             </div>
@@ -75,7 +75,7 @@ function SubmitToJobOrder({ applicants, setFieldValue }) {
                                     <ErrorMessage
                                         name={`applicants[${index}].clientCaseNumber`}
                                         className="field-error">
-                                        { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                                        { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
                                     </ErrorMessage>
                                 </div>
                             </div>
@@ -111,7 +111,7 @@ function SubmitToJobOrder({ applicants, setFieldValue }) {
                                             { acceptedFiles.length > 0 && 
                                                 <div {...getRootProps({ style })}>
                                                     <input {...getInputProps()} />
-                                                    <p style={{ margin: "auto", paddingTop: "30px", paddingBottom: "30px", textAlign: "center" }}>{acceptedFiles[0].name}</p>
+                                                    <p style={{ margin: "auto", paddingTop: "30px", paddingBottom: "30px", textAlign: "center", backgroundColor: "#d9e7d8" }}>{acceptedFiles[0].name}</p>
                                                 </div>
                                             }
                                         </div>
@@ -120,7 +120,7 @@ function SubmitToJobOrder({ applicants, setFieldValue }) {
                                 <ErrorMessage
                                     name={`applicants[${index}].resume`}
                                     className="field-error">
-                                    { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                                    { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
                                 </ErrorMessage>
                             </div>
                             <div className="form-group">
@@ -134,9 +134,25 @@ function SubmitToJobOrder({ applicants, setFieldValue }) {
                                 <ErrorMessage
                                     name={`applicants[${index}].consent`}
                                     className="field-error">
-                                    { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                                    { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
                                 </ErrorMessage>
                             </div>
+                            { applicants.length > 1 &&
+                                <button 
+                                    type="button" 
+                                    className="btn btn-danger mb-5"
+                                    style={{ marginBottom: "0.5rem" }}
+                                    onClick={(e) => {
+                                        let i = 0;
+                                        values.applicants.forEach(a => {
+                                            a.applicantID = i; // reset the applicant ids to 0,1,2,3...etc to allow filtering by index
+                                            i++;
+                                        });
+                                        setFieldValue("applicants", values.applicants.filter(a => a.applicantID != index));
+                                    }}>
+                                    Remove
+                                </button>
+                            }
                         </div>
                     ))}
                 </div>
@@ -146,4 +162,4 @@ function SubmitToJobOrder({ applicants, setFieldValue }) {
     );
 }
 
-export default SubmitToJobOrder;
+export default ApplicantForm;

@@ -47,14 +47,14 @@ function EditJobFields() {
                     />
                 </div>
                 <div className="form-group col-md-6">
-                    <label className="control-label" htmlFor="closingDate">Deadline</label>
+                    <label className="control-label" htmlFor="deadline">Deadline</label>
                     <Field
-                        name="closingDate"
+                        name="deadline"
                         type="date"
                         className="form-control"
                     />
                     <ErrorMessage
-                        name="closingDate"
+                        name="deadline"
                         component="div"
                         className="field-error"
                     />

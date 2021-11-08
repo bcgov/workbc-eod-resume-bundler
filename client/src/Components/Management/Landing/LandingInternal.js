@@ -1,28 +1,29 @@
 import React from 'react'
-import { useKeycloak } from '@react-keycloak/web'
 
 function LandingInternal() {
-    const { keycloak, initialized } = useKeycloak()
     return (
-        <div>
-            {initialized ? (
-                <div>
-                    <div className="row">
-                        <div className="col-md-6">
-                            <a href="/createJobOrder" className="btn BC-Gov-SecondaryButton">Create Job Order</a><br /><br />
-                        </div>
-                        <div className="cold-md-6">
-                            <a href="/manageJobs" className="btn BC-Gov-SecondaryButton">Manage Jobs / Review Referrals</a><br /><br />
-                        </div>
+            <div>
+                <div className="row">
+                    <div className="col-md-6" style={{display: "flex", justifyContent: "left"}}>
+                        <a 
+                            href="/createJobOrder" 
+                            className="btn btn-outline-primary" 
+                            type="button"
+                            style={{fontSize: "1.5rem"}}>
+                            Create Job Order
+                        </a>
+                    </div>
+                    <div className="col-md-6" style={{display: "flex", justifyContent: "left"}}>
+                        <a 
+                            href="/manageJobs" 
+                            className="btn btn-outline-primary" 
+                            type="button"
+                            style={{fontSize: "1.5rem"}}>
+                            Manage Jobs / Review Referrals
+                        </a>
                     </div>
                 </div>
-            )
-                :
-                <div className="spinner-border" role="status">
-                    <span className="sr-only">Loading...</span>
-                </div>
-            }
-        </div>
+            </div>
     )
 }
 

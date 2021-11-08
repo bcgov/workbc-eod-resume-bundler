@@ -1,17 +1,27 @@
 import { Modal } from 'react-bootstrap';
 import { useKeycloak } from '@react-keycloak/web';
 import { Formik, Form, Field, FastField, FieldArray, ErrorMessage } from 'formik';
-import { FORM_URL } from '../../constants/form';
+import { FORM_URL } from '../../../constants/form';
+import * as yup from 'yup';
 
 const EditClientModal = ({submission, applicant, catchments, centres, show, handleClose, forceUpdate, setForceUpdate}) => {
     const { keycloak } = useKeycloak();
     let initialValues = {
-        catchment: submission.catchmentID,
-        centre: submission.centreID,
+        catchment: applicant.catchmentID,
+        centre: applicant.centreID,
         clientName: applicant.clientName,
+        preferredName: applicant.preferredName,
         clientCaseNumber: applicant.clientCaseNumber,
         user: keycloak.tokenParsed?.preferred_username
       }
+
+    const ApplicationValidationSchema = yup.object().shape({
+        catchment: yup.number().required("required"),
+        centre: yup.number().min(0, "required"),
+        clientName: yup.string().required("required"),
+        preferredName: yup.string(),
+        clientCaseNumber: yup.string().required("required")
+    });
 
     const displayCentresForCatchment = (catchmentID) => {
         return centres
@@ -40,14 +50,14 @@ const EditClientModal = ({submission, applicant, catchments, centres, show, hand
                 <Formik
                     initialValues={initialValues}
                     enableReinitialize={true}
+                    validationSchema={ApplicationValidationSchema}
                     onSubmit={(values, { resetForm, setErrors, setStatus, setSubmitting }) => {
-                        console.log(values);
                         fetch(FORM_URL.Submissions + "/" + submission.submissionID + "/applications/" + applicant.clientApplicationID, {
                             method: "PUT",
-                            credentials: 'include',
                             headers: {
                                 'Accept': 'application/json',
                                 'Content-Type': 'application/json',
+                                "Authorization": "Bearer " + keycloak.token
                             },
                             body: JSON.stringify(values)
                         })
@@ -77,8 +87,9 @@ const EditClientModal = ({submission, applicant, catchments, centres, show, hand
                                                 name="catchment"
                                                 className="form-control"
                                                 onChange={e => {
-                                                    handleChange(e)
-                                                    handleCatchmentChange(e, setFieldValue)
+                                                    handleChange(e);
+                                                    handleCatchmentChange(e, setFieldValue);
+                                                    setFieldValue("centre", -1); // reset centre on new catchment select
                                                 }}>
                                                 { catchments.map(c => (
                                                     <option value={c.catchment_id}>{c.name}</option>
@@ -96,13 +107,15 @@ const EditClientModal = ({submission, applicant, catchments, centres, show, hand
                                                 as="select"
                                                 name="centre"
                                                 className="form-control">
+                                                <option defaultValue>Select One</option>
                                                 {displayCentresForCatchment(values.catchment)}
                                             </Field>
                                             <ErrorMessage
                                                 name="centre"
                                                 component="div"
-                                                className="field-error"
-                                            />
+                                                className="field-error">
+                                                { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
+                                            </ErrorMessage>
                                         </div>
                                     </div>
                                     <div className="form-row">
@@ -116,9 +129,25 @@ const EditClientModal = ({submission, applicant, catchments, centres, show, hand
                                             <ErrorMessage
                                                 name="clientName"
                                                 className="field-error">
-                                                { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                                                { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
                                             </ErrorMessage>
                                         </div>
+                                        <div className="form-group col-md-6">
+                                            <label className="control-label">Preferred Name</label>
+                                            <Field
+                                                name="preferredName"
+                                                type="text"
+                                                className="form-control"
+                                            />
+                                            <ErrorMessage
+                                                name="preferredName"
+                                                className="field-error">
+                                                { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
+                                            </ErrorMessage>
+                                        </div>
+                                    </div>
+
+                                    <div className="form-row">
                                         <div className="form-group col-md-6">
                                             <label className="control-label">Client Case Number</label>
                                             <Field
@@ -129,7 +158,7 @@ const EditClientModal = ({submission, applicant, catchments, centres, show, hand
                                             <ErrorMessage
                                                 name="clientCaseNumber"
                                                 className="field-error">
-                                                { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                                                { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
                                             </ErrorMessage>
                                         </div>
                                     </div>

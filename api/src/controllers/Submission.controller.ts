@@ -11,7 +11,8 @@ export const getSubmissions = async (req: express.Request, res: express.Response
   console.log(req.body);
 
   try {
-    let submissions: any = await submissionService.getSubmissions();
+    let user: string = <string>req.headers.user;
+    let submissions: any = await submissionService.getSubmissions(user);
     return res.status(200).json(submissions);
 
   } catch(e) {
@@ -133,6 +134,7 @@ export const editClientApplication = async (req: express.Request, res: express.R
         catchmentID: req.body.catchment,
         centreID: req.body.centre,
         clientName: req.body.clientName,
+        preferredName: req.body.preferredName,
         clientCaseNumber: req.body.clientCaseNumber,
         user: req.body.user 
       }

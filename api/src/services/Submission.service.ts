@@ -12,21 +12,22 @@ const hummus = require('hummus');
 const memoryStreams = require('memory-streams');
 
 // Get Submissions //
-export const getSubmissions = async () => {
+export const getSubmissions = async (user: string) => {
     let res = null;
 
     await db.query(
         `SELECT 
           s.submission_id,
           s.job_id,
-          s.catchment_id,
+          ca.catchment_id,
           cat.name AS catchment_name,
-          s.centre_id,
+          ca.centre_id,
           cen.name AS centre_name,
           s.created_date,
           s.created_by,
           ca.client_application_id,
           ca.client_name,
+          ca.preferred_name,
           ca.client_case_number,
           ca.consent,
           ca.status,
@@ -35,12 +36,15 @@ export const getSubmissions = async () => {
           ca.resume_file_type,
           jo.employer,
           jo.position,
-          jo.location
+          jo.location,
+          jo.start_date,
+          jo.deadline
         FROM submissions s
         INNER JOIN job_orders jo ON jo.job_id = s.job_id
         LEFT JOIN client_applications ca ON ca.submission_id = s.submission_id
-        LEFT JOIN catchments cat ON cat.catchment_id = s.catchment_id
-        LEFT JOIN centres cen ON cen.centre_id = s.centre_id`
+        LEFT JOIN catchments cat ON cat.catchment_id = ca.catchment_id
+        LEFT JOIN centres cen ON cen.centre_id = ca.centre_id
+        WHERE s.created_by = '${user}'`
       )
     .then((resp: any) => {
         let submissions: {[id: string]: Submission} = {};
@@ -55,7 +59,9 @@ export const getSubmissions = async () => {
               jobOrderID: a.job_id,
               employer: a.employer,
               position: a.position,
-              location: a.location
+              location: a.location,
+              startDate: a.start_date,
+              deadline: a.deadline
             }
 
             let applicant: ClientApplication = {
@@ -66,7 +72,11 @@ export const getSubmissions = async () => {
               consent: a.consent,
               status: a.status,
               resume: resume,
-              bundled: a.bundled
+              bundled: a.bundled,
+              catchmentID: a.catchment_id,
+              catchmentName: a.catchment_name,
+              centreID: a.centre_id,
+              centreName: a.centre_name
             }
 
             let submission: Submission = {
@@ -94,7 +104,11 @@ export const getSubmissions = async () => {
               consent: a.consent,
               status: a.status,
               resume: resume,
-              bundled: a.bundled
+              bundled: a.bundled,
+              catchmentID: a.catchment_id,
+              catchmentName: a.catchment_name,
+              centreID: a.centre_id,
+              centreName: a.centre_name
             }
 
             submissions[a.submission_id].applicants.push(applicant);
@@ -305,12 +319,12 @@ export const bundleAndSend = async (clientApplicationIDs: String[], email: Strin
 
 // Edit Client Application //
 export const editClientApplication = async (clientApplicationID: string, updateBody: UpdateClientApplication) => {
-  console.log(updateBody);
   await db.query(
       ` UPDATE client_applications
         SET catchment_id = ${updateBody.catchmentID},
             centre_id = ${updateBody.centreID},
             client_name = '${updateBody.clientName}',
+            preferred_name = '${updateBody.preferredName}',
             client_case_number = '${updateBody.clientCaseNumber}',
             edited_by = '${updateBody.user}',
             edited_date = CURRENT_DATE

@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useReducer } from 'react';
-import { Modal } from 'react-bootstrap';
+import React, { useState, useEffect, forwardRef } from 'react';
 import { useHistory } from 'react-router-dom';
 import { FORM_URL } from '../../../constants/form';
 import { makeStyles } from '@material-ui/core/styles';
@@ -19,10 +18,10 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
-import CatchmentSelector from '../../../utils/CatchmentSelector';
 import CircularProgress from '@material-ui/core/CircularProgress'
-import EditJobFields from './EditJobFields';
-import { Formik, Form, Field, ErrorMessage, FastField } from 'formik';
+import EditJobModal from './Edit/EditJobModal';
+import ViewJobModal from './View/ViewJobModal';
+import { useKeycloak } from '@react-keycloak/web';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -55,7 +54,8 @@ function not(a, b) {
 
 function ManageJobs() {
   let history = useHistory();
-  const classes = useStyles();
+  const { keycloak, initialized } = useKeycloak();
+  const MAX_CATCHMENTS = 3; // max catchments to display
 
   const [jobOrders, setJobOrders] = useState([]);
   const [jobOrdersLoading, setJobOrdersLoading] = useState(true);
@@ -63,20 +63,16 @@ function ManageJobs() {
   const [forceUpdate, setForceUpdate] = useState(0);
 
   useEffect(async () => {
-    await getJobOrders();
-    await getCatchments();
-
-    async function getJobOrders() {
-      const response = await fetch(FORM_URL.JobOrders);
-      const data = await response.json();
-      const jobs = data.jobs;
-      setJobOrders(jobs.sort((a,b) => a.created_date < b.created_date ? 1 : -1));
-      setJobOrdersLoading(false);
-    }
+    if (initialized)
+      await getCatchments();
 
     async function getCatchments() {
-      const response = await fetch(FORM_URL.System + "/Catchments");
-      const data = await response.json();
+      let response = await fetch(FORM_URL.System + "/Catchments", {
+        headers: {
+          "Authorization": "Bearer " + keycloak.token
+        }
+      });
+      let data = await response.json();
       setCatchments(data.map(c => {
         return (
         {
@@ -85,22 +81,60 @@ function ManageJobs() {
         });
       }));
     }
-  }, [setJobOrders, setCatchments, forceUpdate]);
+  }, [forceUpdate]);
 
-  //#region EDIT MODAL STATE
+  useEffect(async () => {
+    if (catchments.length > 0 && initialized){ // only load job orders once catchments are loaded (dependance)
+      await getJobOrders();
+    }
+    
+    async function getJobOrders() {
+      const response = await fetch(FORM_URL.JobOrders, {
+        headers: {
+          "Authorization": "Bearer " + keycloak.token
+        }
+      });
+      const data = await response.json();
+      let jobs = data.jobs;
+      jobs.forEach(job => {
+        job.catchments = job.catchments.map(catchment => { 
+          return catchments.find(c => c.key == catchment);
+        });
+      })
+      setJobOrders(jobs.sort((a,b) => a.created_date < b.created_date ? 1 : -1));
+      setJobOrdersLoading(false);
+    }
+  }, [catchments])
+
   const [showEdit, setShowEdit] = useState({});
 
-  const handleEditClose = jobID => () => {
+  const handleEditClose = (jobID, edited) => () => {
     setShowEdit(showEdit => ({
       ...showEdit,
-      [jobID] : false}))
+      [jobID] : false}));
+    if (edited) // re-render if data was edited
+      setForceUpdate(forceUpdate + 1);
   }
+  
   const handleEditShow = jobID => () => {
     setShowEdit(showEdit => ({
       ...showEdit,
       [jobID] : true}));
   }
-  //#endregion
+
+  const [showView, setShowView] = useState({});
+
+  const handleViewClose = (jobID) => () => {
+    setShowView(showView => ({
+      ...showView,
+      [jobID] : false}));
+  }
+  
+  const handleViewShow = jobID => () => {
+    setShowView(showView => ({
+      ...showView,
+      [jobID] : true}));
+  }
 
   const handleReviewReferral = (props) => () => {
     history.push({
@@ -116,6 +150,7 @@ function ManageJobs() {
       headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
+          "Authorization": "Bearer " + keycloak.token
       }
     })
     .catch(err => {
@@ -124,7 +159,23 @@ function ManageJobs() {
     setForceUpdate(forceUpdate + 1); // force re-render
   }
 
-  const createData = (id, employer, position, status, startDate, deadline, catchments, location, submissions, created, lastEdit, editedBy) => {
+  const setStatusOpen = jobID => async () => {
+    await fetch(FORM_URL.JobOrders + "/" + jobID + "/setOpen", {
+      method: "POST",
+      credentials: 'include',
+      headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          "Authorization": "Bearer " + keycloak.token
+      }
+    })
+    .catch(err => {
+      console.log(err);
+    });
+    setForceUpdate(forceUpdate + 1); // force re-render
+  }
+
+  const createData = (id, employer, position, status, startDate, deadline, catchments, location, submissions, vacancies, minimumRequirements, otherInformation, createdBy, created, lastEdit, editedBy) => {
       return {
           id,
           employer,
@@ -135,6 +186,10 @@ function ManageJobs() {
           catchments,
           location,
           submissions,
+          vacancies,
+          minimumRequirements,
+          otherInformation,
+          createdBy,
           created,
           lastEdit,
           editedBy
@@ -143,21 +198,21 @@ function ManageJobs() {
 
   //#region UI FUNCTIONS
   const ActionIcons = (props) => {
-      let editIcon =  <button className="btn btn-primary btn-sm" type="button" onClick={handleEditShow(props.jobID)} style={{minWidth: "10px", paddingTop: "0.5rem", paddingBottom: "0.5rem"}}>
-                          <EditIcon style={{color: "white"}}></EditIcon>
+    let editIcon =  <button key="editIcon" className="btn btn-primary btn-sm" type="button" onClick={handleEditShow(props.jobID)} style={{minWidth: "10px", paddingTop: "0.5rem", paddingBottom: "0.5rem"}}>
+                      <EditIcon style={{color: "white"}}></EditIcon>
+                    </button>
+    
+    let viewIcon =  <button key="viewIcon" className="btn btn-primary btn-sm" type="button" onClick={handleViewShow(props.jobID)} style={{minWidth: "10px", paddingTop: "0.5rem", paddingBottom: "0.5rem"}}> 
+                      <VisibilityIcon style={{color: "white"}}></VisibilityIcon> 
+                    </button>
+    
+    let cancelIcon =  <button key="cancelIcon" className="btn btn-primary btn-sm" type="button" onClick={setStatusClosed(props.jobID)} style={{minWidth: "10px", paddingTop: "0.5rem", paddingBottom: "0.5rem"}}> 
+                        <CancelIcon style={{color: "white"}}></CancelIcon> 
                       </button>
-
-      let viewIcon =  <button className="btn btn-primary btn-sm" type="button" style={{minWidth: "10px", paddingTop: "0.5rem", paddingBottom: "0.5rem"}}> 
-                          <VisibilityIcon style={{color: "white"}}></VisibilityIcon> 
-                      </button>
-      
-      let cancelIcon = <button className="btn btn-primary btn-sm" type="button" onClick={setStatusClosed(props.jobID)} style={{minWidth: "10px", paddingTop: "0.5rem", paddingBottom: "0.5rem"}}> 
-                          <CancelIcon style={{color: "white"}}></CancelIcon> 
-                      </button>
-
-      let openIcon = <button className="btn btn-primary btn-sm" type="button" style={{minWidth: "10px", paddingTop: "0.5rem", paddingBottom: "0.5rem"}}> 
-                          <MeetingRoomIcon style={{color: "white"}}></MeetingRoomIcon> 
-                      </button>
+    
+    let openIcon = <button key="openIcon" className="btn btn-primary btn-sm" type="button" onClick={setStatusOpen(props.jobID)} style={{minWidth: "10px", paddingTop: "0.5rem", paddingBottom: "0.5rem"}}> 
+                      <MeetingRoomIcon style={{color: "white"}}></MeetingRoomIcon> 
+                    </button>
       
       let status = props.status;
       let iconsToShow = [editIcon, viewIcon]; // edit and view are always available actions
@@ -175,118 +230,11 @@ function ManageJobs() {
       return "";
 
     return catchmentIDs
-      .map(id => catchments.find(x => x.value.catchment_id == id).value.name)
+      .map(id => catchments.find(x => x.key == id).value.name)
       .join(", "); 
   }
 
-  const EditModal = (props) => {
-    //#region MARK FOR DELETE MODAL STATE
-    const [showMarkForDelete, setShowMarkForDelete] = useState(false);
-
-    const handleMarkForDeleteClose = jobID => () => {
-      setShowMarkForDelete(false);
-      handleEditClose(jobID)();
-    } 
-    const handleMarkForDeleteShow = () => {
-      setShowMarkForDelete(true);
-    }
-    //#endregion
-
-    const MarkForDeleteModal = (props) => {
-      return (
-        <Modal show={showMarkForDelete} onHide={handleMarkForDeleteClose(props.jobID)}>
-          <Modal.Header>
-            <div className="d-flex flex-row flex-fill">
-              <div className="mr-auto">
-                <Modal.Title>Confirm Mark Delete</Modal.Title>
-              </div>
-            </div>
-          </Modal.Header>
-          <Modal.Body>
-            <h5 style={{ color: 'grey', fontWeight: 'lighter' }}>
-              Type the ID of the application to confirm mark for deletion:
-            </h5>
-            <Formik
-              initialValues={props}
-              enableReinitialize={true}>
-              <Form>
-                <div>
-                  <div className="form-group col-md-6">
-                    <label className="control-label" htmlFor="app-id">Confirm ID</label>
-                    <Field
-                        name="app-id"
-                        type="text"
-                        className="form-control"
-                    />
-                    <ErrorMessage
-                        name="app-id"
-                        component="div"
-                        className="field-error"
-                    />
-                  </div>
-                </div>
-              </Form>
-            </Formik>
-          </Modal.Body>
-          <Modal.Footer>
-            <button className="btn btn-danger" type="button" onClick={handleMarkForDeleteClose(props.jobID)}> 
-              Mark for Delete
-            </button>
-            <button className="btn btn-outline-primary" type="button" onClick={handleMarkForDeleteClose(props.jobID)}> 
-              Cancel
-            </button>
-          </Modal.Footer>
-        </Modal>
-      );
-    }
-
-    return (
-      <Modal show={showEdit[props.jobID]} onHide={handleEditClose(props.jobID)} size="xl">
-        <Modal.Header>
-          <div className="d-flex flex-row flex-fill">
-            <div className="mr-auto">
-              <Modal.Title>Editing Job {props.jobID}</Modal.Title>
-            </div>
-            <div className="ml-auto">
-              <button className="btn btn-danger" type="button" onClick={handleMarkForDeleteShow}> 
-                Mark for Delete
-              </button>
-            </div>
-          </div>
-        </Modal.Header>
-        <Modal.Body>
-          <h5 style={{ color: 'grey', fontWeight: 'lighter' }}>Job Fields</h5>
-          <Formik
-            initialValues={props.row}
-            enableReinitialize={true}>
-            <Form>
-              <EditJobFields />
-              <br></br>
-              <h5>Catchments Job will be available to</h5>
-              {catchments.length > 0 && 
-                <FastField 
-                  name="catchments"
-                  component={CatchmentSelector} 
-                  catchments={props.catchments} 
-                />
-              }
-            </Form>
-          </Formik>
-        </Modal.Body>
-        <Modal.Footer>
-          <button className="btn btn-primary" type="button" onClick={handleEditClose(props.jobID)}> 
-            Submit
-          </button>
-          <button className="btn btn-outline-primary" type="button" onClick={handleEditClose(props.jobID)}> 
-            Cancel
-          </button>
-        </Modal.Footer>
-        <MarkForDeleteModal jobID={props.jobID}></MarkForDeleteModal>
-      </Modal>
-    );
-  }
-
-  const Row = (props) => {
+  const Row = React.forwardRef((props, ref) => {
     const { row } = props;
     const [open, setOpen] = React.useState(false);
   
@@ -306,7 +254,7 @@ function ManageJobs() {
           <TableCell align="left">{row.status}</TableCell>
           <TableCell align="left">{row.deadline}</TableCell>
           <TableCell align="left" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "10px"}}>
-            {row.catchments.join(", ")}
+            {row.catchments.map(c => c.key).join(", ")}
           </TableCell>
           <TableCell align="left">{row.location}</TableCell>
           <TableCell align="left">{row.submissions}</TableCell>
@@ -324,59 +272,83 @@ function ManageJobs() {
             </div>
           </TableCell>
         </TableRow>
-        <TableRow>
+        <TableRow ref={ref}>
           <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
             <Collapse in={open} timeout="auto" unmountOnExit>
               <Box margin={1}>
                 <div className="row justify-content-between">
                   <div className="column" style= {{ textAlign: "left", marginLeft: "7px" }}>
                     <div>
-                        Job ID: {row.id}
+                        <b>Job ID:</b> {row.id}
                     </div>
                     <div>
-                        Employer: {row.employer}
+                        <b>Employer:</b> {row.employer}
                     </div>
                     <div>
-                        Position: {row.position}
+                        <b>Position:</b> {row.position}
                     </div>
                     <div>
-                        Created: {row.created}
+                        <b>Created:</b> {row.created}
                     </div>
-                    <div>
-                        Deadline: {row.deadline}
-                    </div>
+                    { row.catchments.length <= MAX_CATCHMENTS &&
+                      <div>
+                        <b>Catchments:</b> {DisplayCatchments(row.catchments.map(c => {
+                          return c.key;
+                        }))}
+                      </div>
+                    }
+                    { row.catchments.length == catchments.length &&
+                      <div>
+                        <b>Catchments:</b> All
+                      </div>
+                    }
                   </div>
                   <div className="column" style= {{ textAlign: "left", marginRight: "7px" }}>
                     <div>
-                        Catchments: {DisplayCatchments(row.catchments)}
+                        <b>Location:</b> {row.location}
                     </div>
                     <div>
-                        Location: {row.location}
+                        <b>Submissions:</b> {row.submissions}
                     </div>
                     <div>
-                        Submissions: {row.submissions}
+                        <b>Last Edit:</b> {row.lastEdit}
                     </div>
                     <div>
-                        Last Edit: {row.lastEdit}
+                        <b>Edited By:</b> {row.editedBy}
                     </div>
                     <div>
-                        Edited By: {row.editedBy}
+                        <b>Deadline:</b> {row.deadline}
                     </div>
                   </div>
+                </div>
+                <div className="row mt-2">
+                  { row.catchments.length > MAX_CATCHMENTS && row.catchments.length != catchments.length &&
+                    <div>
+                      <b>Catchments:</b> {DisplayCatchments(row.catchments.map(c => {
+                        return c.key;
+                      }))}
+                    </div>
+                  }
                 </div>
               </Box>
             </Collapse>
           </TableCell>
         </TableRow>
-        <EditModal 
-          jobID={row.id} 
+        <EditJobModal 
+          job={row}
           catchments={catchments}
-          selectedCatchments={row.catchments} 
-          row={row}>
-        </EditModal>
+          show={showEdit}
+          handleShow={handleEditShow}
+          handleClose={handleEditClose} >
+        </EditJobModal>
+        <ViewJobModal 
+          job={row}
+          show={showView}
+          handleClose={handleViewClose} >
+        </ViewJobModal>
       </React.Fragment>
     );
-  }
+  });
   
   const CollapsibleTable = () => {
     return (
@@ -400,8 +372,10 @@ function ManageJobs() {
             </TableHead>
             <TableBody>
               { jobOrders && (
-                jobOrders?.map(jobOrder => (
-                  <Row 
+                jobOrders?.map(jobOrder => {
+                  const ref = React.createRef();
+                  return (<Row 
+                    ref={ref}
                     key={jobOrder.job_id} 
                     row={createData(
                       jobOrder.job_id,
@@ -413,10 +387,16 @@ function ManageJobs() {
                       jobOrder.catchments,
                       jobOrder.location,
                       jobOrder.submissions,
-                      jobOrder.created_date.substring(0, 10)
+                      jobOrder.vacancies,
+                      jobOrder.minimum_requirements,
+                      jobOrder.other_information,
+                      jobOrder.created_by,
+                      jobOrder.created_date.substring(0, 10),
+                      jobOrder.edited_date?.substring(0, 10),
+                      jobOrder.edited_by
                       )}>
-                  </Row>
-                ))                
+                  </Row>);
+                })                
               )}
             </TableBody>
           </Table>

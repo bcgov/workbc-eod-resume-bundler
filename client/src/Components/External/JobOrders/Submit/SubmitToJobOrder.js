@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import { Formik, Form, Field, FastField, FieldArray, ErrorMessage } from 'formik'
-import { FORM_URL } from '../../constants/form'
+import { FORM_URL } from '../../../../constants/form'
 import ApplicantForm from './ApplicantForm';
 import { useKeycloak } from '@react-keycloak/web';
 import { useHistory } from 'react-router-dom';
 import * as yup from 'yup';
 
 function SubmitToJobOrder(props) {
-  const { keycloak } = useKeycloak();
+  const { keycloak, initialized } = useKeycloak();
   const h = useHistory();
 
-  const [catchment, setCatchment] = React.useState(1);
-  const [centre, setCentre] = React.useState(1);
+  const [catchment, setCatchment] = useState(-1);
+  const [centre, setCentre] = useState(-1);
 
   let [applicants, setApplicants] = useState([
       { 
@@ -33,8 +33,8 @@ function SubmitToJobOrder(props) {
   }
 
   const SubmissionValidationSchema = yup.object().shape({
-    catchment: yup.number().required("required"),
-    centre: yup.number().required("required"),
+    catchment: yup.number().min(0, "required"),
+    centre: yup.number().min(0, "required"),
     applicants: yup.array().of(
         yup.object({
             applicantID: yup.number(),
@@ -50,21 +50,31 @@ function SubmitToJobOrder(props) {
   const [centres, setCentres] = useState([]);
   
   useEffect(async () => {
-    await getCatchments();
-    await getCentres();
+    if (initialized) {
+      await getCatchments();
+      await getCentres();
+    }
 
     async function getCatchments() {
-      const response = await fetch(FORM_URL.System + "/Catchments");
-      const data = await response.json();
-      setCatchments(data);
+      const response = await fetch(FORM_URL.System + "/Catchments", {
+        headers: {
+          "Authorization": "Bearer " + keycloak.token
+        }
+      });
+      const catchments = await response.json();
+      setCatchments(catchments.filter(c => props.location.userCatchments.indexOf(c.catchment_id) > -1)); // only show users catchments
     }
 
     async function getCentres() {
-      const response = await fetch(FORM_URL.System + "/Centres");
+      const response = await fetch(FORM_URL.System + "/Centres", {
+        headers: {
+          "Authorization": "Bearer " + keycloak.token
+        }
+      });
       const data = await response.json();
       setCentres(data);
     }
-  }, [setCatchments, setCentres]);
+  }, [initialized]);
 
   const displayCentresForCatchment = (catchmentID) => {
     return centres
@@ -79,11 +89,11 @@ function SubmitToJobOrder(props) {
         {props.location.jobID && catchments && centres &&
           <div className="row">
               <div className="col-md-12">
-                <h1>Resume Bundler - Submitting to Job Order {props.location.jobID}</h1>  
+                <h1>Resume Bundler - Submitting to {props.location.employer} Job Order {props.location.jobID} - {props.location.jobTitle}</h1>  
                 <p>Submit a Resume. Click on Add Another to add more than one resume at a time.</p>  
                 <Formik
                   initialValues={initialValues}
-                  enableReinitialize={true}
+                  enableReinitialize={false}
                   validationSchema={SubmissionValidationSchema}
                   onSubmit={(values, { resetForm, setErrors, setStatus, setSubmitting }) => {
                     let formData = new FormData(); // use form data to be able to send resume buffers to API
@@ -100,6 +110,9 @@ function SubmitToJobOrder(props) {
                     fetch(FORM_URL.Submissions, {
                         method: "POST",
                         credentials: 'include',
+                        headers: {
+                          "Authorization": "Bearer " + keycloak.token
+                        },
                         body: formData
                     })
                     .then(
@@ -139,11 +152,13 @@ function SubmitToJobOrder(props) {
                                         <Field
                                             as="select"
                                             name="catchment"
+                                            placeholder="Select One"
                                             onChange={e => {
                                               handleChange(e);
-                                              setCatchment(e.target.value);
+                                              setFieldValue("centre", -1); // reset centre on new catchment select
                                             }}
                                             className="form-control">
+                                            <option defaultValue>Select One</option>
                                             { catchments.map(c => (
                                               <option value={c.catchment_id}>{c.name}</option>
                                             ))}
@@ -151,51 +166,46 @@ function SubmitToJobOrder(props) {
                                         <ErrorMessage
                                             name="catchment"
                                             component="div"
-                                            className="field-error"
-                                        />
+                                            className="field-error">
+                                            { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
+                                        </ErrorMessage>
                                     </div>
                                     <div className="form-group col-md-6">
                                         <label className="control-label" htmlFor="centre">WorkBC Centre</label>
                                         <Field
                                             as="select"
                                             name="centre"
+                                            placeholder="Select One"
                                             onChange={e => {
                                               handleChange(e);
-                                              setCentre(e.target.value);
                                             }}
                                             className="form-control">
+                                            <option defaultValue>Select One</option>
                                             {displayCentresForCatchment(values.catchment)}
                                         </Field>
                                         <ErrorMessage
                                             name="centre"
                                             component="div"
-                                            className="field-error"
-                                        />
+                                            className="field-error">
+                                            { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
+                                        </ErrorMessage>
                                     </div>
                                 </div>
                                 <div>
-                                    <ApplicantForm applicants={values.applicants} setFieldValue={setFieldValue} />
-                                </div>
-                                <div>
-                                  { applicants.length > 1 ? 
-                                  <button 
-                                    type="button" 
-                                    className="btn btn-danger"
-                                    style={{ marginBottom: "0.5rem" }}
-                                    onClick={() => {    
-                                      setApplicants(values.applicants.slice(0, -1));
-                                    }}>
-                                    Remove
-                                  </button>
-                                  : null }
+                                    <ApplicantForm 
+                                      applicants={values.applicants} 
+                                      applicantsState={applicants}
+                                      setApplicants={setApplicants}
+                                      values={values}
+                                      setFieldValue={setFieldValue} />
                                 </div>
                                 <div>
                                   <button 
                                     type="button" 
                                     className="btn btn-primary"
                                     style={{ marginBottom: "0.5rem" }}
-                                    onClick={() => {   
-                                      setApplicants(values.applicants.concat(
+                                    onClick={() => {  
+                                      setFieldValue("applicants", values.applicants.concat(
                                         {
                                           applicantID: applicants.length,
                                           clientName: "", 

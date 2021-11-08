@@ -16,7 +16,11 @@ export interface ClientApplication {
     resume: Resume,
     consent: boolean,
     status: string,
-    bundled: boolean
+    bundled: boolean,
+    catchmentID: number,
+    catchmentName: string,
+    centreID: number,
+    centreName: string
 }
 
 export interface Submission {
@@ -42,6 +46,7 @@ export interface UpdateClientApplication {
     catchmentID: number,
     centreID: number,
     clientName: string,
+    preferredName: string,
     clientCaseNumber: string,
     user: string
 }

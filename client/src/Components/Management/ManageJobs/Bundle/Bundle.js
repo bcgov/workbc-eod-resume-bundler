@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import CircularProgress from '@material-ui/core/CircularProgress'
-import { FORM_URL } from '../../../constants/form';
+import { FORM_URL } from '../../../../constants/form';
 import { useHistory } from 'react-router-dom';
+import { useKeycloak } from '@react-keycloak/web';
 
 function Bundle({location}) {
     let history = useHistory();
+    const { keycloak } = useKeycloak();
     const jobOrder = location.props.jobOrder;
     const submissions = location.props.submissions;
     const [bundling, setBundling] = React.useState(false);
     const [email, setEmail] = React.useState("");
+    const [confirmEmail, setConfirmEmail] = React.useState("");
 
     let applicants = [];
     submissions.forEach(s => {
@@ -19,6 +22,9 @@ function Bundle({location}) {
     });
 
     const handleBundleClicked = async () => {
+        if ((email != confirmEmail) || (email === "")) // Must be an email entered and emails must match in order to send
+            return;
+            
         setBundling(true);
 
         // call api to bundle resumes and send emails for approved applicants //
@@ -33,6 +39,7 @@ function Bundle({location}) {
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
+                "Authorization": "Bearer " + keycloak.token      
             },
             body:JSON.stringify(applicantsToSend)
         })
@@ -59,7 +66,47 @@ function Bundle({location}) {
                     <br/>
                     <p>Applications will be combined into a single PDF.</p>
                     <br></br>
-                    <h5>Employers Email:</h5>
+                    <div class="form-group">
+                        <label class="control-label" for="email">Employer Email</label>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            id="email" 
+                            value={email}
+                            onChange={(e) => {
+                                setEmail(e.target.value);
+                            }}
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="confirmEmail">Confirm Email</label>
+                        {
+                            email === confirmEmail || (confirmEmail === "")
+                                ?   <input 
+                                        type="text" 
+                                        class="form-control" 
+                                        id="confirmEmail" 
+                                        value={confirmEmail}
+                                        onChange={(e) => {
+                                            setConfirmEmail(e.target.value);
+                                        }}
+                                    />
+                                :   <input 
+                                        type="text" 
+                                        class="form-control is-invalid" 
+                                        id="confirmEmail" 
+                                        value={confirmEmail}
+                                        onChange={(e) => {
+                                            setConfirmEmail(e.target.value);
+                                        }}
+                                    />
+                        }
+                        <div className="invalid-feedback">
+                            Emails must match
+                        </div>
+                    </div>
+                    
+                    {/* <h5>Employer Email:</h5>
                     <input 
                         type="text" 
                         name="email" 
@@ -68,6 +115,15 @@ function Bundle({location}) {
                             setEmail(e.target.value);
                         }}>
                     </input>
+                    <h5>Confirm Email:</h5>
+                    <input 
+                        type="text" 
+                        name="confirmEmail" 
+                        value={confirmEmail} 
+                        onChange={(e) => {
+                            setEmail(e.target.value);
+                        }}>
+                    </input> */}
                     <div className="d-flex row justify-content-start mt-5">
                         {!bundling && 
                             <button className="btn btn-success mr-5" onClick={() => handleBundleClicked()}>

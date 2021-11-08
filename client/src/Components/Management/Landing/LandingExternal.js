@@ -1,29 +1,32 @@
 import React from 'react'
-import { useKeycloak } from '@react-keycloak/web'
+import { useHistory } from 'react-router-dom';
 
 function LandingExternal() {
-    const { keycloak, initialized } = useKeycloak()
+    let history = useHistory();
     return (
-        <div>
-            {initialized ? (
-                <div>
-                    <div className="row">
-                        <div className="col-md-6">
-                            <a href="/jobOrdersExternal" className="btn btn-lg BC-Gov-SecondaryButton">View Job Orders</a><br /><br />
-                        </div>
-                        <div className="cold-md-6">
-                            <a href="/submissionsExternal" className="btn btn-lg BC-Gov-SecondaryButton">My Submissions</a><br /><br />
-                        </div>
+            <div>
+                <div className="row">
+                    <div className="col-md-6" style={{display: "flex", justifyContent: "center"}}>
+                        <a 
+                            href="/jobOrdersExternal" 
+                            className="btn btn-outline-primary" 
+                            type="button"
+                            style={{fontSize: "1.5rem"}}>
+                            View Job Orders
+                        </a>
                     </div>
+                    <div className="col-md-6" style={{display: "flex", justifyContent: "left"}}>
+                        <a 
+                            href="/submissionsExternal" 
+                            className="btn btn-outline-primary" 
+                            type="button"
+                            style={{fontSize: "1.5rem"}}>
+                            My Submissions
+                        </a>
+                    </div>
+                </div>
 
-                </div>
-            )
-                :
-                <div className="spinner-border" role="status">
-                    <span className="sr-only">Loading...</span>
-                </div>
-            }
-        </div>
+            </div>
     )
 }
 

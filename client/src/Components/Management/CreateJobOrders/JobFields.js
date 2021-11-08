@@ -15,7 +15,7 @@ function JobFields() {
                     <ErrorMessage
                         name="employer"
                         className="field-error">
-                        { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                        { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
                     </ErrorMessage>
                 </div>
                 <div className="form-group col-md-6">
@@ -28,7 +28,7 @@ function JobFields() {
                     <ErrorMessage
                         name="position"
                         className="field-error">
-                        { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                        { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
                     </ErrorMessage>
                 </div>
             </div>
@@ -45,7 +45,7 @@ function JobFields() {
                         name="startDate"
                         component="div"
                         className="field-error">
-                        { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                        { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
                     </ErrorMessage>
                 </div>
                 <div className="form-group col-md-6">
@@ -60,7 +60,7 @@ function JobFields() {
                         name="deadline"
                         component="div"
                         className="field-error">
-                        { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                        { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
                     </ErrorMessage>
                 </div>
             </div>
@@ -76,7 +76,7 @@ function JobFields() {
                         name="location"
                         component="div"
                         className="field-error">
-                        { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                        { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
                     </ErrorMessage>
                 </div>
                 <div className="form-group col-md-6">
@@ -90,7 +90,7 @@ function JobFields() {
                         name="vacancies"
                         component="div"
                         className="field-error">
-                        { msg => <div style={{ color: 'red' }}>{msg}</div> }
+                        { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
                     </ErrorMessage>
                 </div>
             </div>
