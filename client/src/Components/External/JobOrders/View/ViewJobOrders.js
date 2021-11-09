@@ -79,6 +79,7 @@ function ViewJobOrders() {
   };
 
   const [jobOrders, setJobOrders] = useState([]);
+  const [jobOrdersLoaded, setJobOrdersLoaded] = useState(false);
   const [employers, setEmployers] = useState([]);
   const [employersToDisplay, setEmployersToDisplay] = useState([]);
   const [catchments, setCatchments] = useState([]);
@@ -142,6 +143,7 @@ function ViewJobOrders() {
       jobOrders = jobOrders.filter(j => j.catchments.some(c => userCatchments.indexOf(parseInt(c)) > -1)); // filter for jobs in catchments the user has access to
       setJobOrders(jobOrders);
       setJobEmployers(jobOrders);
+      setJobOrdersLoaded(true);
     }
 
     function setJobEmployers(jobOrders) {
@@ -301,7 +303,7 @@ function ViewJobOrders() {
             <div className="col-md-12">
               <h1>Resume Bundler - Available Job Orders</h1>  
               <p>View available job orders and submit resumes</p>  
-              {(jobOrders.length > 0 && catchments.length > 0) && 
+              {(jobOrdersLoaded && catchments.length > 0) && 
                 <div>
                   <SearchBar
                     handleUpdate={handleUpdateEmployersToDisplay}
@@ -312,7 +314,7 @@ function ViewJobOrders() {
                 </div>
               }
 
-              {(jobOrders.length == 0 || catchments.length == 0) && // show spinner while fetching data
+              {(!jobOrdersLoaded || catchments.length == 0) && // show spinner while fetching data
                 <CircularProgress />
               }
             </div>
