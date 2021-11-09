@@ -4,7 +4,7 @@ function LandingInternal() {
     return (
             <div>
                 <div className="row">
-                    <div className="col-md-6" style={{display: "flex", justifyContent: "left"}}>
+                    <div className="col-md-6" style={{display: "flex", justifyContent: "center"}}>
                         <a 
                             href="/createJobOrder" 
                             className="btn btn-outline-primary" 
