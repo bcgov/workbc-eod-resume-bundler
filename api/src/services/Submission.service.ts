@@ -15,37 +15,39 @@ const memoryStreams = require('memory-streams');
 export const getSubmissions = async (user: string) => {
     let res = null;
 
-    await db.query(
-        `SELECT 
-          s.submission_id,
-          s.job_id,
-          ca.catchment_id,
-          cat.name AS catchment_name,
-          ca.centre_id,
-          cen.name AS centre_name,
-          s.created_date,
-          s.created_by,
-          ca.client_application_id,
-          ca.client_name,
-          ca.preferred_name,
-          ca.client_case_number,
-          ca.consent,
-          ca.status,
-          ca.bundled,
-          ca.resume_file_name,
-          ca.resume_file_type,
-          jo.employer,
-          jo.position,
-          jo.location,
-          jo.start_date,
-          jo.deadline
-        FROM submissions s
-        INNER JOIN job_orders jo ON jo.job_id = s.job_id
-        LEFT JOIN client_applications ca ON ca.submission_id = s.submission_id
-        LEFT JOIN catchments cat ON cat.catchment_id = ca.catchment_id
-        LEFT JOIN centres cen ON cen.centre_id = ca.centre_id
-        WHERE s.created_by = '${user}'`
-      )
+    let queryStr = `SELECT 
+        s.submission_id,
+        s.job_id,
+        ca.catchment_id,
+        cat.name AS catchment_name,
+        ca.centre_id,
+        cen.name AS centre_name,
+        s.created_date,
+        s.created_by,
+        ca.client_application_id,
+        ca.client_name,
+        ca.preferred_name,
+        ca.client_case_number,
+        ca.consent,
+        ca.status,
+        ca.bundled,
+        ca.resume_file_name,
+        ca.resume_file_type,
+        jo.employer,
+        jo.position,
+        jo.location,
+        jo.start_date,
+        jo.deadline
+      FROM submissions s
+      INNER JOIN job_orders jo ON jo.job_id = s.job_id
+      LEFT JOIN client_applications ca ON ca.submission_id = s.submission_id
+      LEFT JOIN catchments cat ON cat.catchment_id = ca.catchment_id
+      LEFT JOIN centres cen ON cen.centre_id = ca.centre_id`
+
+    if (user)
+      queryStr = queryStr + ` WHERE s.created_by = '${user}'`; // additional filter if user is provided
+
+    await db.query(queryStr)
     .then((resp: any) => {
         let submissions: {[id: string]: Submission} = {};
         resp.rows.forEach((a: any) => {
