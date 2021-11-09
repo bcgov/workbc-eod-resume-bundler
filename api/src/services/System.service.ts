@@ -43,7 +43,6 @@ export const getUserPermissions = async (token: string, userGUID: string) => {
   try{
     const resp = await OESFacade.getUserPermissions(userGUID);
     const permissions = resp.data;
-    console.log(permissions);
 
     const hasAccess: boolean = permissions.some((p: OESAccessDefinition) => p.Application == "RSB"); // If the permissions array contains at least one application == "RSB", user has access
     let catchments: number[] = permissions.map((p: OESAccessDefinition) => {
