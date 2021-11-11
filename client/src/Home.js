@@ -13,8 +13,10 @@ function Home() {
     const [permissions, setPermissions] = useState();
 
     useEffect(async () => {
-        if (initialized && keycloak.tokenParsed)
+        if (initialized && keycloak.tokenParsed){
+            console.log(keycloak);
             await getPermissions();
+        }
     
         async function getPermissions() {
             let response = await fetch(FORM_URL.System + "/UserPermissions", {

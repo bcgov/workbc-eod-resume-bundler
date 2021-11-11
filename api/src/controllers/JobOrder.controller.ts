@@ -48,7 +48,7 @@ export const createJobOrder = async (req: express.Request, res: express.Response
 
 // Close Job Order //
 export const setToClosed = async (req: express.Request, res: express.Response) => {
-  console.log("POST request received to " + req.get("host") + req.originalUrl);
+  console.log("PUT request received to " + req.get("host") + req.originalUrl);
   console.log("request params: ");
   console.log(req.params);
 
@@ -64,7 +64,7 @@ export const setToClosed = async (req: express.Request, res: express.Response) =
 
 // Open Job Order //
 export const setToOpen = async (req: express.Request, res: express.Response) => {
-  console.log("POST request received to " + req.get("host") + req.originalUrl);
+  console.log("PUT request received to " + req.get("host") + req.originalUrl);
   console.log("request params: ");
   console.log(req.params);
 

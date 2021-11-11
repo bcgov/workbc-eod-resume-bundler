@@ -70,7 +70,7 @@ export const createSubmission = async (req: any, res: express.Response) => {
 
 // Set Clients to Approved //
 export const setClientsToApproved = async (req: any, res: express.Response) => {
-  console.log("POST request received to " + req.get("host") + req.originalUrl);
+  console.log("PUT request received to " + req.get("host") + req.originalUrl);
   console.log("request body: ");
   console.log(req.body);
 
@@ -88,7 +88,7 @@ export const setClientsToApproved = async (req: any, res: express.Response) => {
 
 // Set Clients to Flagged //
 export const setClientsToFlagged = async (req: any, res: express.Response) => {
-  console.log("POST request received to " + req.get("host") + req.originalUrl);
+  console.log("PUT request received to " + req.get("host") + req.originalUrl);
   console.log("request body: ");
   console.log(req.body);
 
@@ -140,6 +140,22 @@ export const editClientApplication = async (req: express.Request, res: express.R
       }
     await submissionService.editClientApplication(req.params.applicationID, updateBody);
     return res.status(200).send();
+
+  } catch(e) {
+    console.log(e);
+    return res.status(500).send("Internal Server Error");
+  }
+};
+
+// Notify Client //
+export const NotifyClient = async (req: express.Request, res: express.Response) => {
+  console.log("GET request received to " + req.get("host") + req.originalUrl);
+  console.log("request body: ");
+  console.log(req.body);
+
+  try {
+    await submissionService.NotifyClient(req.params.applicationID);
+    return res.status(200).send("Client Notified");
 
   } catch(e) {
     console.log(e);

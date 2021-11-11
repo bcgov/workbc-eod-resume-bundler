@@ -341,6 +341,11 @@ export const editClientApplication = async (clientApplicationID: string, updateB
     });
 }
 
+// Notify Client //
+export const NotifyClient = async (clientApplicationID: string) => {
+  //TODO
+}
+
 
 
 

@@ -145,7 +145,7 @@ function ManageJobs() {
 
   const setStatusClosed = jobID => async () => {
     await fetch(FORM_URL.JobOrders + "/" + jobID + "/setClosed", {
-      method: "POST",
+      method: "PUT",
       credentials: 'include',
       headers: {
           'Accept': 'application/json',
@@ -161,7 +161,7 @@ function ManageJobs() {
 
   const setStatusOpen = jobID => async () => {
     await fetch(FORM_URL.JobOrders + "/" + jobID + "/setOpen", {
-      method: "POST",
+      method: "PUT",
       credentials: 'include',
       headers: {
           'Accept': 'application/json',

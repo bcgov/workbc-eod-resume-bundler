@@ -66,14 +66,3 @@ export const getUserPermissions = async (token: string, userGUID: string) => {
     throw new Error(err);
   }
 }
-
-// Get User Profile // 
-export const getUserProfile = async (token: string) => {
-  try{
-    const resp = await OESFacade.getUserProfile(token);
-    return resp;
-
-  } catch(err: any) {
-    throw new Error(err);
-  }
-}
