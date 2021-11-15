@@ -78,11 +78,20 @@ function Home() {
                     <div className="row mb-5">
                         <div className="col-md-12">
                             <header>
-                                <h1 style={{fontSize: "7vh"}}>WorkBC Resume Bundler</h1>
+                                {initialized && !keycloak.authenticated &&
+                                    <h1 style={{fontSize: "7vh"}}>WorkBC Resume Bundler</h1>
+                                }
+                                {initialized && keycloak.authenticated && keycloak.hasResourceRole('eod-staff') &&
+                                    <h1 style={{fontSize: "5vh"}}>WorkBC Resume Bundler - Ministry Staff Homepage</h1>
+                                }
+                                {initialized && keycloak.authenticated && keycloak.tokenParsed?.identity_provider.includes("bceid") &&
+                                    <h1 style={{fontSize: "5vh"}}>WorkBC Resume Bundler - Service Provider Homepage</h1>
+                                }
                                 {keycloak.authenticated 
                                     ?   <h2 style={{fontWeight: 200}}>Welcome {keycloak.tokenParsed.given_name // sometimes given name isn't available, show preferred username instead
                                                     ? keycloak.tokenParsed.given_name
                                                     : keycloak.tokenParsed.preferred_username ? keycloak.tokenParsed.preferred_username.split("@")[0] : ""}
+                                                . Please select an option below:
                                         </h2>
                                     :   <h2 style={{fontWeight: 200}}>Welcome to the WorkBC Resume Bundler!</h2>  
                                 }

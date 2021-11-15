@@ -411,7 +411,10 @@ function ManageJobs() {
         <div className="row">
             <div className="col-md-12">
                 <h1>Resume Bundler - Manage Jobs</h1>  
-                <p>Manage all job orders</p>  
+                <p>All created job orders are listed below.
+                   You can edit, view, or close/reopen a job order under ‘Actions’.
+                   Please click ‘Review’ to view resumes that have been submitted
+                   to a specific job order.  </p>  
             </div>
             {jobOrders.length > 0 && catchments.length > 0 &&
               <CollapsibleTable></CollapsibleTable>

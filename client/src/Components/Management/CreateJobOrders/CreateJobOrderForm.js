@@ -134,7 +134,8 @@ const CreateJobOrderForm = () => {
         {({ values, isSubmitting, setFieldValue, handleBlur, handleChange, errors, hasError }) => (
             <div>
                 <Form>
-                    <p>Create a position for WorkBC Centres to drop resumes</p>
+                    <p>Create a job order and WorkBC Centres can upload appropriate client
+                         resumes for the position. Please fill in the fields below.</p>
                     <div className="form-group">
                         <legend>Job Fields</legend>
                     </div>

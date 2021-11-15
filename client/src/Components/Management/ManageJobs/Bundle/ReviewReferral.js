@@ -439,12 +439,12 @@ function ReviewReferral({location}) {
 
 
     return(
-        <div className="container">
+        <div className="container ml-3">
           {jobOrder && catchments && centres &&
             <div>
               <div className="row">
                   <div className="col-md-12">
-                      <h1>Resume Bundler - Reviewing Referral for Job {jobOrder.id}</h1>   
+                      <h1>Resume Bundler - Reviewing Referrals for Job {jobOrder.id}</h1>   
                   </div>
               </div>
               <div className="row">

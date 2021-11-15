@@ -126,7 +126,7 @@ function ViewJobOrders() {
   }, [initialized]);
 
   useEffect(async () => {
-    if (userCatchments.length > 0 && initialized) {// only fetch job orders & catchments once user catchments have been fetched (dependance)
+    if (userCatchments.length > 0 && initialized) { // only fetch job orders & catchments once user catchments have been fetched (dependance)
       await getJobOrders();
       await getCatchments();
     }
@@ -298,11 +298,19 @@ function ViewJobOrders() {
   }
 
   return (
-    <div className="container">
+    <div className="container ml-3">
         <div className="row">
             <div className="col-md-12">
               <h1>Resume Bundler - Available Job Orders</h1>  
-              <p>View available job orders and submit resumes</p>  
+              <p>Available job orders are listed below. 
+                Click on the arrow beside an employer’s name to 
+                expand the list of job orders for this employer. 
+                To submit client resumes to a job order, please 
+                click on ‘Submit’.
+              </p>  
+              <p>Use the search box below to search jobs by employer name,
+                 position title or location.
+              </p>
               {(jobOrdersLoaded && catchments.length > 0) && 
                 <div>
                   <SearchBar

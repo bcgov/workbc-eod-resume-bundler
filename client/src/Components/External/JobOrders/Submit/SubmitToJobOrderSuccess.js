@@ -4,7 +4,7 @@ function SubmitToJobOrderSuccess(props) {
     let history = useHistory();
     
     return(
-        <div className="container">
+        <div className="container ml-3">
             <div className="row">
                 <h1>Success! Applicants Submitted.</h1>   
             </div>
@@ -13,7 +13,8 @@ function SubmitToJobOrderSuccess(props) {
             </div>
             <div className="row">
                 <h5 style={{ color: 'grey', fontWeight: 'lighter' }}>
-                    Applicant information successfully created.
+                Applicant information has been successfully submitted.
+                 Please make note of this Submission ID for future reference.
                 </h5>
             </div>
             <div className="row">
