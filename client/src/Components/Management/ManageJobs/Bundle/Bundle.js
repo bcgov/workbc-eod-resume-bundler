@@ -12,6 +12,7 @@ function Bundle({location}) {
     const [bundling, setBundling] = React.useState(false);
     const [email, setEmail] = React.useState("");
     const [confirmEmail, setConfirmEmail] = React.useState("");
+    const [staffName, setStaffName] = React.useState("");
 
     let applicants = [];
     submissions.forEach(s => {
@@ -30,7 +31,10 @@ function Bundle({location}) {
         // call api to bundle resumes and send emails for approved applicants //
         const applicantsToSend = {
             clientApplicationIDs: applicants.map(a => a.clientApplicationID),
-            email: email
+            email: email,
+            position: jobOrder.position,
+            location: jobOrder.location,
+            staffName: staffName
         };
         await fetch(FORM_URL.Submissions + "/bundleAndSend", 
         {
@@ -66,6 +70,18 @@ function Bundle({location}) {
                     <br/>
                     <p>Applications will be combined into a single PDF.</p>
                     <br></br>
+                    <div class="form-group">
+                        <label class="control-label" for="staffName">EOD Staff Name</label>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            id="staffName" 
+                            value={staffName}
+                            onChange={(e) => {
+                                setStaffName(e.target.value);
+                            }}
+                        />
+                    </div>
                     <div class="form-group">
                         <label class="control-label" for="email">Employer Email</label>
                         <input 
@@ -105,25 +121,7 @@ function Bundle({location}) {
                             Emails must match
                         </div>
                     </div>
-                    
-                    {/* <h5>Employer Email:</h5>
-                    <input 
-                        type="text" 
-                        name="email" 
-                        value={email} 
-                        onChange={(e) => {
-                            setEmail(e.target.value);
-                        }}>
-                    </input>
-                    <h5>Confirm Email:</h5>
-                    <input 
-                        type="text" 
-                        name="confirmEmail" 
-                        value={confirmEmail} 
-                        onChange={(e) => {
-                            setEmail(e.target.value);
-                        }}>
-                    </input> */}
+
                     <div className="d-flex row justify-content-start mt-5">
                         {!bundling && 
                             <button className="btn btn-success mr-5" onClick={() => handleBundleClicked()}>

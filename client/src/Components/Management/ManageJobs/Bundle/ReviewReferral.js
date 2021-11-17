@@ -239,7 +239,7 @@ function ReviewReferral({location}) {
 
     const handleApproveButtonClicked = (clientID) => async () => {
       await fetch(FORM_URL.Submissions + "/setClientsToApproved", {
-        method: "POST",
+        method: "PUT",
         credentials: 'include',
         headers: {
             'Accept': 'application/json',
@@ -258,7 +258,7 @@ function ReviewReferral({location}) {
 
     const handleFlagButtonClicked = (clientID) => async () => {
       await fetch(FORM_URL.Submissions + "/setClientsToFlagged", {
-        method: "POST",
+        method: "PUT",
         credentials: 'include',
         headers: {
             'Accept': 'application/json',

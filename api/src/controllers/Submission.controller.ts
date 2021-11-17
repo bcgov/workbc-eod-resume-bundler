@@ -1,6 +1,6 @@
 import * as express from "express";
 import { ValidationError } from "yup";
-import { CreateSubmission, UpdateClientApplication } from "../interfaces/Submission.interface";
+import { BundleEmailParams, CreateSubmission, UpdateClientApplication } from "../interfaces/Submission.interface";
 import { SubmissionValidationSchema } from "../schemas/SubmissionValidationSchema";
 import * as submissionService from "../services/Submission.service";
 
@@ -112,8 +112,17 @@ export const bundleAndSend = async (req: express.Request, res: express.Response)
 
   try {
     let applicantIDs = req.body.clientApplicationIDs;
+    let emailParams: BundleEmailParams = 
+      {
+        email: req.body.email,
+        position: req.body.position,
+        location: req.body.location,
+        staffName: req.body.staffName
+      };
 
-    await submissionService.bundleAndSend(applicantIDs, req.body.email);
+    console.log(emailParams);
+
+    await submissionService.bundleAndSend(applicantIDs, emailParams);
     return res.status(200).send();
 
   } catch(e) {

@@ -50,3 +50,10 @@ export interface UpdateClientApplication {
     clientCaseNumber: string,
     user: string
 }
+
+export interface BundleEmailParams {
+    email: string,
+    position: string,
+    location: string,
+    staffName: string
+}

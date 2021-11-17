@@ -1,5 +1,5 @@
 import { JobOrder } from "../interfaces/JobOrder.interface";
-import { Submission, CreateSubmission, ClientApplication, Resume, UpdateClientApplication } from "../interfaces/Submission.interface";
+import { Submission, CreateSubmission, ClientApplication, Resume, UpdateClientApplication, BundleEmailParams } from "../interfaces/Submission.interface";
 import nodemailer, { Transporter } from "nodemailer";
 import { MailOptions } from "nodemailer/lib/json-transport";
 const fs = require("fs");
@@ -10,6 +10,7 @@ const { customAlphabet } = require('nanoid');
 const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz',10);
 const hummus = require('hummus');
 const memoryStreams = require('memory-streams');
+const generateHTMLEmail = require('../utils/htmlEmail');
 
 // Get Submissions //
 export const getSubmissions = async (user: string) => {
@@ -162,7 +163,6 @@ export const downloadResume = async (clientApplicationID: string) => {
 // Create Submission //
 export const createSubmission = async (createBody: CreateSubmission, files: any) => {
   const submissionID: string = nanoid();
-  console.log(files);
   let applicants = JSON.parse(createBody.applicants.toString());
   await db.query(
     `INSERT INTO submissions (
@@ -243,7 +243,7 @@ export const setClientsToFlagged = async (applicantIDs: string[]) => {
 }
 
 // Bundle and Send PDF //
-export const bundleAndSend = async (clientApplicationIDs: String[], email: String) => {
+export const bundleAndSend = async (clientApplicationIDs: String[], emailParams: BundleEmailParams) => {
   try {
       // Bundle PDFs //
       let mergedPDF: Buffer;
@@ -282,14 +282,34 @@ export const bundleAndSend = async (clientApplicationIDs: String[], email: Strin
           // send mail with defined transport object
           let message: MailOptions = {
               from: 'Resume Bundler <donotreply@gov.bc.ca>', // sender address
-              to: <string>email, // list of receivers TODO
+              to: <string>emailParams.email, // list of receivers TODO
               subject: "New Bundled Resumes", // subject line
-              html: "Please see attached for bundled resumes", // email body
+              html: 
+                generateHTMLEmail("Your resume bundle from WorkBC is ready!",
+                [
+                  `Hello,`,
+                  `Thank you for choosing to use the WorkBC Employment Services' Resume Bundling service. Please find attached the qualified resumes specific to your job order: <b>${emailParams.position}</b> in <b>${emailParams.location}</b>`,
+                  `These resumes have been reviewed to ensure they meet the minimum requirements for the position.`,
+                  `If you have questions about your resume bundle, please reach out to ${emailParams.staffName} at the Employment Opportunities Development (EOD) branch or email employer.support@workbc.ca`,
+                  `We want to ensure we are providing the best support we can for your organization and will be following up to gain any insights on how this service met or did not meet your needs.`,
+                  `Sincerely,`,
+                  `<b>The Employment Opportunities Development Team`
+                ],
+                [
+                ],
+                [
+                ]
+              ),
               attachments: [
                 {
                   filename: "bundled-resumes.pdf",
                   content: mergedPDF,
                   contentType: "application/pdf"
+                },
+                {
+                  filename: 'WorkBCLogo.png',
+                  path: 'public/emailBannerTop.png',
+                  cid: 'logo' //my mistake was putting "cid:logo@cid" here! 
                 }
               ]
           };
