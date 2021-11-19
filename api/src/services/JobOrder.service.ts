@@ -30,6 +30,10 @@ export const getJobOrders = async () => {
 // Create Job Order //
 export const createJobOrder = async (body: any) => {
     const jobID: string = nanoid();
+    const currDate: Date = new Date();
+    const startDate: Date = new Date(body.startDate);
+    console.log(currDate);
+    console.log(startDate);
 
     await db.query(
     `INSERT INTO job_orders (
@@ -50,9 +54,9 @@ export const createJobOrder = async (body: any) => {
         body.minimumRequirements,
         body.otherInformation,
         body.jobDescriptionFile,
-        body.status,
+        startDate.getTime() > currDate.getTime() ? "Upcoming" : "Open", // status
         body.user,
-        new Date()
+        currDate
         ]
     )
     .catch((err: any) => {

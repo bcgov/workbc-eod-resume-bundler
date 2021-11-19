@@ -7,9 +7,18 @@ const SearchBar = ({handleUpdate, paginationCount, label}) => {
   
     const handleSearchBarChange = (event) => {
       let searchString = event?.target?.value;
-      handleUpdate(searchString);
-      setSearchBar(searchString);
+
+      if (searchString !== searchBar){
+        handleUpdate(searchString);
+        setSearchBar(searchString);
+      }
     };
+
+    const handleKeyPress = (event) => {
+      if (event.keyCode == 13){ // enter key code
+        event.preventDefault();
+      }
+    }
   
     return (
     <React.Fragment>
@@ -22,6 +31,7 @@ const SearchBar = ({handleUpdate, paginationCount, label}) => {
             <TextField 
               value={searchBar}
               onChange={handleSearchBarChange}
+              onKeyDown={handleKeyPress}
               size="small" 
               id="outlined-basic" 
               variant="outlined" 

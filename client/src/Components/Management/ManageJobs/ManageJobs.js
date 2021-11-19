@@ -96,11 +96,13 @@ function ManageJobs() {
       });
       const data = await response.json();
       let jobs = data.jobs;
+
       jobs.forEach(job => {
         job.catchments = job.catchments.map(catchment => { 
           return catchments.find(c => c.key == catchment);
         });
       })
+
       setJobOrders(jobs.sort((a,b) => a.created_date < b.created_date ? 1 : -1));
       setJobOrdersLoading(false);
     }
@@ -214,15 +216,15 @@ function ManageJobs() {
                       <MeetingRoomIcon style={{color: "white"}}></MeetingRoomIcon> 
                     </button>
       
-      let status = props.status;
-      let iconsToShow = [editIcon, viewIcon]; // edit and view are always available actions
+    let status = props.status;
+    let iconsToShow = [editIcon, viewIcon]; // edit and view are always available actions
 
-      if (status.toLowerCase() == "open")
-          iconsToShow.push(cancelIcon);
-      if (status.toLowerCase() == "closed")
-          iconsToShow.push(openIcon);
+    if (status.toLowerCase() == "open" || status.toLowerCase() == "upcoming")
+        iconsToShow.push(cancelIcon);
+    if (status.toLowerCase() == "closed")
+        iconsToShow.push(openIcon);
 
-      return iconsToShow;
+    return iconsToShow;
   }
 
   const DisplayCatchments = (catchmentIDs) => {

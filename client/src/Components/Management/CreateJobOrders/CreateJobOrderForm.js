@@ -60,7 +60,6 @@ const CreateJobOrderForm = () => {
         jobDescriptionFile: {},
         minimumRequirements: "",
         otherInformation: "",
-        status: "Open",
         user: keycloak.tokenParsed.preferred_username
     }
 
