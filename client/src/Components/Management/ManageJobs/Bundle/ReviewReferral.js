@@ -285,6 +285,33 @@ function ReviewReferral({location}) {
       });
     }
 
+    const handleNotify = async (applicant, submission) => {
+      await fetch(`${FORM_URL.Submissions}/${submission.submissionID}/applications/${applicant.clientApplicationID}/Notify`, {
+        method: "POST",
+        credentials: 'include',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            "Authorization": "Bearer " + keycloak.token
+        },
+        body: JSON.stringify(
+          {
+            email: submission.createdByEmail,
+            clientCaseNumber: applicant.clientCaseNumber,
+            position: submission.jobOrderInfo.position,
+            location: submission.jobOrderInfo.location,
+            status: applicant.status
+          }
+        ) // send client ID
+      })
+      .then(() => {
+        setForceUpdate(forceUpdate + 1); // force re-render
+      })
+      .catch(err => {
+        console.log(err);
+      });
+    }
+
     const handleUpdateReferralsToDisplay = () => {
 
     }
@@ -427,7 +454,8 @@ function ReviewReferral({location}) {
             <TableCell align="left">
               <button 
                 type="button" 
-                class="btn btn-secondary">
+                class="btn btn-secondary"
+                onClick={() => handleNotify(applicant, submission)}>
                   Notify
                 </button>
             </TableCell>

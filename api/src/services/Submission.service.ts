@@ -1,5 +1,5 @@
 import { JobOrder } from "../interfaces/JobOrder.interface";
-import { Submission, CreateSubmission, ClientApplication, Resume, UpdateClientApplication, BundleEmailParams } from "../interfaces/Submission.interface";
+import { Submission, CreateSubmission, ClientApplication, Resume, UpdateClientApplication, BundleEmailParams, NotifyParams } from "../interfaces/Submission.interface";
 import nodemailer, { Transporter } from "nodemailer";
 import { MailOptions } from "nodemailer/lib/json-transport";
 const fs = require("fs");
@@ -25,6 +25,7 @@ export const getSubmissions = async (user: string) => {
         cen.name AS centre_name,
         s.created_date,
         s.created_by,
+        s.created_by_email,
         ca.client_application_id,
         ca.client_name,
         ca.preferred_name,
@@ -92,7 +93,8 @@ export const getSubmissions = async (user: string) => {
               jobOrderInfo: job,
               applicants: [applicant],
               createdDate: a.created_date,
-              createdBy: a.created_by 
+              createdBy: a.created_by ,
+              createdByEmail: a.created_by_email
             }
 
             submissions[a.submission_id] = submission;
@@ -166,16 +168,17 @@ export const createSubmission = async (createBody: CreateSubmission, files: any)
   let applicants = JSON.parse(createBody.applicants.toString());
   await db.query(
     `INSERT INTO submissions (
-        submission_id, job_id, catchment_id, centre_id, bundled, created_by, created_date)
+        submission_id, job_id, catchment_id, centre_id, bundled, created_by, created_date, created_by_email)
         VALUES 
-        ($1, $2, $3, $4, $5, $6, $7)`,
+        ($1, $2, $3, $4, $5, $6, $7, $8)`,
         [submissionID,
         createBody.jobID,
         createBody.catchmentID,
         createBody.centreID,
         false,
         createBody.user,
-        new Date()
+        new Date(),
+        createBody.email
         ]
   )
   .then(() => {
@@ -281,9 +284,9 @@ export const bundleAndSend = async (clientApplicationIDs: String[], emailParams:
           console.log("Transporter connected.")
           // send mail with defined transport object
           let message: MailOptions = {
-              from: 'Resume Bundler <donotreply@gov.bc.ca>', // sender address
-              to: <string>emailParams.email, // list of receivers TODO
-              subject: "New Bundled Resumes", // subject line
+              from: 'Resume Bundler <donotreply@gov.bc.ca>',
+              to: <string>emailParams.email,
+              subject: "New Bundled Resumes",
               html: 
                 generateHTMLEmail("Your resume bundle from WorkBC is ready!",
                 [
@@ -309,7 +312,7 @@ export const bundleAndSend = async (clientApplicationIDs: String[], emailParams:
                 {
                   filename: 'WorkBCLogo.png',
                   path: 'public/emailBannerTop.png',
-                  cid: 'logo' //my mistake was putting "cid:logo@cid" here! 
+                  cid: 'logo'
                 }
               ]
           };
@@ -362,8 +365,109 @@ export const editClientApplication = async (clientApplicationID: string, updateB
 }
 
 // Notify Client //
-export const NotifyClient = async (clientApplicationID: string) => {
-  //TODO
+export const NotifyClient = async (notifyParams: NotifyParams) => {
+  try {
+    // Send Email //
+    let transporter: Transporter = nodemailer.createTransport({
+      host: "apps.smtp.gov.bc.ca",
+      port: 25,
+      secure: false,
+      tls: {
+          rejectUnauthorized: false
+      }
+    });
+
+    await transporter.verify()
+    .then(async function (r) {
+        console.log("Transporter connected.");
+        // send mail with defined transport object
+        let message: MailOptions;
+        if (notifyParams.status === "Approved"){
+          message = {
+            from: 'Resume Bundler <donotreply@gov.bc.ca>',
+            to: notifyParams.email, 
+            subject: "Resume Bundler Notification: Resume Approved",
+            html: 
+              generateHTMLEmail('',
+              [
+                `Thank you for using the WorkBC Resume Bundler.
+                This is a notification for client: <b>${notifyParams.clientCaseNumber}</b> for job order: 
+                <b>${notifyParams.position}, ${notifyParams.location}</b>.`,
+                `We are pleased to inform you that your client’s resume has been approved. 
+                It will be bundled and sent to the employer by the job order deadline. 
+                Please visit the <a href="https://resume-bundler.es.workbc.ca/">Resume Bundler website</a> for more information.`,
+                `If your client is selected to move forward in the recruitment process,
+                 the employer will contact them directly.`,
+                 `Sincerely, `,
+                 `The Employment Opportunities Development Team`
+              ],
+              [
+              ],
+              [
+              ]
+            ),
+            attachments: [
+              {
+                filename: 'WorkBCLogo.png',
+                path: 'public/emailBannerTop.png',
+                cid: 'logo'
+              }
+            ]
+          };
+        }
+        else if(notifyParams.status === "Flagged"){
+          message = {
+            from: 'Resume Bundler <donotreply@gov.bc.ca>',
+            to: notifyParams.email, 
+            subject: "Resume Bundler Notification: Resume Declined",
+            html: 
+            generateHTMLEmail('',
+            [
+                `Thank you for using the WorkBC Resume Bundler.
+                This is a notification for client: <b>${notifyParams.clientCaseNumber}</b> for job order: 
+                <b>${notifyParams.position}, ${notifyParams.location}</b>.`,
+                `Unfortunately, your client’s resume will not be bundled and sent to the employer
+                 because it does not meet the minimum requirements for the position. Please visit
+                  the <a href="https://resume-bundler.es.workbc.ca/">Resume Bundler website</a> for more information.`,
+                `If the submitted resume does not accurately reflect your client’s skills and experience,
+                 you may re-submit an updated resume with your client’s permission before the job order deadline.`,
+                 `Please contact Employer.Support@workbc.ca if you have any questions.`,
+                 `Sincerely, `,
+                 `The Employment Opportunities Development Team`
+              ],
+              [
+              ],
+              [
+              ]
+            ),
+            attachments: [
+              {
+                filename: 'WorkBCLogo.png',
+                path: 'public/emailBannerTop.png',
+                cid: 'logo'
+              }
+            ]
+          };          
+        }
+        else{
+          throw new Error("Invalid application status")
+        }
+        transporter.sendMail(message, (error, info) => {
+          if (error) {
+              throw new Error("An error occurred while sending the email, please try again. If the error persists please try again later.");
+          } else {
+              console.log("Message sent: %s", info.messageId);
+              return;
+          }
+        });
+    }).catch(function (e) {
+        console.log(e)
+        throw new Error("Error connecting to transporter");
+    });
+  } catch (error) {
+      console.log(error);
+      throw new Error("Error notifying");
+  }
 }
 
 

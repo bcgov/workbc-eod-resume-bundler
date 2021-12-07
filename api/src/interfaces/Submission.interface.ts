@@ -5,7 +5,8 @@ export interface CreateSubmission {
     catchmentID: number,
     centreID: number,
     applicants: Array<ClientApplication>,
-    user: string
+    user: string,
+    email: string
 }
 
 export interface ClientApplication {
@@ -33,7 +34,8 @@ export interface Submission {
     applicants: Array<ClientApplication>,
     jobOrderInfo: JobOrder,
     createdDate: Date,
-    createdBy: string
+    createdBy: string,
+    createdByEmail: string
 }
 
 export interface Resume {
@@ -56,4 +58,12 @@ export interface BundleEmailParams {
     position: string,
     location: string,
     staffName: string
+}
+
+export interface NotifyParams {
+    email: string,
+    clientCaseNumber: string,
+    position: string,
+    location: string,
+    status: string
 }

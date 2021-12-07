@@ -1,6 +1,6 @@
 import * as express from "express";
 import { ValidationError } from "yup";
-import { BundleEmailParams, CreateSubmission, UpdateClientApplication } from "../interfaces/Submission.interface";
+import { BundleEmailParams, CreateSubmission, NotifyParams, UpdateClientApplication } from "../interfaces/Submission.interface";
 import { SubmissionValidationSchema } from "../schemas/SubmissionValidationSchema";
 import * as submissionService from "../services/Submission.service";
 
@@ -51,7 +51,8 @@ export const createSubmission = async (req: any, res: express.Response) => {
         centreID: req.body.centre,
         jobID: req.body.jobID,
         applicants: req.body.applicants,
-        user: req.body.user
+        user: req.body.user,
+        email: req.body.email
       }
 
       let createdID: string = await submissionService.createSubmission(body, req.files);
@@ -163,7 +164,14 @@ export const NotifyClient = async (req: express.Request, res: express.Response) 
   console.log(req.body);
 
   try {
-    await submissionService.NotifyClient(req.params.applicationID);
+    let notifyParams: NotifyParams = {
+      email: req.body.email,
+      clientCaseNumber: req.body.clientCaseNumber,
+      location: req.body.location,
+      position: req.body.position,
+      status: req.body.status
+    }
+    await submissionService.NotifyClient(notifyParams);
     return res.status(200).send("Client Notified");
 
   } catch(e) {

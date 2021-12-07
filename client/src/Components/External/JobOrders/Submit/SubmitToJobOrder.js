@@ -29,7 +29,8 @@ function SubmitToJobOrder(props) {
     centre: centre,
     applicants: applicants,
     jobID: props.location.jobID,
-    user: keycloak.tokenParsed?.preferred_username
+    user: keycloak.tokenParsed?.preferred_username,
+    email: keycloak.tokenParsed?.email
   }
 
   const SubmissionValidationSchema = yup.object().shape({
@@ -105,6 +106,7 @@ function SubmitToJobOrder(props) {
                     formData.append("applicants", JSON.stringify(values.applicants));
                     formData.append("jobID", values.jobID);
                     formData.append("user", values.user);
+                    formData.append("email", values.email);
                     values.applicants.forEach(applicant => {
                       let blob = new Blob([applicant.resume.buffer], { type: "application/pdf"});
                       formData.append(applicant.applicantID, blob);

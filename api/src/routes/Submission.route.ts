@@ -11,6 +11,6 @@ router.put("/setClientsToApproved", submissionController.setClientsToApproved);
 router.put("/setClientsToFlagged", submissionController.setClientsToFlagged);
 
 router.put("/:submissionID/applications/:applicationID", submissionController.editClientApplication);
-router.get("/:submissionID/applications/:applicationID/notify", submissionController.NotifyClient);
+router.post("/:submissionID/applications/:applicationID/notify", submissionController.NotifyClient);
 
 module.exports = router;
