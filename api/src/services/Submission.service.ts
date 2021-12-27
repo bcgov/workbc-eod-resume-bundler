@@ -16,6 +16,7 @@ const generateHTMLEmail = require('../utils/htmlEmail');
 export const getSubmissions = async (user: string) => {
     let res = null;
 
+    let queryParams: string[] = [];
     let queryStr = `SELECT 
         s.submission_id,
         s.job_id,
@@ -46,10 +47,12 @@ export const getSubmissions = async (user: string) => {
       LEFT JOIN catchments cat ON cat.catchment_id = ca.catchment_id
       LEFT JOIN centres cen ON cen.centre_id = ca.centre_id`
 
-    if (user)
-      queryStr = queryStr + ` WHERE s.created_by = '${user}'`; // additional filter if user is provided
+    if (user) {
+      queryStr = queryStr + ` WHERE s.created_by = $1`; // additional filter if user is provided
+      queryParams = [user];
+    }
 
-    await db.query(queryStr)
+    await db.query(queryStr, queryParams)
     .then((resp: any) => {
         let submissions: {[id: string]: Submission} = {};
         resp.rows.forEach((a: any) => {
@@ -144,7 +147,8 @@ export const downloadResume = async (clientApplicationID: string) => {
         ca.resume_file_type,
         encode(ca.resume_file, 'base64') AS resume_file
       FROM client_applications ca
-      WHERE ca.client_application_id = '${clientApplicationID}'`
+      WHERE ca.client_application_id = $1`,
+      [clientApplicationID]
     )
   .then((resp: any) => {
       let r = resp.rows[0];
@@ -222,7 +226,8 @@ export const createSubmission = async (createBody: CreateSubmission, files: any)
 // Set Client Applications to Approved //
 export const setClientsToApproved = async (applicantIDs: string[]) => {
   await db.query(
-  `UPDATE client_applications SET Status = 'Approved' WHERE client_application_id IN (${applicantIDs.map(a => "'" + a + "'").join(',')})`
+  `UPDATE client_applications SET Status = 'Approved' WHERE client_application_id = ANY ($1)`,
+  [applicantIDs]
   )
   .catch((err: any) => {
       console.error("error while querying: ", err);
@@ -235,7 +240,8 @@ export const setClientsToApproved = async (applicantIDs: string[]) => {
 // Set Client Applications to Flagged //
 export const setClientsToFlagged = async (applicantIDs: string[]) => {
   await db.query(
-  `UPDATE client_applications SET Status = 'Flagged' WHERE client_application_id IN (${applicantIDs.map(a => "'" + a + "'").join(',')})`
+  `UPDATE client_applications SET Status = 'Flagged' WHERE client_application_id = ANY ($1)`,
+  [applicantIDs]
   )
   .catch((err: any) => {
       console.error("error while querying: ", err);
@@ -255,7 +261,8 @@ export const bundleAndSend = async (clientApplicationIDs: String[], emailParams:
           client_application_id,
           encode(ca.resume_file, 'base64') AS resume_file
         FROM client_applications ca
-        WHERE ca.client_application_id IN (${clientApplicationIDs.map(a => "'" + a + "'").join(',')})`
+        WHERE ca.client_application_id = ANY ($1)`,
+        [clientApplicationIDs]
       )
       .then(async (resp: any) => {
         // Merge all the pdfs //
@@ -326,7 +333,8 @@ export const bundleAndSend = async (clientApplicationIDs: String[], emailParams:
           });
 
           await db.query( // Set bundled statuses to true
-            `UPDATE client_applications SET Bundled = true WHERE client_application_id IN (${clientApplicationIDs.map(a => "'" + a + "'").join(',')})`
+            `UPDATE client_applications SET Bundled = true WHERE client_application_id = ANY ($1)`,
+            [clientApplicationIDs]
           )
           .catch((err: any) => {
             console.error("error while querying: ", err);
@@ -346,14 +354,23 @@ export const bundleAndSend = async (clientApplicationIDs: String[], emailParams:
 export const editClientApplication = async (clientApplicationID: string, updateBody: UpdateClientApplication) => {
   await db.query(
       ` UPDATE client_applications
-        SET catchment_id = ${updateBody.catchmentID},
-            centre_id = ${updateBody.centreID},
-            client_name = '${updateBody.clientName}',
-            preferred_name = '${updateBody.preferredName}',
-            client_case_number = '${updateBody.clientCaseNumber}',
-            edited_by = '${updateBody.user}',
+        SET catchment_id = $1,
+            centre_id = $2,
+            client_name = $3,
+            preferred_name = $4,
+            client_case_number = $5,
+            edited_by = $6,
             edited_date = CURRENT_DATE
-      WHERE client_application_id = '${clientApplicationID}'`
+      WHERE client_application_id = $7`,
+      [
+        updateBody.catchmentID,
+        updateBody.centreID,
+        updateBody.clientName,
+        updateBody.preferredName,
+        updateBody.clientCaseNumber,
+        updateBody.user,
+        clientApplicationID
+      ]
     )
   .then((resp: any) => {
     return;

@@ -1,5 +1,4 @@
 import { UpdateJobOrder } from "../interfaces/JobOrder.interface";
-import { Catchment } from "../interfaces/System.interface";
 
 const db = require('../db/db');
 const { customAlphabet } = require('nanoid');
@@ -32,8 +31,6 @@ export const createJobOrder = async (body: any) => {
     const jobID: string = nanoid();
     const currDate: Date = new Date();
     const startDate: Date = new Date(body.startDate);
-    console.log(currDate);
-    console.log(startDate);
 
     await db.query(
     `INSERT INTO job_orders (
@@ -70,7 +67,7 @@ export const createJobOrder = async (body: any) => {
 // Close Job Order //
 export const setToClosed = async (jobOrderID: string) => {
     await db.query(
-    `UPDATE job_orders SET Status = 'Closed' WHERE job_id = '${jobOrderID}'`
+    `UPDATE job_orders SET Status = 'Closed' WHERE job_id = $1`, [jobOrderID]
     )
     .catch((err: any) => {
         console.error("error while querying: ", err);
@@ -83,7 +80,7 @@ export const setToClosed = async (jobOrderID: string) => {
 // Open Job Order //
 export const setToOpen = async (jobOrderID: string) => {
     await db.query(
-    `UPDATE job_orders SET Status = 'Open' WHERE job_id = '${jobOrderID}'`
+    `UPDATE job_orders SET Status = 'Open' WHERE job_id = $1`, [jobOrderID]
     )
     .catch((err: any) => {
         console.error("error while querying: ", err);
@@ -95,25 +92,25 @@ export const setToOpen = async (jobOrderID: string) => {
 
 // Edit Job Order //
 export const editJobOrder = async (jobID: string, updateBody: UpdateJobOrder) => {
-    console.log(        ` UPDATE job_orders
-    SET employer = '${updateBody.employer}',
-        position = '${updateBody.position}',
-        start_date = '${updateBody.startDate}',
-        deadline = '${updateBody.deadline}',
-        catchments = '{${updateBody.catchments.join(',')}}',
-        edited_by = '${updateBody.user}',
-        edited_date = CURRENT_DATE
-  WHERE job_id = '${jobID}'`)
     await db.query(
         ` UPDATE job_orders
-          SET employer = '${updateBody.employer}',
-              position = '${updateBody.position}',
-              start_date = '${updateBody.startDate}',
-              deadline = '${updateBody.deadline}',
-              catchments = '{${updateBody.catchments.join(',')}}',
-              edited_by = '${updateBody.user}',
+          SET employer = $1,
+              position = $2,
+              start_date = $3,
+              deadline = $4,
+              catchments = $5,
+              edited_by = $6,
               edited_date = CURRENT_DATE
-        WHERE job_id = '${jobID}'`
+            WHERE job_id = $7`,
+        [
+            updateBody.employer,
+            updateBody.position,
+            updateBody.startDate,
+            updateBody.deadline,
+            updateBody.catchments,
+            updateBody.user,
+            jobID
+        ]
     )
     .then((resp: any) => {
       return;

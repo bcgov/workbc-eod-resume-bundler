@@ -1,6 +1,5 @@
-import { AxiosError, AxiosResponse } from "axios"
+import { AxiosResponse } from "axios"
 import { oesApi } from "../db/OESConfig";
-import { OESProfile } from "../interfaces/System.interface";
 
 export const getUserPermissions = async (userGUID: string): Promise<any> => {
     try{
