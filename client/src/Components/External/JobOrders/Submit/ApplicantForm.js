@@ -27,6 +27,28 @@ function ApplicantForm({ applicants, setApplicants, applicantsState, values, set
 
     const classes = useStyles();
 
+    const handleResumeDownload = (index) => {
+        const blob = b64toBlob(values.applicants[index].resume.buffer, "application/pdf");
+
+        // Create link to blob
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute(
+          "download",
+          values.applicants[index].resume.fileName,
+        );
+    
+        // Append to html link element page
+        document.body.appendChild(link);
+    
+        // Start download
+        link.click();
+    
+        // Clean up and remove the link
+        link.parentNode.removeChild(link);
+    }
+
     return (
         <div className={classes.root}>
             <FieldArray
@@ -111,7 +133,7 @@ function ApplicantForm({ applicants, setApplicants, applicantsState, values, set
                                             { acceptedFiles.length > 0 && 
                                                 <div {...getRootProps({ style })}>
                                                     <input {...getInputProps()} />
-                                                    <p style={{ margin: "auto", paddingTop: "30px", paddingBottom: "30px", textAlign: "center", backgroundColor: "#d9e7d8" }}>{acceptedFiles[0].name}</p>
+                                                    <p style={{ margin: "auto", paddingTop: "30px", paddingBottom: "30px", textAlign: "center", backgroundColor: "#d9e7d8" }}>{acceptedFiles[0].name} Uploaded. Click to re-upload a different resume</p>
                                                 </div>
                                             }
                                         </div>
@@ -123,6 +145,14 @@ function ApplicantForm({ applicants, setApplicants, applicantsState, values, set
                                     { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
                                 </ErrorMessage>
                             </div>
+                            {applicants[index].resume && 
+                                <button 
+                                    type="button" 
+                                    className="btn btn-link" 
+                                    onClick={() => handleResumeDownload(index)}>
+                                        View Uploaded Resume
+                                </button>
+                            }
                             <div className="form-group">
                                 <label>
                                     <Field
@@ -163,3 +193,11 @@ function ApplicantForm({ applicants, setApplicants, applicantsState, values, set
 }
 
 export default ApplicantForm;
+
+
+// HELPER FUNCTIONS //
+const b64toBlob = (b64Data, contentType='', sliceSize=512) => {
+    const buffer = Buffer.from(b64Data, "base64");
+    const blob = new Blob([buffer.buffer], {type: contentType});
+    return blob;
+  }
