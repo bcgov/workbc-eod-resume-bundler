@@ -7,6 +7,7 @@ const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz',10);
 // Get Job Orders //
 export const getJobOrders = async () => {
     let jobOrders: any;
+    const currDate: Date = new Date();
 
     await db.query(
         `SELECT jo.*, COUNT(s.job_id) AS submissions        
@@ -15,7 +16,23 @@ export const getJobOrders = async () => {
         GROUP BY
             jo.job_id`
       )
-    .then((resp: any) => {
+    .then(async (resp: any) => {
+        // Update upcoming jobs if needed //
+        let jobsToUpdate: string[] = [];
+        resp.rows.forEach((row: any) => {
+            if (row.status.toLowerCase() === "upcoming" && row.start_date <= currDate){
+                jobsToUpdate.push(row.job_id);
+            }
+        });
+        if (jobsToUpdate.length > 0){
+            await db.query(
+                `UPDATE job_orders SET Status = 'Open' WHERE job_id = ANY ($1)`,
+                [jobsToUpdate]
+            )
+            .then((updateResp: any) => {
+                return getJobOrders();
+            })
+        }
         jobOrders = { count: resp.rowCount, jobs: resp.rows };
     })
     .catch((err: any) => {
