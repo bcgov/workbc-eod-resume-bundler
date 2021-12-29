@@ -2,6 +2,7 @@ import React, { useMemo } from 'react'
 import { Formik, Form, Field, FastField, FieldArray, ErrorMessage } from 'formik';
 import Dropzone from 'react-dropzone';
 import { makeStyles } from '@material-ui/core/styles';
+import { b64toBlob } from '../../../../utils/FileFunctions';
 
 function ApplicantForm({ applicants, setApplicants, applicantsState, values, setFieldValue }) {
     const useStyles = makeStyles((theme) => ({
@@ -193,11 +194,3 @@ function ApplicantForm({ applicants, setApplicants, applicantsState, values, set
 }
 
 export default ApplicantForm;
-
-
-// HELPER FUNCTIONS //
-const b64toBlob = (b64Data, contentType='', sliceSize=512) => {
-    const buffer = Buffer.from(b64Data, "base64");
-    const blob = new Blob([buffer.buffer], {type: contentType});
-    return blob;
-  }

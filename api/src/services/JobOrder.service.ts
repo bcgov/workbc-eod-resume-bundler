@@ -1,4 +1,4 @@
-import { UpdateJobOrder } from "../interfaces/JobOrder.interface";
+import { JobDescription, UpdateJobOrder } from "../interfaces/JobOrder.interface";
 
 const db = require('../db/db');
 const { customAlphabet } = require('nanoid');
@@ -44,7 +44,7 @@ export const getJobOrders = async () => {
 }
 
 // Create Job Order //
-export const createJobOrder = async (body: any) => {
+export const createJobOrder = async (body: any, files: any) => {
     const jobID: string = nanoid();
     const currDate: Date = new Date();
     const startDate: Date = new Date(body.startDate);
@@ -52,9 +52,10 @@ export const createJobOrder = async (body: any) => {
     await db.query(
     `INSERT INTO job_orders (
         job_id, employer, position, start_date, deadline, location, vacancies, catchments,
-        minimum_requirements, other_information, job_description, status, created_by, created_date)
+        minimum_requirements, other_information, job_description_file, job_description_file_name,
+        job_description_file_type, status, created_by, created_date)
         VALUES 
-        ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
+        ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`,
         [jobID,
         body.employer,
         body.position,
@@ -62,12 +63,14 @@ export const createJobOrder = async (body: any) => {
         body.deadline,
         body.location,
         body.vacancies,
-        body.catchments
+        JSON.parse(body.catchments)
             .map((c: any) => c.catchment_id)
             .sort((a: number, b: number) => { return a - b }),
         body.minimumRequirements,
         body.otherInformation,
-        body.jobDescriptionFile,
+        files["jobDescription"].data,
+        files["jobDescription"].name,
+        files["jobDescription"].mimetype,
         startDate.getTime() > currDate.getTime() ? "Upcoming" : "Open", // status
         body.user,
         currDate
@@ -136,4 +139,32 @@ export const editJobOrder = async (jobID: string, updateBody: UpdateJobOrder) =>
         console.error("error while querying: ", err);
         throw new Error(err.message);
     });
-  }
+}
+
+// Download Job Description //
+export const downloadJobDescription = async (jobID: string) => {
+    let jobDesc: JobDescription | null = null;
+    await db.query(
+        `SELECT 
+          jo.job_description_file_name,
+          jo.job_description_file_type,
+          encode(jo.job_description_file, 'base64') AS job_description_file
+        FROM job_orders jo
+        WHERE jo.job_id = $1`,
+        [jobID]
+      )
+    .then((resp: any) => {
+        let r = resp.rows[0];
+        jobDesc = {
+          fileName: r.job_description_file_name,
+          fileType: r.job_description_file_type,
+          buffer: r.job_description_file
+        }
+    })
+    .catch((err: any) => {
+        console.error("error while querying: ", err);
+        throw new Error(err.message);
+      });
+  
+    return jobDesc;
+}

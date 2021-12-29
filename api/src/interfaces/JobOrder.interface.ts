@@ -17,3 +17,9 @@ export interface UpdateJobOrder {
     catchments: string[],
     user: string
 }
+
+export interface JobDescription {
+    fileName: string,
+    fileType: string,
+    buffer?: ArrayBuffer
+}

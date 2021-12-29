@@ -17,6 +17,7 @@ import SearchBar from '../../../utils/SearchBar';
 import ViewClientModal from './ViewClientModal';
 import EditClientModal from './EditClientModal';
 import { useKeycloak } from '@react-keycloak/web';
+import { b64toBlob } from '../../../utils/FileFunctions';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -58,12 +59,6 @@ const useStyles = makeStyles((theme) => ({
     width: 300
   }
 }));
-
-const b64toBlob = (b64Data, contentType='', sliceSize=512) => {
-  const buffer = Buffer.from(b64Data, "base64");
-  const blob = new Blob([buffer.buffer], {type: contentType});
-  return blob;
-}
 
 function ViewSubmissions() {
   const classes = useStyles();

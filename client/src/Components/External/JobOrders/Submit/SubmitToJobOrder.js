@@ -108,7 +108,7 @@ function SubmitToJobOrder(props) {
                     formData.append("user", values.user);
                     formData.append("email", values.email);
                     values.applicants.forEach(applicant => {
-                      let blob = new Blob([applicant.resume.buffer], { type: "application/pdf"});
+                      let blob = new Blob([applicant.resume.buffer], { type: "application/pdf" });
                       formData.append(applicant.applicantID, blob);
                     });
 

@@ -151,7 +151,7 @@ function ViewJobOrders() {
     function setJobEmployers(jobOrders) {
       let uniqueEmployers = [];
       jobOrders.map(jo => {
-        let alreadyExists = uniqueEmployers.find(e => e == jo.employer);
+        let alreadyExists = uniqueEmployers.find(e => e.employer == jo.employer);
         if (!alreadyExists)
           uniqueEmployers.push(jo);
       });
@@ -293,7 +293,8 @@ function ViewJobOrders() {
         jobOrder={jobOrder} 
         catchments={catchments}
         show={showView} 
-        handleClose={handleViewClose}>
+        handleClose={handleViewClose}
+        token={keycloak.token}>
       </ViewJobOrderModal>
     </React.Fragment>
     );

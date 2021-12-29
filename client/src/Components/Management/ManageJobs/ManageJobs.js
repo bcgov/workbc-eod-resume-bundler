@@ -346,7 +346,8 @@ function ManageJobs() {
         <ViewJobModal 
           job={row}
           show={showView}
-          handleClose={handleViewClose} >
+          handleClose={handleViewClose}
+          token={keycloak.token} >
         </ViewJobModal>
       </React.Fragment>
     );
