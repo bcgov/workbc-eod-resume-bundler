@@ -17,6 +17,7 @@ function Home() {
             await getPermissions();
 
         async function getPermissions() {
+           
                 let response = await fetch(FORM_URL.System + "/UserPermissions", {
                     method: "GET",
                     credentials: 'include',
@@ -155,17 +156,12 @@ function Home() {
                         <div className="row ml-2">
                             <p>
                                 For more information on using the WorkBC Resume Bundler, including step-by-step instructions
-                                and frequently asked questions, please review the following user manuals:
+                                and frequently asked questions, please review the user guide:
                             </p>
                         </div>
                         <div className="row mb-3 ml-2 mr-2">
                             <button className="btn btn-primary btn-lg btn-block">
-                                For Service Providers
-                            </button>
-                        </div>
-                        <div className="row mb-5 ml-2 mr-2">
-                            <button className="btn btn-secondary btn-lg btn-block">
-                                For Ministry Staff
+                                Resume Bundler User Guide
                             </button>
                         </div>
                     </div>
