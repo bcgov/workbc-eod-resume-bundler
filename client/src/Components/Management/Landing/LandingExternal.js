@@ -2,13 +2,17 @@ import React from 'react'
 import { useHistory } from 'react-router-dom';
 
 function LandingExternal() {
-    let history = useHistory();
+    let h = useHistory();
     return (
             <div>
                 <div className="row">
                     <div className="col-md-6 mt-3" style={{display: "flex", justifyContent: "center"}}>
                         <button
-                            href="/jobOrdersExternal" 
+                            onClick={() => 
+                                h.push({
+                                    pathname: "/jobOrdersExternal"
+                                })
+                            }
                             className="btn btn-outline-primary btn-block" 
                             type="button"
                             style={{fontSize: "1.5rem"}}>
@@ -17,7 +21,11 @@ function LandingExternal() {
                     </div>
                     <div className="col-md-6 mt-3" style={{display: "flex", justifyContent: "center"}}>
                         <button 
-                            href="/submissionsExternal" 
+                            onClick={() => 
+                                h.push({
+                                    pathname: "/submissionsExternal"
+                                })
+                            }
                             className="btn btn-outline-primary btn-block" 
                             type="button"
                             style={{fontSize: "1.5rem"}}>

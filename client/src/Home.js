@@ -4,13 +4,14 @@ import LandingInternal from './Components/Management/Landing/LandingInternal';
 import LandingExternal from './Components/Management/Landing/LandingExternal';
 import { FORM_URL } from './constants/form';
 import HelpIcon from '@material-ui/icons/HelpOutline';
-import { Container } from "react-bootstrap";
 import WorkBCLogo from './workbc-header-logo.svg';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import { useHistory } from 'react-router-dom';
 
 function Home() {
     const { keycloak, initialized } = useKeycloak();
     const [permissions, setPermissions] = useState();
+    const h = useHistory();
 
     useEffect(async () => {
         if (initialized && keycloak.tokenParsed){
@@ -127,10 +128,15 @@ function Home() {
                                 <div className="col-md-12" >
                                     <div className="mt-5 mb-5"  style={{display: "flex", justifyContent: "center"}}>
                                         <button
+                                            onClick={() => 
+                                                h.push({
+                                                    pathname: "/loginLanding"
+                                                })
+                                            }
                                             type="button"
                                             className="btn btn-primary btn-lg"
                                             style={{ fontSize: "1.5rem" }}
-                                            href="/loginLanding">
+                                        >
                                             Login
                                         </button>
                                     </div>

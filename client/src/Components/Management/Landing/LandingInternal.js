@@ -1,12 +1,19 @@
-import React from 'react'
+import React from 'react';
+import { useHistory } from 'react-router-dom';
 
 function LandingInternal() {
+    const h = useHistory();
+
     return (
             <div>
                 <div className="row">
                     <div className="col-md-6 mt-3" style={{display: "flex", justifyContent: "center"}}>
                         <button
-                            href="/createJobOrder" 
+                            onClick={() => 
+                                h.push({
+                                    pathname: "/createJobOrder"
+                                })
+                            }
                             className="btn btn-outline-primary btn-block" 
                             type="button"
                             style={{fontSize: "1.5rem"}}>
@@ -15,7 +22,11 @@ function LandingInternal() {
                     </div>
                     <div className="col-md-6 mt-3" style={{display: "flex", justifyContent: "center"}}>
                         <button
-                            href="/manageJobs" 
+                            onClick={() => 
+                                h.push({
+                                    pathname: "/manageJobs"
+                                })
+                            }
                             className="btn btn-outline-primary btn-block" 
                             type="button"
                             style={{fontSize: "1.5rem"}}>
