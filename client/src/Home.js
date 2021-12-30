@@ -19,20 +19,21 @@ function Home() {
         }
     
         async function getPermissions() {
-            let response = await fetch(FORM_URL.System + "/UserPermissions", {
-                method: "GET",
-                credentials: 'include',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'KeycloakToken': keycloak.token,
-                    'UserGUID': keycloak.tokenParsed.smgov_userguid,
-                    'Authorization': "Bearer " + keycloak.token
-                }
-            });
+           
+                let response = await fetch(FORM_URL.System + "/UserPermissions", {
+                    method: "GET",
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'KeycloakToken': keycloak.token,
+                        'UserGUID': keycloak.tokenParsed.smgov_userguid,
+                        'Authorization': "Bearer " + keycloak.token
+                    }
+                });
 
-            let permissions = await response.json();
-            setPermissions(permissions);
+                let permissions = await response.json();
+                setPermissions(permissions);
         }
 
     }, [initialized]);
@@ -42,12 +43,12 @@ function Home() {
     const handleRoles = () => {
         if (permissions){
             if (permissions.hasAccess && keycloak.tokenParsed.identity_provider.includes("bceid")) // service providers use OES auth
-                return  <div className="mb-5">
+                return  <div className="col-md-12">
                             <LandingExternal />
                         </div>
             
             else if (keycloak.hasResourceRole('eod-staff')) // ministry uses keycloak resource roles for auth
-                return  <div className="mb-5">
+                return  <div className="col-md-12">
                             <LandingInternal />
                         </div>
 
@@ -63,48 +64,44 @@ function Home() {
         }
         else{
             return (
-                <div style={{display: "flex", justifyContent: "center"}}>
+                <div className="col-md-12"  style={{display: "flex", justifyContent: "center"}}>
                     <CircularProgress />
                 </div>)
         }
     }
 
     return (
-        <Container fluid style={{height: "100%", minHeight: "100%", display: "flex", marginLeft: "1vw", position: "absolute"}}>
+        <div className="container">
             <div className="row">
                 <div className="col">
 
                     {/* Header */}
-                    <div className="row mb-5">
-                        <div className="col-md-12">
-                            <header>
-                                {initialized && !keycloak.authenticated &&
-                                    <h1 style={{fontSize: "7vh"}}>WorkBC Resume Bundler</h1>
-                                }
-                                {initialized && keycloak.authenticated && keycloak.hasResourceRole('eod-staff') &&
-                                    <h1 style={{fontSize: "5vh"}}>WorkBC Resume Bundler - Ministry Staff Homepage</h1>
-                                }
-                                {initialized && keycloak.authenticated && keycloak.tokenParsed?.identity_provider.includes("bceid") &&
-                                    <h1 style={{fontSize: "5vh"}}>WorkBC Resume Bundler - Service Provider Homepage</h1>
-                                }
-                                {keycloak.authenticated 
-                                    ?   <h2 style={{fontWeight: 200}}>Welcome {keycloak.tokenParsed.given_name // sometimes given name isn't available, show preferred username instead
-                                                    ? keycloak.tokenParsed.given_name
-                                                    : keycloak.tokenParsed.preferred_username ? keycloak.tokenParsed.preferred_username.split("@")[0] : ""}
-                                                . Please select an option below:
-                                        </h2>
-                                    :   <h2 style={{fontWeight: 200}}>Welcome to the WorkBC Resume Bundler!</h2>  
-                                }
-                            </header>
-                        </div>
+                    <div className="col-md-12 mt-3">
+                        {initialized && !keycloak.authenticated &&
+                            <h1>WorkBC Resume Bundler</h1>
+                        }
+                        {initialized && keycloak.authenticated && keycloak.hasResourceRole('eod-staff') &&
+                            <h1>WorkBC Resume Bundler - Ministry Staff Homepage</h1>
+                        }
+                        {initialized && keycloak.authenticated && keycloak.tokenParsed?.identity_provider.includes("bceid") &&
+                            <h1>WorkBC Resume Bundler - Service Provider Homepage</h1>
+                        }
+                        {keycloak.authenticated 
+                            ?   <h2>Welcome {keycloak.tokenParsed.given_name // sometimes given name isn't available, show preferred username instead
+                                            ? keycloak.tokenParsed.given_name
+                                            : keycloak.tokenParsed.preferred_username ? keycloak.tokenParsed.preferred_username.split("@")[0] : ""}
+                                            . Please select an option below:
+                                </h2>
+                            :   <h2>Welcome to the WorkBC Resume Bundler!</h2>  
+                        }
                     </div>
                     {initialized
-                        ?   <div>
+                        ?  <div className="row" >
                                 {/* RB blurb / action buttons section */}
-                                {keycloak.authenticated 
+                                {keycloak.authenticated
                                     ?   handleRoles()
-                                    :   <div className="row mb-5">
-                                            <p style={{fontSize: "1.75rem", lineHeight: "1.3"}}>
+                                    :   <div className="col-md-12">
+                                            <p>
                                                 This is where referral bundling job opportunities are posted for you to conveniently upload WorkBC client resumes. Employment Opportunities Development (EOD)
                                                     will forward the resumes of qualified clients to employers for their consideration. This process is designed to streamline the referral process in order to 
                                                     make it easier for large provincial footprint employers to hire WorkBC clients.
@@ -112,78 +109,75 @@ function Home() {
                                         </div>
                                 }
 
-                                {/* Help section */}
-                                <div className="row justify-content-center">
-                                    <div className="col-2" style={{display: "flex", justifyContent: "end"}}>
-                                        <HelpIcon style={{fontSize: "9rem", justifyContent: "right"}}/>
-                                    </div>
-                                    <div className="col-6">
-                                        <p style={{fontSize: "1.65rem", overflowWrap: "normal", lineHeight: "1.5"}}>
-                                            If you have questions or encounter any difficulties with the process, please contact the EOD branch at <b>Employer.Support@workbc.ca</b>
-                                        </p>
-                                    </div>
-                                    <div className="col-2">
+                            {/* Help section */}
+                                <div className="col-md-12 mt-3">
+                                     <div class="card card-secondary card-block">
+                                        <div class="card-header">
+                                            <h4 class="my-0"> <HelpIcon/> Support</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <p class="card-text">If you have questions or encounter any difficulties with the process, please contact the EOD branch at <a href='mailto:Employer.Support@workbc.ca' data-toggle="tooltip" data-placement="bottom" title="Click to email Employer.Support@workbc.ca">Employer.Support@workbc.ca</a></p>
+                                        </div>
                                     </div>
                                 </div>
 
-                                {/* Login button */}
-                                {!keycloak.authenticated &&
-                                    <div className="row justify-content-center">
-                                        <div className="mt-5 mb-5" align="center">
-                                            <a 
-                                                type="button" 
-                                                className="btn btn-lg btn-primary" 
-                                                style={{fontSize: "2.25rem"}}
-                                                href="/loginLanding">
-                                                Login
-                                            </a>
-                                        </div>            
+
+                            {/* Login button */}
+                            {!keycloak.authenticated &&
+                                <div className="col-md-12" >
+                                    <div className="mt-5 mb-5"  style={{display: "flex", justifyContent: "center"}}>
+                                        <button
+                                            type="button"
+                                            className="btn btn-primary btn-lg"
+                                            style={{ fontSize: "1.5rem" }}
+                                            href="/loginLanding">
+                                            Login
+                                        </button>
                                     </div>
-                                }
-                            </div>
-                        :   <div style={{display: "flex", justifyContent: "center"}}>
-                                <CircularProgress />
-                            </div>
+                                </div>
+                            }
+                        </div>
+                        : <div className="col-md-12"  style={{display: "flex", justifyContent: "center"}}>
+                            <CircularProgress />
+                         </div>
+                        
+
+                    
                     }
                 </div>
 
                 {/* Resources */}
-                <div className="col-4" style={{backgroundColor: "DarkGrey"}}>
-                    <div className="row mb-5 mt-3" style={{justifyContent: "center"}}>
-                        <img
-                            className="img-fluid d-none d-md-block"
-                            src={WorkBCLogo}
-                            style={{height: "50"}}
-                            alt="WorkBC Logo" 
-                        />
+                <div className="col-md-4 mt-3">
+                    <div className="jumbotron" >
+                        <div className="row mb-2 mr-2 ml-2" style={{ justifyContent: "center" }}>
+                            <img
+                                className="img-fluid d-md-block"
+                                src={WorkBCLogo}
+                                alt="WorkBC Logo"
+                            />
+                        </div>
+                        <div className="row mb-2 mt-3 mr-2 ml-2" style={{ justifyContent: "center" }}>
+                            <header>
+                                <h1 style={{ fontSize: "1.8rem" }}>
+                                    Resources
+                                </h1>
+                            </header>
+                        </div>
+                        <div className="row ml-2">
+                            <p>
+                                For more information on using the WorkBC Resume Bundler, including step-by-step instructions
+                                and frequently asked questions, please review the user guide:
+                            </p>
+                        </div>
+                        <div className="row mb-3 ml-2 mr-2">
+                            <button className="btn btn-primary btn-lg btn-block">
+                                Resume Bundler User Guide
+                            </button>
+                        </div>
                     </div>
-                    <div className="row mb-2" style={{justifyContent: "center"}}>
-                        <header>
-                            <h1 style={{color: "white", fontSize: "7vh"}}>
-                                Resources
-                            </h1>
-                        </header>
-                    </div>
-                    <div className="row ml-2">
-                        <p style={{fontSize: "1.65rem", overflowWrap: "normal", color: "white"}}>
-                            For more information on using the WorkBC Resume Bundler, including step-by-step instructions
-                            and frequently asked questions, please review the following user manuals:
-                        </p>
-                    </div>
-                    <div className="row mb-3" style={{justifyContent: "center"}}>
-                        <button className="btn btn-primary btn-lg" style={{fontSize: "2rem"}}>
-                            For Service Providers
-                        </button>
-                    </div>
-                    <div className="row mb-5" style={{justifyContent: "center"}}>
-                        <button className="btn btn-secondary btn-lg" style={{fontSize: "2rem"}}>
-                            For Ministry Staff
-                        </button>
-                    </div>
-
                 </div>
             </div>
-        </Container>
+        </div>
     )
 }
 
