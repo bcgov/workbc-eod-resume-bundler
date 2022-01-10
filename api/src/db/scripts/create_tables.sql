@@ -66,7 +66,9 @@ CREATE TABLE IF NOT EXISTS public.job_orders
     other_information character varying COLLATE pg_catalog."default",
     created_by character varying COLLATE pg_catalog."default" NOT NULL,
     created_date timestamp with time zone NOT NULL,
-    job_description bytea[],
+    job_description_file bytea,
+    job_description_file_name character varying COLLATE pg_catalog."default",
+    job_description_file_type character varying COLLATE pg_catalog."default",
     edited_by character varying COLLATE pg_catalog."default",
     edited_date timestamp with time zone,
     status character varying COLLATE pg_catalog."default" NOT NULL,
@@ -89,6 +91,7 @@ CREATE TABLE IF NOT EXISTS public.submissions
     bundled boolean,
     created_date date,
     created_by character varying COLLATE pg_catalog."default",
+    created_by_email character varying COLLATE pg_catalog."default",
     CONSTRAINT submissions_pkey PRIMARY KEY (submission_id),
     CONSTRAINT submissions_fkey_catchments FOREIGN KEY (catchment_id)
         REFERENCES public.catchments (catchment_id) MATCH SIMPLE
@@ -96,10 +99,6 @@ CREATE TABLE IF NOT EXISTS public.submissions
         ON DELETE NO ACTION,
     CONSTRAINT submissions_fkey_centres FOREIGN KEY (centre_id)
         REFERENCES public.centres (centre_id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION,
-    CONSTRAINT submissions_fkey_job_orders FOREIGN KEY (job_id)
-        REFERENCES public.job_orders (job_id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
 )
@@ -138,10 +137,6 @@ CREATE TABLE IF NOT EXISTS public.client_applications
         ON DELETE NO ACTION,
     CONSTRAINT client_applications_fkey_centres FOREIGN KEY (centre_id)
         REFERENCES public.centres (centre_id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION,
-    CONSTRAINT client_applications_fkey_submissions FOREIGN KEY (submission_id)
-        REFERENCES public.submissions (submission_id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
 )
