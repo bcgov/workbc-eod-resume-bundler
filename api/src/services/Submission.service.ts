@@ -10,7 +10,7 @@ const { customAlphabet } = require('nanoid');
 const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz',10);
 const hummus = require('hummus');
 const memoryStreams = require('memory-streams');
-const generateHTMLEmail = require('../utils/htmlEmail');
+const generateHTMLEmail = require('../utils/HtmlEmail');
 
 // Get Submissions //
 export const getSubmissions = async (user: string) => {
