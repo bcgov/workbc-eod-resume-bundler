@@ -1,26 +1,37 @@
-import React from 'react'
+import React from 'react';
+import { useHistory } from 'react-router-dom';
 
 function LandingInternal() {
+    const h = useHistory();
+
     return (
             <div>
                 <div className="row">
-                    <div className="col-md-6" style={{display: "flex", justifyContent: "center"}}>
-                        <a 
-                            href="/createJobOrder" 
-                            className="btn btn-outline-primary" 
+                    <div className="col-md-6 mt-3" style={{display: "flex", justifyContent: "center"}}>
+                        <button
+                            onClick={() => 
+                                h.push({
+                                    pathname: "/createJobOrder"
+                                })
+                            }
+                            className="btn btn-outline-primary btn-block" 
                             type="button"
                             style={{fontSize: "1.5rem"}}>
                             Create Job Order
-                        </a>
+                        </button>
                     </div>
-                    <div className="col-md-6" style={{display: "flex", justifyContent: "left"}}>
-                        <a 
-                            href="/manageJobs" 
-                            className="btn btn-outline-primary" 
+                    <div className="col-md-6 mt-3" style={{display: "flex", justifyContent: "center"}}>
+                        <button
+                            onClick={() => 
+                                h.push({
+                                    pathname: "/manageJobs"
+                                })
+                            }
+                            className="btn btn-outline-primary btn-block" 
                             type="button"
                             style={{fontSize: "1.5rem"}}>
                             Manage Jobs / Review Referrals
-                        </a>
+                        </button>
                     </div>
                 </div>
             </div>

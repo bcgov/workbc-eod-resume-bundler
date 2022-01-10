@@ -17,6 +17,7 @@ import SearchBar from '../../../utils/SearchBar';
 import ViewClientModal from './ViewClientModal';
 import EditClientModal from './EditClientModal';
 import { useKeycloak } from '@react-keycloak/web';
+import { b64toBlob } from '../../../utils/FileFunctions';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -58,12 +59,6 @@ const useStyles = makeStyles((theme) => ({
     width: 300
   }
 }));
-
-const b64toBlob = (b64Data, contentType='', sliceSize=512) => {
-  const buffer = Buffer.from(b64Data, "base64");
-  const blob = new Blob([buffer.buffer], {type: contentType});
-  return blob;
-}
 
 function ViewSubmissions() {
   const classes = useStyles();
@@ -343,12 +338,18 @@ function ViewSubmissions() {
   }
 
   return (
-    <div className="container">
+    <div className="container ml-3">
       {submissions && catchments && centres &&
         <div className="row">
             <div className="col-md-12">
               <h1>Resume Bundler - My Submissions</h1>  
-              <p>View submitted candidates to job orders</p>  
+              <p>View your submissions to job orders below.
+                 Click on the arrow beside the Submission ID
+                  to expand the list of candidates submitted. 
+              </p>  
+              <p>Use the search box below to search submissions
+                 by client name, case number or status.
+              </p>
               <SearchBar
                 handleUpdate={handleUpdateSubmissionsToDisplay}
                 paginationCount={submissionsToDisplay.length}

@@ -1,6 +1,6 @@
 import * as express from "express";
 import { ValidationError } from "yup";
-import { CreateSubmission, UpdateClientApplication } from "../interfaces/Submission.interface";
+import { BundleEmailParams, CreateSubmission, NotifyParams, UpdateClientApplication } from "../interfaces/Submission.interface";
 import { SubmissionValidationSchema } from "../schemas/SubmissionValidationSchema";
 import * as submissionService from "../services/Submission.service";
 
@@ -51,7 +51,8 @@ export const createSubmission = async (req: any, res: express.Response) => {
         centreID: req.body.centre,
         jobID: req.body.jobID,
         applicants: req.body.applicants,
-        user: req.body.user
+        user: req.body.user,
+        email: req.body.email
       }
 
       let createdID: string = await submissionService.createSubmission(body, req.files);
@@ -70,7 +71,7 @@ export const createSubmission = async (req: any, res: express.Response) => {
 
 // Set Clients to Approved //
 export const setClientsToApproved = async (req: any, res: express.Response) => {
-  console.log("POST request received to " + req.get("host") + req.originalUrl);
+  console.log("PUT request received to " + req.get("host") + req.originalUrl);
   console.log("request body: ");
   console.log(req.body);
 
@@ -88,7 +89,7 @@ export const setClientsToApproved = async (req: any, res: express.Response) => {
 
 // Set Clients to Flagged //
 export const setClientsToFlagged = async (req: any, res: express.Response) => {
-  console.log("POST request received to " + req.get("host") + req.originalUrl);
+  console.log("PUT request received to " + req.get("host") + req.originalUrl);
   console.log("request body: ");
   console.log(req.body);
 
@@ -112,8 +113,17 @@ export const bundleAndSend = async (req: express.Request, res: express.Response)
 
   try {
     let applicantIDs = req.body.clientApplicationIDs;
+    let emailParams: BundleEmailParams = 
+      {
+        email: req.body.email,
+        position: req.body.position,
+        location: req.body.location,
+        staffName: req.body.staffName
+      };
 
-    await submissionService.bundleAndSend(applicantIDs, req.body.email);
+    console.log(emailParams);
+
+    await submissionService.bundleAndSend(applicantIDs, emailParams);
     return res.status(200).send();
 
   } catch(e) {
@@ -140,6 +150,29 @@ export const editClientApplication = async (req: express.Request, res: express.R
       }
     await submissionService.editClientApplication(req.params.applicationID, updateBody);
     return res.status(200).send();
+
+  } catch(e) {
+    console.log(e);
+    return res.status(500).send("Internal Server Error");
+  }
+};
+
+// Notify Client //
+export const NotifyClient = async (req: express.Request, res: express.Response) => {
+  console.log("GET request received to " + req.get("host") + req.originalUrl);
+  console.log("request body: ");
+  console.log(req.body);
+
+  try {
+    let notifyParams: NotifyParams = {
+      email: req.body.email,
+      clientCaseNumber: req.body.clientCaseNumber,
+      location: req.body.location,
+      position: req.body.position,
+      status: req.body.status
+    }
+    await submissionService.NotifyClient(notifyParams);
+    return res.status(200).send("Client Notified");
 
   } catch(e) {
     console.log(e);

@@ -57,10 +57,9 @@ const CreateJobOrderForm = () => {
         location: "",
         vacancies: 1,
         catchments: [],
-        jobDescriptionFile: {},
+        jobDescription: {},
         minimumRequirements: "",
         otherInformation: "",
-        status: "Open",
         user: keycloak.tokenParsed.preferred_username
     }
 
@@ -95,15 +94,28 @@ const CreateJobOrderForm = () => {
             enableReinitialize={false}
             validationSchema={CreateJobOrderValidationSchema}
             onSubmit={(values, { resetForm, setErrors, setFieldError, setStatus, setSubmitting }) => {
+                let formData = new FormData(); // use form data to be able to send job description file buffer to API
+                formData.append("employer", values.employer);
+                formData.append("position", values.position);
+                formData.append("startDate", values.startDate);
+                formData.append("deadline", values.deadline);
+                formData.append("location", values.location);
+                formData.append("vacancies", values.vacancies);
+                formData.append("catchments", JSON.stringify(values.catchments));
+                formData.append("minimumRequirements", values.minimumRequirements);
+                formData.append("otherInformation", values.otherInformation);
+                formData.append("user", values.user);
+                
+                let blob = new Blob([values.jobDescription.buffer], { type: values.jobDescription.fileType }); //TODO: null check
+                formData.append("jobDescription", blob, values.jobDescription.fileName);
+
                 fetch(FORM_URL.JobOrders, {
                     method: "POST",
                     credentials: 'include',
                     headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
                         "Authorization": "Bearer " + keycloak.token
                     },
-                    body: JSON.stringify(values),
+                    body: formData
                 })
                 .then(
                     async (res) => {
@@ -134,7 +146,8 @@ const CreateJobOrderForm = () => {
         {({ values, isSubmitting, setFieldValue, handleBlur, handleChange, errors, hasError }) => (
             <div>
                 <Form>
-                    <p>Create a position for WorkBC Centres to drop resumes</p>
+                    <p>Create a job order and WorkBC Centres can upload appropriate client
+                         resumes for the position. Please fill in the fields below.</p>
                     <div className="form-group">
                         <legend>Job Fields</legend>
                     </div>
@@ -143,57 +156,54 @@ const CreateJobOrderForm = () => {
                         <p className="col-form-label control-label">Upload Job Description (PDF or Word, max 4MB)</p>
                     </div>
                     <div className="form-group">
-                        <Dropzone onDrop={acceptedFiles => {
-                            // do nothing if no files
-                            console.log(acceptedFiles)
-                            //if (acceptedFiles.length === 0) { return; }
-
-                            // on drop we add to the existing files
-                            //setFieldValue("jobDescriptionFile", values.jobDescriptionFile.concat(acceptedFiles));
-                        }}
+                        <Dropzone 
+                            name={`jobDescription`}
+                            accept={["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]} // .pdf, .doc, .docx
+                            onDrop={acceptedFiles => {
+                                acceptedFiles.forEach(file => {
+                                    const reader = new FileReader();
+                                    reader.onabort = () => console.log('file reading was aborted')
+                                    reader.onerror = () => console.log('file reading has failed')
+                                    reader.onload = () => {
+                                        const binaryStr = reader.result;
+                                        const data = new FormData();
+                                        data.append('file', binaryStr);
+                                        setFieldValue(`jobDescription.buffer`, binaryStr);
+                                        setFieldValue(`jobDescription.fileName`, file.name);
+                                        setFieldValue(`jobDescription.fileType`, file.type);
+                                    }
+                                    reader.readAsArrayBuffer(file);
+                                })
+                            }}
                         >
-                            {({ getRootProps, getInputProps }) => (
-                                <div {...getRootProps({ style })}>
-                                    <input {...getInputProps()} />
-                                    <p style={{ margin: "auto", paddingTop: "30px", paddingBottom: "30px", textAlign: "center" }}>Drag and drop the file here, or Add Files</p>
-                                </div>
-                                /*                                          
-                                if (isDragActive) {
-                                    <div {...getRootProps({style})}>
-                                    <   input {...getInputProps()} />
-                                        <p className="align-center">Adding</p>
-                                        </div>
-                                }
-
-                                if (isDragReject) {
-                                    <div {...getRootProps({style})}>
-                                        <input {...getInputProps()} />
-                                        <p className="align-center">Invalid file, please try another file.</p>
-                                    </div>
-                                }
-
-                                if (values.jobDescriptionFile.length === 0) {
-                                    return (
-                                        <div {...getRootProps({style})}>
+                            {({ getRootProps, getInputProps, acceptedFiles }) => (
+                                <div>
+                                    { acceptedFiles.length == 0 && 
+                                        <div {...getRootProps({ style })}>
                                             <input {...getInputProps()} />
-                                            <p className="align-center">Drag and drop the file here, or Add Files</p>
+                                            <p style={{ margin: "auto", paddingTop: "30px", paddingBottom: "30px", textAlign: "center" }}>Click to upload or drag and drop the job description here</p>
                                         </div>
-                                    )
-                                }
-                                */
-
-                                //return values.jobDescriptionFile.map((file, i) => (<Thumb key={i} file={file} />));
+                                    }
+                                    { acceptedFiles.length > 0 && 
+                                        <div {...getRootProps({ style })}>
+                                            <input {...getInputProps()} />
+                                            <p style={{ margin: "auto", paddingTop: "30px", paddingBottom: "30px", textAlign: "center", backgroundColor: "#d9e7d8" }}>{acceptedFiles[0].name} uploaded. Click to re-upload a different job description</p>
+                                        </div>
+                                    }
+                                </div>
                             )}
                         </Dropzone>
                     </div>
                     <div className="form-group">
                         <p className="col-form-label control-label">Catchments Job will be available to</p>
                     </div>
-                    {catchments.length > 0 && <FastField 
+                    {catchments.length > 0 && 
+                        <FastField 
                         name="catchments"
                         component={CatchmentSelector} 
                         catchments={catchments} 
-                    />}
+                        />
+                    }
                     <ErrorMessage
                         name="catchments"
                         className="field-error">

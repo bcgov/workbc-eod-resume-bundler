@@ -41,7 +41,6 @@ app.use(cookieParser());
 app.use(helmet());
 app.use(fileUpload());
 app.use(keycloak.middleware());
-//app.use(formidable());
 
 app.use("/JobOrders", keycloak.protect(), jobOrderRouter);
 app.use("/Submissions", keycloak.protect(), submissionRouter);

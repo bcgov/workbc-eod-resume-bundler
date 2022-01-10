@@ -12,6 +12,5 @@ export const JobOrderValidationSchema = yup.object().shape({
     catchments: yup.array().min(1, { key: "catchment", value: "there must be at least one catchment chosen" }), //TODO: ensure it's a string array
     otherInformation: yup.string().max(1000, { key: "otherInformation", value: "the 'other information' field is 1000 characters max" }),
     jobDescription: yup.object(),
-    user: yup.string().required(),
-    status: yup.string().required()
+    user: yup.string().required()
 });

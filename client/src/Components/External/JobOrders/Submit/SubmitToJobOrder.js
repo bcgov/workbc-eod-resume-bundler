@@ -29,7 +29,8 @@ function SubmitToJobOrder(props) {
     centre: centre,
     applicants: applicants,
     jobID: props.location.jobID,
-    user: keycloak.tokenParsed?.preferred_username
+    user: keycloak.tokenParsed?.preferred_username,
+    email: keycloak.tokenParsed?.email
   }
 
   const SubmissionValidationSchema = yup.object().shape({
@@ -90,7 +91,10 @@ function SubmitToJobOrder(props) {
           <div className="row">
               <div className="col-md-12">
                 <h1>Resume Bundler - Submitting to {props.location.employer} Job Order {props.location.jobID} - {props.location.jobTitle}</h1>  
-                <p>Submit a Resume. Click on Add Another to add more than one resume at a time.</p>  
+                <p>Please fill in the fields below to submit a client’s resume for consideration.
+                   Click on ‘Add Another’ to submit more than one resume at a time. Click on ‘Remove’
+                    to remove a candidate.
+                </p>  
                 <Formik
                   initialValues={initialValues}
                   enableReinitialize={false}
@@ -102,8 +106,9 @@ function SubmitToJobOrder(props) {
                     formData.append("applicants", JSON.stringify(values.applicants));
                     formData.append("jobID", values.jobID);
                     formData.append("user", values.user);
+                    formData.append("email", values.email);
                     values.applicants.forEach(applicant => {
-                      let blob = new Blob([applicant.resume.buffer], { type: "application/pdf"});
+                      let blob = new Blob([applicant.resume.buffer], { type: "application/pdf" });
                       formData.append(applicant.applicantID, blob);
                     });
 

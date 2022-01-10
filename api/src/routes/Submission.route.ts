@@ -7,9 +7,10 @@ router.get("/:submissionID/applications/:applicationID/downloadResume", submissi
 
 router.post("/bundleAndSend", submissionController.bundleAndSend);
 router.post("/", submissionController.createSubmission);
-router.post("/setClientsToApproved", submissionController.setClientsToApproved);
-router.post("/setClientsToFlagged", submissionController.setClientsToFlagged);
+router.put("/setClientsToApproved", submissionController.setClientsToApproved);
+router.put("/setClientsToFlagged", submissionController.setClientsToFlagged);
 
 router.put("/:submissionID/applications/:applicationID", submissionController.editClientApplication);
+router.post("/:submissionID/applications/:applicationID/notify", submissionController.NotifyClient);
 
 module.exports = router;

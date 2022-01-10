@@ -29,7 +29,7 @@ export const createJobOrder = async (req: express.Request, res: express.Response
   try {
     JobOrderValidationSchema.validate(req.body, { abortEarly: false })
     .then(async () => {
-      let newID: any = await jobOrderService.createJobOrder(req.body);
+      let newID: any = await jobOrderService.createJobOrder(req.body, req.files);
       return res.status(200).send(
       {
         createdID: newID
@@ -48,7 +48,7 @@ export const createJobOrder = async (req: express.Request, res: express.Response
 
 // Close Job Order //
 export const setToClosed = async (req: express.Request, res: express.Response) => {
-  console.log("POST request received to " + req.get("host") + req.originalUrl);
+  console.log("PUT request received to " + req.get("host") + req.originalUrl);
   console.log("request params: ");
   console.log(req.params);
 
@@ -64,7 +64,7 @@ export const setToClosed = async (req: express.Request, res: express.Response) =
 
 // Open Job Order //
 export const setToOpen = async (req: express.Request, res: express.Response) => {
-  console.log("POST request received to " + req.get("host") + req.originalUrl);
+  console.log("PUT request received to " + req.get("host") + req.originalUrl);
   console.log("request params: ");
   console.log(req.params);
 
@@ -97,6 +97,22 @@ export const editJobOrder = async (req: express.Request, res: express.Response) 
 
     await jobOrderService.editJobOrder(req.params.jobID, updateBody);
     return res.status(200).send();
+
+  } catch(e) {
+    console.log(e);
+    return res.status(500).send("Internal Server Error");
+  }
+};
+
+// Download Job Description //
+export const downloadJobDescription = async (req: express.Request, res: express.Response) => {
+  console.log("GET request received to " + req.get("host") + req.originalUrl);
+  console.log("request body: ");
+  console.log(req.body);
+
+  try {
+    let jobDescription: any = await jobOrderService.downloadJobDescription(req.params.jobID);
+    return res.status(200).json(jobDescription);
 
   } catch(e) {
     console.log(e);

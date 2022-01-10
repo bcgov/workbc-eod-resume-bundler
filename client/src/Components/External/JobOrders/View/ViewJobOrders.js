@@ -126,7 +126,7 @@ function ViewJobOrders() {
   }, [initialized]);
 
   useEffect(async () => {
-    if (userCatchments.length > 0 && initialized) {// only fetch job orders & catchments once user catchments have been fetched (dependance)
+    if (userCatchments.length > 0 && initialized) { // only fetch job orders & catchments once user catchments have been fetched (dependance)
       await getJobOrders();
       await getCatchments();
     }
@@ -140,6 +140,8 @@ function ViewJobOrders() {
 
       const data = await response.json();
       let jobOrders = data.jobs;
+      console.log(jobOrders);
+      jobOrders = jobOrders.filter(j => j.status.toLowerCase() !== "closed"); // filter out closed job orders
       jobOrders = jobOrders.filter(j => j.catchments.some(c => userCatchments.indexOf(parseInt(c)) > -1)); // filter for jobs in catchments the user has access to
       setJobOrders(jobOrders);
       setJobEmployers(jobOrders);
@@ -149,7 +151,7 @@ function ViewJobOrders() {
     function setJobEmployers(jobOrders) {
       let uniqueEmployers = [];
       jobOrders.map(jo => {
-        let alreadyExists = uniqueEmployers.find(e => e == jo.employer);
+        let alreadyExists = uniqueEmployers.find(e => e.employer == jo.employer);
         if (!alreadyExists)
           uniqueEmployers.push(jo);
       });
@@ -291,18 +293,27 @@ function ViewJobOrders() {
         jobOrder={jobOrder} 
         catchments={catchments}
         show={showView} 
-        handleClose={handleViewClose}>
+        handleClose={handleViewClose}
+        token={keycloak.token}>
       </ViewJobOrderModal>
     </React.Fragment>
     );
   }
 
   return (
-    <div className="container">
+    <div className="container ml-3">
         <div className="row">
             <div className="col-md-12">
               <h1>Resume Bundler - Available Job Orders</h1>  
-              <p>View available job orders and submit resumes</p>  
+              <p>Available job orders are listed below. 
+                Click on the arrow beside an employer’s name to 
+                expand the list of job orders for this employer. 
+                To submit client resumes to a job order, please 
+                click on ‘Submit’.
+              </p>  
+              <p>Use the search box below to search jobs by employer name,
+                 position title or location.
+              </p>
               {(jobOrdersLoaded && catchments.length > 0) && 
                 <div>
                   <SearchBar

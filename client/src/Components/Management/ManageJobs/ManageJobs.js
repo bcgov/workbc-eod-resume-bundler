@@ -96,11 +96,13 @@ function ManageJobs() {
       });
       const data = await response.json();
       let jobs = data.jobs;
+
       jobs.forEach(job => {
         job.catchments = job.catchments.map(catchment => { 
           return catchments.find(c => c.key == catchment);
         });
       })
+
       setJobOrders(jobs.sort((a,b) => a.created_date < b.created_date ? 1 : -1));
       setJobOrdersLoading(false);
     }
@@ -145,7 +147,7 @@ function ManageJobs() {
 
   const setStatusClosed = jobID => async () => {
     await fetch(FORM_URL.JobOrders + "/" + jobID + "/setClosed", {
-      method: "POST",
+      method: "PUT",
       credentials: 'include',
       headers: {
           'Accept': 'application/json',
@@ -161,7 +163,7 @@ function ManageJobs() {
 
   const setStatusOpen = jobID => async () => {
     await fetch(FORM_URL.JobOrders + "/" + jobID + "/setOpen", {
-      method: "POST",
+      method: "PUT",
       credentials: 'include',
       headers: {
           'Accept': 'application/json',
@@ -214,15 +216,15 @@ function ManageJobs() {
                       <MeetingRoomIcon style={{color: "white"}}></MeetingRoomIcon> 
                     </button>
       
-      let status = props.status;
-      let iconsToShow = [editIcon, viewIcon]; // edit and view are always available actions
+    let status = props.status;
+    let iconsToShow = [editIcon, viewIcon]; // edit and view are always available actions
 
-      if (status.toLowerCase() == "open")
-          iconsToShow.push(cancelIcon);
-      if (status.toLowerCase() == "closed")
-          iconsToShow.push(openIcon);
+    if (status.toLowerCase() == "open" || status.toLowerCase() == "upcoming")
+        iconsToShow.push(cancelIcon);
+    if (status.toLowerCase() == "closed")
+        iconsToShow.push(openIcon);
 
-      return iconsToShow;
+    return iconsToShow;
   }
 
   const DisplayCatchments = (catchmentIDs) => {
@@ -344,7 +346,8 @@ function ManageJobs() {
         <ViewJobModal 
           job={row}
           show={showView}
-          handleClose={handleViewClose} >
+          handleClose={handleViewClose}
+          token={keycloak.token} >
         </ViewJobModal>
       </React.Fragment>
     );
@@ -411,7 +414,10 @@ function ManageJobs() {
         <div className="row">
             <div className="col-md-12">
                 <h1>Resume Bundler - Manage Jobs</h1>  
-                <p>Manage all job orders</p>  
+                <p>All created job orders are listed below.
+                   You can edit, view, or close/reopen a job order under ‘Actions’.
+                   Please click ‘Review’ to view resumes that have been submitted
+                   to a specific job order.  </p>  
             </div>
             {jobOrders.length > 0 && catchments.length > 0 &&
               <CollapsibleTable></CollapsibleTable>

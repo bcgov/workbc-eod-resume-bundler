@@ -11,7 +11,7 @@ function LogoutSuccess(props) {
             { !keycloak.authenticated &&
                 <div className="col-md-12 mt-3">
                         <div className="row">
-                            <h1>You've successfully logged out.</h1>   
+                            <h1>You have successfully logged out of the WorkBC Resume Bundler.</h1>   
                         </div>
                     <div className="row">
                         <button 
@@ -22,7 +22,7 @@ function LogoutSuccess(props) {
                                     history.push("/");
                                 }
                             }> 
-                            Back to Home Page
+                            Return to Home Page
                         </button>
                     </div>
                 </div>

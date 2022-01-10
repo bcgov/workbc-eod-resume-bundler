@@ -19,6 +19,7 @@ import CheckIcon from '@material-ui/icons/Check';
 import Collapse from '@material-ui/core/Collapse';
 import Checkbox from "@material-ui/core/Checkbox";
 import { useKeycloak } from '@react-keycloak/web';
+import { b64toBlob } from '../../../../utils/FileFunctions';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -60,13 +61,6 @@ const useStyles = makeStyles((theme) => ({
     width: 300
   }
 }));
-
-const b64toBlob = (b64Data, contentType='', sliceSize=512) => {
-  const buffer = Buffer.from(b64Data, "base64");
-  const blob = new Blob([buffer.buffer], {type: contentType});
-  return blob;
-}
-
 
 function ReviewReferral({location}) {
     const classes = useStyles();
@@ -199,7 +193,7 @@ function ReviewReferral({location}) {
 
     const handleApproveSelectedClicked = () => async () => {
       await fetch(FORM_URL.Submissions + "/setClientsToApproved", {
-        method: "POST",
+        method: "PUT",
         credentials: 'include',
         headers: {
             'Accept': 'application/json',
@@ -219,7 +213,7 @@ function ReviewReferral({location}) {
 
     const handleFlagSelectedClicked = () => async () => {
       await fetch(FORM_URL.Submissions + "/setClientsToFlagged", {
-        method: "POST",
+        method: "PUT",
         credentials: 'include',
         headers: {
             'Accept': 'application/json',
@@ -239,7 +233,7 @@ function ReviewReferral({location}) {
 
     const handleApproveButtonClicked = (clientID) => async () => {
       await fetch(FORM_URL.Submissions + "/setClientsToApproved", {
-        method: "POST",
+        method: "PUT",
         credentials: 'include',
         headers: {
             'Accept': 'application/json',
@@ -258,7 +252,7 @@ function ReviewReferral({location}) {
 
     const handleFlagButtonClicked = (clientID) => async () => {
       await fetch(FORM_URL.Submissions + "/setClientsToFlagged", {
-        method: "POST",
+        method: "PUT",
         credentials: 'include',
         headers: {
             'Accept': 'application/json',
@@ -282,6 +276,33 @@ function ReviewReferral({location}) {
           submissions: referrals,
           jobOrder: jobOrder
         }
+      });
+    }
+
+    const handleNotify = async (applicant, submission) => {
+      await fetch(`${FORM_URL.Submissions}/${submission.submissionID}/applications/${applicant.clientApplicationID}/Notify`, {
+        method: "POST",
+        credentials: 'include',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            "Authorization": "Bearer " + keycloak.token
+        },
+        body: JSON.stringify(
+          {
+            email: submission.createdByEmail,
+            clientCaseNumber: applicant.clientCaseNumber,
+            position: submission.jobOrderInfo.position,
+            location: submission.jobOrderInfo.location,
+            status: applicant.status
+          }
+        ) // send client ID
+      })
+      .then(() => {
+        setForceUpdate(forceUpdate + 1); // force re-render
+      })
+      .catch(err => {
+        console.log(err);
       });
     }
 
@@ -427,7 +448,8 @@ function ReviewReferral({location}) {
             <TableCell align="left">
               <button 
                 type="button" 
-                class="btn btn-secondary">
+                class="btn btn-secondary"
+                onClick={() => handleNotify(applicant, submission)}>
                   Notify
                 </button>
             </TableCell>
@@ -439,12 +461,12 @@ function ReviewReferral({location}) {
 
 
     return(
-        <div className="container">
+        <div className="container ml-3">
           {jobOrder && catchments && centres &&
             <div>
               <div className="row">
                   <div className="col-md-12">
-                      <h1>Resume Bundler - Reviewing Referral for Job {jobOrder.id}</h1>   
+                      <h1>Resume Bundler - Reviewing Referrals for Job {jobOrder.id}</h1>   
                   </div>
               </div>
               <div className="row">
