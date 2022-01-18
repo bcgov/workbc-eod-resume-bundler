@@ -12,6 +12,8 @@ const EditClientModal = ({submission, applicant, catchments, centres, show, hand
         clientName: applicant.clientName,
         preferredName: applicant.preferredName,
         clientCaseNumber: applicant.clientCaseNumber,
+        bundle: applicant.status.toLowerCase() !== "do not bundle" ? true : false,
+        status: applicant.status,
         user: keycloak.tokenParsed?.preferred_username
       }
 
@@ -161,7 +163,31 @@ const EditClientModal = ({submission, applicant, catchments, centres, show, hand
                                                 { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
                                             </ErrorMessage>
                                         </div>
+                                        <div className="form-group col-md-6 d-flex justify-content-start align-items-end">
+                                            <label>
+                                                <Field
+                                                    name="bundle"
+                                                    type="checkbox"
+                                                    onChange={e => {
+                                                        setFieldValue("bundle", !values.bundle);
+                                                    }}
+                                                    checked={!values.bundle}
+                                                    style={{marginRight: "5px"}}
+                                                />
+                                                    Do not bundle
+                                            </label>
+                                            <ErrorMessage
+                                                name="bundle"
+                                                className="field-error">
+                                                { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
+                                            </ErrorMessage>
+                                        </div>
                                     </div>
+
+
+
+
+
                                     <div className="form-row">
                                         <h5 style={{ fontWeight: 'bold' }}>Resume File Name: <a style={{ fontWeight: 'normal'}}>{applicant.resume.fileName}</a></h5>
                                     </div>

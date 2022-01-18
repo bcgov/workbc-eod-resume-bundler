@@ -146,6 +146,8 @@ export const editClientApplication = async (req: express.Request, res: express.R
         clientName: req.body.clientName,
         preferredName: req.body.preferredName,
         clientCaseNumber: req.body.clientCaseNumber,
+        bundle: req.body.bundle,
+        status: req.body.status,
         user: req.body.user 
       }
     await submissionService.editClientApplication(req.params.applicationID, updateBody);

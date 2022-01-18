@@ -50,6 +50,8 @@ export interface UpdateClientApplication {
     clientName: string,
     preferredName: string,
     clientCaseNumber: string,
+    bundle: boolean,
+    status: string,
     user: string
 }
 

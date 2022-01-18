@@ -372,13 +372,43 @@ export const editClientApplication = async (clientApplicationID: string, updateB
         clientApplicationID
       ]
     )
-  .then((resp: any) => {
-    return;
+  .then(async () => {
+    // Update status if needed //
+    const bundle = updateBody.bundle;
+    const status = updateBody.status.toLowerCase();
+    if ((bundle && status !== "do not bundle")
+      || (!bundle && status === "do not bundle")){
+        return; // no need to update
+    }
+
+    let newStatus = "";
+    if (!bundle && status !== "do not bundle")
+      newStatus = "Do Not Bundle";
+
+    else if(bundle && status === "do not bundle")
+      newStatus = "Pending";
+
+    await db.query(
+      ` UPDATE client_applications
+        SET status = $1
+      WHERE client_application_id = $2`,
+      [
+        newStatus,
+        clientApplicationID
+      ]
+    )
+    .then(() => {
+      return;
+    })
+    .catch((err: any) => {
+      console.error("error while querying: ", err);
+      throw new Error(err.message);
+    });    
   })
   .catch((err: any) => {
       console.error("error while querying: ", err);
       throw new Error(err.message);
-    });
+  });
 }
 
 // Notify Client //
