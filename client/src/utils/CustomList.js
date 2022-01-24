@@ -59,6 +59,7 @@ const CustomList = ({title, items, handleToggle, handleToggleAll, checked, numbe
                                 tabIndex={-1}
                                 disableRipple
                                 inputProps={{ 'aria-labelledby': labelId }}
+                                role="checkbox"
                             />
                         </ListItemIcon>
                         <ListItemText id={labelId} primary={`${catchment.value.name}`} />
