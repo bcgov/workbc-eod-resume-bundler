@@ -332,9 +332,13 @@ export const bundleAndSend = async (clientApplicationIDs: String[], emailParams:
             }
           });
 
-          await db.query( // Set bundled statuses to true
-            `UPDATE client_applications SET Bundled = true WHERE client_application_id = ANY ($1)`,
-            [clientApplicationIDs]
+          await db.query( // Set bundled statuses to true and statuses to Bundled
+            `UPDATE client_applications
+             SET Bundled = true, Status = $1 WHERE client_application_id = ANY ($2)`,
+            [
+              "Bundled",
+              clientApplicationIDs
+            ]
           )
           .catch((err: any) => {
             console.error("error while querying: ", err);
@@ -381,29 +385,28 @@ export const editClientApplication = async (clientApplicationID: string, updateB
         return; // no need to update
     }
 
-    let newStatus = "";
-    if (!bundle && status !== "do not bundle")
-      newStatus = "Do Not Bundle";
-
-    else if(bundle && status === "do not bundle")
-      newStatus = "Pending";
-
-    await db.query(
-      ` UPDATE client_applications
-        SET status = $1
-      WHERE client_application_id = $2`,
-      [
-        newStatus,
-        clientApplicationID
-      ]
-    )
-    .then(() => {
+    if (!bundle && status !== "do not bundle"){
+      let newStatus = "Do Not Bundle";
+      await db.query(
+        ` UPDATE client_applications
+          SET status = $1
+        WHERE client_application_id = $2`,
+        [
+          newStatus,
+          clientApplicationID
+        ]
+      )
+      .then(() => {
+        return;
+      })
+      .catch((err: any) => {
+        console.error("error while querying: ", err);
+        throw new Error(err.message);
+      }); 
+    }
+    else{
       return;
-    })
-    .catch((err: any) => {
-      console.error("error while querying: ", err);
-      throw new Error(err.message);
-    });    
+    }   
   })
   .catch((err: any) => {
       console.error("error while querying: ", err);
