@@ -65,6 +65,7 @@ function ViewSubmissions() {
   const { keycloak, initialized } = useKeycloak();
 
   const [forceUpdate, setForceUpdate] = useState(0);
+  const [permissions, setPermissions] = useState({});
   const [catchments, setCatchments] = useState([]);
   const [centres, setCentres] = useState([]);
   const [openRows, setOpenRows] = React.useState([]);
@@ -144,7 +145,29 @@ function ViewSubmissions() {
   }
 
   useEffect(async () => {
-    if (initialized) {
+    if (initialized)
+      await getPermissions();
+
+    async function getPermissions() {
+      let response = await fetch(FORM_URL.System + "/UserPermissions", {
+          method: "GET",
+          credentials: 'include',
+          headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+              'KeycloakToken': keycloak.token,
+              'UserGUID': keycloak.tokenParsed.smgov_userguid,
+              'Authorization': "Bearer " + keycloak.token
+          }
+      });
+
+      let permissions = await response.json();
+      setPermissions(permissions);
+    }
+  }, [initialized]);
+
+  useEffect(async () => {
+    if (initialized && permissions) {
       await getSubmissions();
       await getCatchments();
       await getCentres();
@@ -154,7 +177,9 @@ function ViewSubmissions() {
       const response = await fetch(FORM_URL.Submissions, {
         headers: {
           "Authorization": "Bearer " + keycloak.token,
-          "User": keycloak.tokenParsed.preferred_username // only get submissions from the current user
+          "User": keycloak.tokenParsed.preferred_username, // only get submissions from the current user, unless user is a manager
+          "IsManager": permissions.isManager,
+          "ManagesCatchments": JSON.stringify(permissions.managesCatchments) // if user is a manager, show all submissions for catchments they manage
         }
       });
       const data = await response.json();
@@ -185,7 +210,7 @@ function ViewSubmissions() {
       const data = await response.json();
       setCentres(data);
     }
-  }, [initialized, forceUpdate]);
+  }, [permissions, forceUpdate]);
 
 
 

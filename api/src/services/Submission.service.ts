@@ -13,10 +13,10 @@ const memoryStreams = require('memory-streams');
 const generateHTMLEmail = require('../utils/HtmlEmail');
 
 // Get Submissions //
-export const getSubmissions = async (user: string) => {
+export const getSubmissions = async (user: string, isManager: boolean, managesCatchments: string[]) => {
     let res = null;
 
-    let queryParams: string[] = [];
+    let queryParams: string[][] = [];
     let queryStr = `SELECT 
         s.submission_id,
         s.job_id,
@@ -47,9 +47,13 @@ export const getSubmissions = async (user: string) => {
       LEFT JOIN catchments cat ON cat.catchment_id = ca.catchment_id
       LEFT JOIN centres cen ON cen.centre_id = ca.centre_id`
 
-    if (user) {
-      queryStr = queryStr + ` WHERE s.created_by = $1`; // additional filter if user is provided
-      queryParams = [user];
+    if (isManager) { // managers can see all submissions within the catchments they manage
+      queryStr = queryStr + ` WHERE s.created_by = ANY ($1) OR s.catchment_id = ANY ($2)`;
+      queryParams = [[user], managesCatchments]
+    }
+    else if (!isManager) { // regular users can only see their submissions
+      queryStr = queryStr + ` WHERE s.created_by = ANY ($1)`;
+      queryParams = [[user]];
     }
 
     await db.query(queryStr, queryParams)
