@@ -13,10 +13,10 @@ const memoryStreams = require('memory-streams');
 const generateHTMLEmail = require('../utils/HtmlEmail');
 
 // Get Submissions //
-export const getSubmissions = async (user: string) => {
+export const getSubmissions = async (user: string, isManager: boolean, managesCatchments: string[]) => {
     let res = null;
 
-    let queryParams: string[] = [];
+    let queryParams: string[][] = [];
     let queryStr = `SELECT 
         s.submission_id,
         s.job_id,
@@ -47,9 +47,13 @@ export const getSubmissions = async (user: string) => {
       LEFT JOIN catchments cat ON cat.catchment_id = ca.catchment_id
       LEFT JOIN centres cen ON cen.centre_id = ca.centre_id`
 
-    if (user) {
-      queryStr = queryStr + ` WHERE s.created_by = $1`; // additional filter if user is provided
-      queryParams = [user];
+    if (isManager) { // managers can see all submissions within the catchments they manage
+      queryStr = queryStr + ` WHERE s.created_by = ANY ($1) OR s.catchment_id = ANY ($2)`;
+      queryParams = [[user], managesCatchments]
+    }
+    else if (!isManager) { // regular users can only see their submissions
+      queryStr = queryStr + ` WHERE s.created_by = ANY ($1)`;
+      queryParams = [[user]];
     }
 
     await db.query(queryStr, queryParams)
@@ -332,9 +336,13 @@ export const bundleAndSend = async (clientApplicationIDs: String[], emailParams:
             }
           });
 
-          await db.query( // Set bundled statuses to true
-            `UPDATE client_applications SET Bundled = true WHERE client_application_id = ANY ($1)`,
-            [clientApplicationIDs]
+          await db.query( // Set bundled statuses to true and statuses to Bundled
+            `UPDATE client_applications
+             SET Bundled = true, Status = $1 WHERE client_application_id = ANY ($2)`,
+            [
+              "Bundled",
+              clientApplicationIDs
+            ]
           )
           .catch((err: any) => {
             console.error("error while querying: ", err);
@@ -372,13 +380,42 @@ export const editClientApplication = async (clientApplicationID: string, updateB
         clientApplicationID
       ]
     )
-  .then((resp: any) => {
-    return;
+  .then(async () => {
+    // Update status if needed //
+    const bundle = updateBody.bundle;
+    const status = updateBody.status.toLowerCase();
+    if ((bundle && status !== "do not bundle")
+      || (!bundle && status === "do not bundle")){
+        return; // no need to update
+    }
+
+    if (!bundle && status !== "do not bundle"){
+      let newStatus = "Do Not Bundle";
+      await db.query(
+        ` UPDATE client_applications
+          SET status = $1
+        WHERE client_application_id = $2`,
+        [
+          newStatus,
+          clientApplicationID
+        ]
+      )
+      .then(() => {
+        return;
+      })
+      .catch((err: any) => {
+        console.error("error while querying: ", err);
+        throw new Error(err.message);
+      }); 
+    }
+    else{
+      return;
+    }   
   })
   .catch((err: any) => {
       console.error("error while querying: ", err);
       throw new Error(err.message);
-    });
+  });
 }
 
 // Notify Client //

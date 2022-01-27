@@ -410,8 +410,12 @@ function ReviewReferral({location}) {
       }
     
       const ApplicantRow = ({ applicant, submission }) => {
+        let rowStyling = applicant.status.toLowerCase() === "approved" ? "table-success"
+                          : (applicant.status.toLowerCase() === "flagged" ? "table-warning"
+                          : applicant.status.toLowerCase() === "do not bundle" ? "table-danger"
+                          : "")
         return (
-          <TableRow>
+          <TableRow className={rowStyling}>
             <TableCell padding="checkbox">
               <Checkbox
                 onChange={event => handleCheckboxChange(event, applicant.clientApplicationID)}

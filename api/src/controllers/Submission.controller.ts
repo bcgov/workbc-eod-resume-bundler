@@ -12,7 +12,9 @@ export const getSubmissions = async (req: express.Request, res: express.Response
 
   try {
     let user: string = <string>req.headers.user;
-    let submissions: any = await submissionService.getSubmissions(user);
+    let isManager: boolean = <boolean><unknown>req.headers.ismanager;
+    let managesCatchments: string[] = <string[]>JSON.parse(<string>req.headers.managescatchments);
+    let submissions: any = await submissionService.getSubmissions(user, isManager, managesCatchments);
     return res.status(200).json(submissions);
 
   } catch(e) {
@@ -146,6 +148,8 @@ export const editClientApplication = async (req: express.Request, res: express.R
         clientName: req.body.clientName,
         preferredName: req.body.preferredName,
         clientCaseNumber: req.body.clientCaseNumber,
+        bundle: req.body.bundle,
+        status: req.body.status,
         user: req.body.user 
       }
     await submissionService.editClientApplication(req.params.applicationID, updateBody);

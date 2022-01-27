@@ -1,19 +1,25 @@
-import { Modal } from 'react-bootstrap';
+import { Modal, Alert } from 'react-bootstrap';
 import { useKeycloak } from '@react-keycloak/web';
 import { Formik, Form, Field, FastField, FieldArray, ErrorMessage } from 'formik';
 import { FORM_URL } from '../../../constants/form';
 import * as yup from 'yup';
+import React, { useState } from 'react';
 
 const EditClientModal = ({submission, applicant, catchments, centres, show, handleClose, forceUpdate, setForceUpdate}) => {
     const { keycloak } = useKeycloak();
+    const [showWarning, setShowWarning] = useState(false);
+    const [warningConfirmation, setWarningConfirmation] = useState(false);
+
     let initialValues = {
         catchment: applicant.catchmentID,
         centre: applicant.centreID,
         clientName: applicant.clientName,
         preferredName: applicant.preferredName,
         clientCaseNumber: applicant.clientCaseNumber,
+        bundle: applicant.status.toLowerCase() !== "do not bundle" ? true : false,
+        status: applicant.status,
         user: keycloak.tokenParsed?.preferred_username
-      }
+    }
 
     const ApplicationValidationSchema = yup.object().shape({
         catchment: yup.number().required("required"),
@@ -37,7 +43,43 @@ const EditClientModal = ({submission, applicant, catchments, centres, show, hand
         setFieldValue("centre", centreID);
     }
 
+    const handleSubmit = (values, setSubmitting) => {
+        setSubmitting(true);
+        fetch(FORM_URL.Submissions + "/" + submission.submissionID + "/applications/" + applicant.clientApplicationID, {
+            method: "PUT",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                "Authorization": "Bearer " + keycloak.token
+            },
+            body: JSON.stringify(values)
+        })
+        .then(
+            (res) => {
+                if (res.ok){
+                    handleClose(applicant.clientApplicationID)();
+                    setForceUpdate(forceUpdate + 1); // force new values to show up
+                    setSubmitting(false);
+                }
+                else{
+                    throw new Error("server responded with error!")
+                }
+        });
+    }
+
+    const handleDoNotBundle = (values, setSubmitting) => {
+        if (!warningConfirmation)
+            setShowWarning(true);
+        else
+            handleSubmit(values, setSubmitting);
+    }
+
+    const handleWarningClose = () => {
+
+    }
+
     return (
+        <React.Fragment>
         <Modal show={show[applicant.clientApplicationID]} onHide={handleClose(applicant.clientApplicationID)} size="xl">
             <Modal.Header>
                 <div className="d-flex flex-row flex-fill">
@@ -52,26 +94,13 @@ const EditClientModal = ({submission, applicant, catchments, centres, show, hand
                     enableReinitialize={true}
                     validationSchema={ApplicationValidationSchema}
                     onSubmit={(values, { resetForm, setErrors, setStatus, setSubmitting }) => {
-                        fetch(FORM_URL.Submissions + "/" + submission.submissionID + "/applications/" + applicant.clientApplicationID, {
-                            method: "PUT",
-                            headers: {
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/json',
-                                "Authorization": "Bearer " + keycloak.token
-                            },
-                            body: JSON.stringify(values)
-                        })
-                        .then(
-                            (res) => {
-                                if (res.ok){
-                                    handleClose(applicant.clientApplicationID)();
-                                    setForceUpdate(forceUpdate + 1); // force new values to show up
-                                    setSubmitting(false);
-                                }
-                                else{
-                                    throw new Error("server responded with error!")
-                                }
-                        });
+                        setSubmitting(false);
+                        if (!values.bundle){
+                            handleDoNotBundle(values, setSubmitting);
+                        }
+                        else{
+                            handleSubmit(values, setSubmitting);
+                        }
                     }}
                 >
                     {({ values, isSubmitting, setFieldValue, handleBlur, handleChange, errors, hasError }) => (
@@ -161,7 +190,38 @@ const EditClientModal = ({submission, applicant, catchments, centres, show, hand
                                                 { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
                                             </ErrorMessage>
                                         </div>
+
+                                        { applicant.status.toLowerCase() !== "do not bundle" &&
+                                            <div className="form-group col-md-6 d-flex justify-content-center align-items-end">
+                                                <div className="form-check d-flex" >
+                                                <Field
+                                                        name="bundle"
+                                                        type="checkbox"
+                                                        className="form-check-input"
+                                                        onChange={e => {
+                                                            setFieldValue("bundle", !values.bundle);
+                                                        }}
+                                                        checked={!values.bundle}
+                                                        style={{marginRight: "5px", alignSelf: "center"}}
+                                                    />
+                                                <label className="form-check-label h2">
+                                                        Do not bundle                              
+                                                </label>
+
+                                                </div>
+                                                <ErrorMessage
+                                                    name="bundle"
+                                                    className="field-error">
+                                                    { msg => <div style={{ color: 'red', weight: 'bold' }}>{msg.toUpperCase()}</div> }
+                                                </ErrorMessage>
+                                            </div>
+                                        }
                                     </div>
+
+
+
+
+
                                     <div className="form-row">
                                         <h5 style={{ fontWeight: 'bold' }}>Resume File Name: <a style={{ fontWeight: 'normal'}}>{applicant.resume.fileName}</a></h5>
                                     </div>
@@ -185,6 +245,25 @@ const EditClientModal = ({submission, applicant, catchments, centres, show, hand
                                     }
                                 </button>
                             </Form>
+                            <Modal className="d-flex" show={showWarning} centered="true">
+                                <div class="card card-danger">
+                                    <div class="card-header">
+                                        <h4 class="my-0">Clicking submit will remove this resume from consideration</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <div className="d-flex justify-content-center">
+                                            <button 
+                                                className="btn btn-outline-primary"
+                                                onClick={() => {
+                                                    setWarningConfirmation(true);
+                                                    setShowWarning(false);
+                                                }}>
+                                                Ok
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </Modal>
                         </div>
                     )}
                 </Formik>  
@@ -195,6 +274,7 @@ const EditClientModal = ({submission, applicant, catchments, centres, show, hand
                 </button>
             </Modal.Footer>
         </Modal>
+    </React.Fragment>
     )
 }
 
