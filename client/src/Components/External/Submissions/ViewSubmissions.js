@@ -167,7 +167,7 @@ function ViewSubmissions() {
   }, [initialized]);
 
   useEffect(async () => {
-    if (initialized && permissions) {
+    if (initialized && permissions && permissions.isManager != undefined && permissions.managesCatchments != undefined) {
       await getSubmissions();
       await getCatchments();
       await getCentres();
