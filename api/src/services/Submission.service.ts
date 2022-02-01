@@ -51,7 +51,7 @@ export const getSubmissions = async (user: string, isManager: boolean, managesCa
       queryStr = queryStr + ` WHERE s.created_by = ANY ($1) OR s.catchment_id = ANY ($2)`;
       queryParams = [[user], managesCatchments]
     }
-    else if (!isManager) { // regular users can only see their submissions
+    else if (!isManager && user != null) { // regular users can only see their submissions
       queryStr = queryStr + ` WHERE s.created_by = ANY ($1)`;
       queryParams = [[user]];
     }
