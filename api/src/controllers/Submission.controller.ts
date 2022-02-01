@@ -12,8 +12,8 @@ export const getSubmissions = async (req: express.Request, res: express.Response
 
   try {
     let user: string = <string>req.headers.user;
-    let isManager: boolean = <boolean><unknown>req.headers.ismanager;
-    let managesCatchments: string[] = <string[]>JSON.parse(<string>req.headers.managescatchments);
+    let isManager: boolean = <boolean><unknown>req.headers.ismanager; // need to cast to unknown before casting to boolean
+    let managesCatchments: string[] = req.headers.managescatchments ? <string[]>JSON.parse(<string>req.headers.managescatchments) : [];
     let submissions: any = await submissionService.getSubmissions(user, isManager, managesCatchments);
     return res.status(200).json(submissions);
 
