@@ -7,8 +7,8 @@ import * as submissionService from "../services/Submission.service";
 // Get Submissions //
 export const getSubmissions = async (req: express.Request, res: express.Response) => {
   console.log("GET request received to " + req.get("host") + req.originalUrl);
-  console.log("request body: ");
-  console.log(req.body);
+  console.log("request headers: ");
+  console.log(req.headers);
 
   try {
     let user: string = <string>req.headers.user;
