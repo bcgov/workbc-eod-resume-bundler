@@ -368,7 +368,7 @@ function ViewSubmissions() {
   }
 
   return (
-    <div className="container ml-3">
+    <div className="container ml-3 mt-5 mb-5">
       {submissions && catchments && centres &&
         <div className="row">
             <div className="col-md-12">

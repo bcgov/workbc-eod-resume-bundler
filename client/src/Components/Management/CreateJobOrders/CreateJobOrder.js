@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
 
 function CreateJobOrder() {
     return (
-        <div className="container">
+        <div className="container mt-5">
             <div className="row">
                 <div className="col-md-12">
                     <h1>Resume Bundler - Create Job Order</h1>

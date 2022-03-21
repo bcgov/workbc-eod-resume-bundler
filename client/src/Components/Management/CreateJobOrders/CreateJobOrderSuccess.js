@@ -4,7 +4,7 @@ function CreateJobOrderSuccess(props) {
     let history = useHistory();
     
     return(
-        <div className="container ml-3">
+        <div className="container ml-3 mt-5">
             <div className="row">
                 <h1>Success! Job Order Created.</h1>   
             </div>

@@ -6,7 +6,7 @@ function LandingInternal() {
 
     return (
             <div>
-                <div className="row">
+                <div className="row mb-5">
                     <div className="col-md-6 mt-3" style={{display: "flex", justifyContent: "center"}}>
                         <button
                             onClick={() => 

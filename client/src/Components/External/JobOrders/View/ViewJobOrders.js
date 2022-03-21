@@ -79,6 +79,7 @@ function ViewJobOrders() {
   };
 
   const [jobOrders, setJobOrders] = useState([]);
+  const [jobOrdersToDisplay, setJobOrdersToDisplay] = useState([]);
   const [jobOrdersLoaded, setJobOrdersLoaded] = useState(false);
   const [employers, setEmployers] = useState([]);
   const [employersToDisplay, setEmployersToDisplay] = useState([]);
@@ -86,7 +87,26 @@ function ViewJobOrders() {
   const [userCatchments, setUserCatchments] = useState([]);
 
   const handleUpdateEmployersToDisplay = (searchString) => {
-    setEmployersToDisplay(employers.filter(e => e.location.toLowerCase().startsWith(searchString.toLowerCase())));
+    // Search for employer name, job order location, and job order position //
+    const searchTerm = searchString.toLowerCase();
+    setEmployersToDisplay(employers.filter(emp => 
+      {
+        let includedEmployers = [];
+        let jobsToDisplay = [];
+        jobOrders.forEach(jo => {
+          if (jo.location.toLowerCase().startsWith(searchTerm) 
+              || jo.position.toLowerCase().startsWith(searchTerm)
+              || jo.employer.toLowerCase().startsWith(searchTerm)
+          ) {
+            jobsToDisplay.push(jo);
+            if (!includedEmployers.find(e => e.employer === jo.employer)) // ensure uniqueness
+              includedEmployers.push(jo.employer)
+          }
+        });
+        setJobOrdersToDisplay(jobsToDisplay);
+        return includedEmployers.includes(emp.employer);
+      }
+    ));
   }
 
   const [showView, setShowView] = useState({});
@@ -143,6 +163,7 @@ function ViewJobOrders() {
       jobOrders = jobOrders.filter(j => j.status.toLowerCase() !== "closed" && j.status.toLowerCase() !== "upcoming"); // filter out closed and upcoming job orders
       jobOrders = jobOrders.filter(j => j.catchments.some(c => userCatchments.indexOf(parseInt(c)) > -1)); // filter for jobs in catchments the user has access to
       setJobOrders(jobOrders);
+      setJobOrdersToDisplay(jobOrders);
       setJobEmployers(jobOrders);
       setJobOrdersLoaded(true);
     }
@@ -170,7 +191,7 @@ function ViewJobOrders() {
   }, [userCatchments]);
 
   const getJobOrdersForEmployer = (employer) => {
-    return jobOrders.filter(jo => jo.employer == employer);
+    return jobOrdersToDisplay.filter(jo => jo.employer === employer);
   }
 
   const EmployerTable = () => {
@@ -300,7 +321,7 @@ function ViewJobOrders() {
   }
 
   return (
-    <div className="container ml-3">
+    <div className="container ml-3 mt-5">
         <div className="row">
             <div className="col-md-12">
               <h1>Resume Bundler - Available Job Orders</h1>  

@@ -86,7 +86,7 @@ function SubmitToJobOrder(props) {
   }
 
   return (
-      <div className="container">
+      <div className="container mt-5 mb-5">
         {props.location.jobID && catchments && centres &&
           <div className="row">
               <div className="col-md-12">

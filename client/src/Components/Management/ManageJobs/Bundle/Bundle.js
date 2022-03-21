@@ -56,7 +56,7 @@ function Bundle({location}) {
     }
 
     return (
-        <div className="container">
+        <div className="container mt-5">
             <div>
               <div className="row">
                   <div className="col-md-12">
