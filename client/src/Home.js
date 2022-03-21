@@ -77,7 +77,7 @@ function Home() {
                 <div className="col">
 
                     {/* Header */}
-                    <div className="col-md-12 mt-3">
+                    <div className="mt-5">
                         {initialized && !keycloak.authenticated &&
                             <h1>WorkBC Resume Bundler</h1>
                         }
@@ -93,11 +93,11 @@ function Home() {
                                             : keycloak.tokenParsed.preferred_username ? keycloak.tokenParsed.preferred_username.split("@")[0] : ""}
                                             . Please select an option below:
                                 </h2>
-                            :   <h2>Welcome to the WorkBC Resume Bundler!</h2>  
+                            :   <h2 className="mt-5">Welcome to the WorkBC Resume Bundler!</h2>  
                         }
                     </div>
                     {initialized
-                        ?  <div className="row" >
+                        ?  <div className="row">
                                 {/* RB blurb / action buttons section */}
                                 {keycloak.authenticated
                                     ?   handleRoles()
@@ -105,13 +105,33 @@ function Home() {
                                             <p>
                                                 This is where referral bundling job opportunities are posted for you to conveniently upload WorkBC client resumes. Employment Opportunities Development (EOD)
                                                     will forward the resumes of qualified clients to employers for their consideration. This process is designed to streamline the referral process in order to 
-                                                    make it easier for large provincial footprint employers to hire WorkBC clients.
+                                                    make it easier for large, provincial footprint employers to hire WorkBC clients.
                                             </p>
                                         </div>
                                 }
 
-                            {/* Help section */}
-                                <div className="col-md-12 mt-3">
+                                {/* Login button */}
+                                {!keycloak.authenticated &&
+                                    <div className="col-md-12 mt-5 mb-5">
+                                        <div style={{display: "flex", justifyContent: "center"}}>
+                                            <button
+                                                onClick={() => 
+                                                    h.push({
+                                                        pathname: "/loginLanding"
+                                                    })
+                                                }
+                                                type="button"
+                                                className="btn btn-primary btn-lg"
+                                                style={{ fontSize: "1.5rem", width: "10vw" }}
+                                            >
+                                                Login
+                                            </button>
+                                        </div>
+                                    </div>
+                                }    
+
+                                {/* Help section */}
+                                <div className="col-md-12 mt-5">
                                      <div class="card card-secondary card-block">
                                         <div class="card-header">
                                             <h4 class="my-0"> <HelpIcon/> Support</h4>
@@ -122,26 +142,6 @@ function Home() {
                                     </div>
                                 </div>
 
-
-                            {/* Login button */}
-                            {!keycloak.authenticated &&
-                                <div className="col-md-12" >
-                                    <div className="mt-5 mb-5"  style={{display: "flex", justifyContent: "center"}}>
-                                        <button
-                                            onClick={() => 
-                                                h.push({
-                                                    pathname: "/loginLanding"
-                                                })
-                                            }
-                                            type="button"
-                                            className="btn btn-primary btn-lg"
-                                            style={{ fontSize: "1.5rem" }}
-                                        >
-                                            Login
-                                        </button>
-                                    </div>
-                                </div>
-                            }
                         </div>
                         : <div className="col-md-12"  style={{display: "flex", justifyContent: "center"}}>
                             <CircularProgress />
@@ -153,7 +153,7 @@ function Home() {
                 </div>
 
                 {/* Resources */}
-                <div className="col-md-4 mt-3">
+                <div className="col-md-4 mt-5">
                     <div className="jumbotron" >
                         <div className="row mb-2 mr-2 ml-2" style={{ justifyContent: "center" }}>
                             <img
