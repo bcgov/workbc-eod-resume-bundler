@@ -417,7 +417,7 @@ function ReviewReferral({location}) {
         return (
           <TableRow className={rowStyling}>
             <TableCell padding="checkbox">
-              { applicant.status.toLowerCase() !== "bundled" &&
+              { applicant.status.toLowerCase() !== "bundled" && applicant.status.toLowerCase() !== "do not bundle" &&
                 <Checkbox
                   onChange={event => handleCheckboxChange(event, applicant.clientApplicationID)}
                 />
@@ -444,12 +444,12 @@ function ReviewReferral({location}) {
               <button className="btn btn-primary btn-sm" type="button"> 
                   <VisibilityIcon style={{color: "white"}}></VisibilityIcon> 
               </button>
-              { applicant.status.toLowerCase() !== "bundled" &&
+              { applicant.status.toLowerCase() !== "bundled" && applicant.status.toLowerCase() !== "do not bundle" &&
                 <button className="btn btn-primary btn-sm" type="button" onClick={handleFlagButtonClicked(applicant.clientApplicationID)}>
                     <FlagIcon style={{color: "white"}}></FlagIcon>
                 </button>
               }
-              { applicant.status.toLowerCase() !== "bundled" &&
+              { applicant.status.toLowerCase() !== "bundled" && applicant.status.toLowerCase() !== "do not bundle" &&
                 <button className="btn btn-primary btn-sm" type="button" onClick={handleApproveButtonClicked(applicant.clientApplicationID)}>
                     <CheckIcon style={{color: "white"}}></CheckIcon>
                 </button>
