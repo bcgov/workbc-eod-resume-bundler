@@ -191,7 +191,7 @@ const EditClientModal = ({submission, applicant, catchments, centres, show, hand
                                             </ErrorMessage>
                                         </div>
 
-                                        { applicant.status.toLowerCase() !== "do not bundle" &&
+                                        { applicant.status.toLowerCase() !== "do not bundle" && applicant.status.toLowerCase() !== "bundled" &&
                                             <div className="form-group col-md-6 d-flex justify-content-center align-items-end">
                                                 <div className="form-check d-flex" >
                                                 <Field
