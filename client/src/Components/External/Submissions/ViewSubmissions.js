@@ -171,8 +171,6 @@ function ViewSubmissions() {
       && permissions.isManager != undefined && permissions.managesCatchments != undefined
       && permissions.isManager != null && permissions.managesCatchments != null) 
     {
-      console.log("is manager", permissions.isManager);
-      console.log("manages catchments", permissions.managesCatchments);
       await getSubmissions();
       await getCatchments();
       await getCentres();
@@ -304,6 +302,7 @@ function ViewSubmissions() {
                 <TableCell style={{fontWeight: "bold"}} align="left">Client Name</TableCell>
                 <TableCell style={{fontWeight: "bold"}} align="left">Resume</TableCell>
                 <TableCell style={{fontWeight: "bold"}} align="left">Status</TableCell>
+                <TableCell style={{fontWeight: "bold"}} align="left">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
