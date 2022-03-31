@@ -25,7 +25,8 @@ function SubmitToJobOrderSuccess(props) {
                         () => {
                             history.push({
                                 pathname: "/submitToJobOrder",
-                                jobID: props.location.jobID
+                                jobID: props.location.jobID,
+                                userCatchments: props.location.userCatchments
                             })
                         }
                     }> 

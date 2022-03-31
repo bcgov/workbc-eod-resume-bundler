@@ -136,7 +136,8 @@ function SubmitToJobOrder(props) {
                             h.push({
                               pathname: '/submitToJobOrderSuccess',
                               createdID: res.createdID,
-                              jobID: props.location.jobID
+                              jobID: props.location.jobID,
+                              userCatchments: props.location.userCatchments
                           });
                         },
                         (err) => {
