@@ -79,7 +79,6 @@ export const setClientsToApproved = async (req: any, res: express.Response) => {
 
   try {
     let applicantIDs = req.body;
-
     await submissionService.setClientsToApproved(applicantIDs);
     return res.status(200).json("Client applications successfully set to Approved");
 
@@ -97,9 +96,25 @@ export const setClientsToFlagged = async (req: any, res: express.Response) => {
 
   try {
     let applicantIDs = req.body;
-
     await submissionService.setClientsToFlagged(applicantIDs);
     return res.status(200).json("Client applications successfully set to Flagged");
+
+  } catch(e) {
+    console.log(e);
+    return res.status(500).send("Internal Server Error");
+  }
+};
+
+// Set Application to Do Not Bundle //
+export const setClientToDoNotBundle = async (req: any, res: express.Response) => {
+  console.log("PUT request received to " + req.get("host") + req.originalUrl);
+  console.log("request params: ");
+  console.log(req.params);
+
+  try {
+    let applicantID = req.params.applicationID;
+    await submissionService.setClientToDoNotBundle(applicantID);
+    return res.status(200).json("Client application successfully set to Do Not Bundle");
 
   } catch(e) {
     console.log(e);

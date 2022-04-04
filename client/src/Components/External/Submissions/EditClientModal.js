@@ -67,15 +67,28 @@ const EditClientModal = ({submission, applicant, catchments, centres, show, hand
         });
     }
 
-    const handleDoNotBundle = (values, setSubmitting) => {
-        if (!warningConfirmation)
-            setShowWarning(true);
-        else
-            handleSubmit(values, setSubmitting);
-    }
-
-    const handleWarningClose = () => {
-
+    const handleDoNotBundle = () => {
+        fetch(`${FORM_URL.Submissions}/${submission.submissionID}/applications/${applicant.clientApplicationID}/SetClientToDoNotBundle`, {
+            method: "PUT",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                "Authorization": "Bearer " + keycloak.token
+            }
+        })
+        .then(
+            (res) => {
+                if (res.ok){
+                    handleClose(applicant.clientApplicationID)();
+                    setForceUpdate(forceUpdate + 1); // force new values to show up
+                }
+                else{
+                    throw new Error("server responded with error!");
+                }
+        })
+        .catch(err => {
+            throw new Error("an error occurred");
+        })
     }
 
     return (
@@ -191,24 +204,15 @@ const EditClientModal = ({submission, applicant, catchments, centres, show, hand
                                             </ErrorMessage>
                                         </div>
 
-                                        { applicant.status.toLowerCase() !== "do not bundle" &&
-                                            <div className="form-group col-md-6 d-flex justify-content-center align-items-end">
-                                                <div className="form-check d-flex" >
-                                                <Field
-                                                        name="bundle"
-                                                        type="checkbox"
-                                                        className="form-check-input"
-                                                        onChange={e => {
-                                                            setFieldValue("bundle", !values.bundle);
-                                                        }}
-                                                        checked={!values.bundle}
-                                                        style={{marginRight: "5px", alignSelf: "center"}}
-                                                    />
-                                                <label className="form-check-label h2">
-                                                        Do not bundle                              
-                                                </label>
-
-                                                </div>
+                                        { applicant.status.toLowerCase() !== "do not bundle" && applicant.status.toLowerCase() !== "bundled" &&
+                                            <div className="col-md-6 d-flex justify-content-center align-items-end">
+                                                <button 
+                                                    type="button"
+                                                    className="btn btn-danger"
+                                                    onClick={() => setShowWarning(true)}
+                                                >
+                                                    Do Not Bundle
+                                                </button>
                                                 <ErrorMessage
                                                     name="bundle"
                                                     className="field-error">
@@ -248,17 +252,24 @@ const EditClientModal = ({submission, applicant, catchments, centres, show, hand
                             <Modal className="d-flex" show={showWarning} centered="true">
                                 <div class="card card-danger">
                                     <div class="card-header">
-                                        <h4 class="my-0">Clicking submit will remove this resume from consideration</h4>
+                                        <h4 class="my-0">Are you sure you want to remove this resume from consideration? Your action cannot be undone.</h4>
                                     </div>
                                     <div class="card-body">
                                         <div className="d-flex justify-content-center">
                                             <button 
                                                 className="btn btn-outline-primary"
                                                 onClick={() => {
-                                                    setWarningConfirmation(true);
+                                                    handleDoNotBundle();
                                                     setShowWarning(false);
                                                 }}>
-                                                Ok
+                                                Yes
+                                            </button>
+                                            <button 
+                                                className="btn btn-outline-primary ml-5"
+                                                onClick={() => {
+                                                    setShowWarning(false);
+                                                }}>
+                                                No
                                             </button>
                                         </div>
                                     </div>

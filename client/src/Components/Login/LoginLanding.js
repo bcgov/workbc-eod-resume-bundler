@@ -7,9 +7,8 @@ function LoginLanding() {
     const h = useHistory()
     return (
         <div className="container">
-            {console.log(initialized)}
             <div className="row">
-                <div className="col-md-12">
+                <div className="col-md-12 mt-5">
                     <h1>Resume Bundler</h1>
                 </div>
             </div>

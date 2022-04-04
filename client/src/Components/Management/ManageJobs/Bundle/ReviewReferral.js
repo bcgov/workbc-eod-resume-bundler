@@ -417,9 +417,11 @@ function ReviewReferral({location}) {
         return (
           <TableRow className={rowStyling}>
             <TableCell padding="checkbox">
-              <Checkbox
-                onChange={event => handleCheckboxChange(event, applicant.clientApplicationID)}
-              />
+              { applicant.status.toLowerCase() !== "bundled" && applicant.status.toLowerCase() !== "do not bundle" &&
+                <Checkbox
+                  onChange={event => handleCheckboxChange(event, applicant.clientApplicationID)}
+                />
+              }
             </TableCell>
             <TableCell component="th" scope="applicant">
                 {applicant.clientApplicationID}
@@ -442,12 +444,16 @@ function ReviewReferral({location}) {
               <button className="btn btn-primary btn-sm" type="button"> 
                   <VisibilityIcon style={{color: "white"}}></VisibilityIcon> 
               </button>
-              <button className="btn btn-primary btn-sm" type="button" onClick={handleFlagButtonClicked(applicant.clientApplicationID)}>
-                  <FlagIcon style={{color: "white"}}></FlagIcon>
-              </button>
-              <button className="btn btn-primary btn-sm" type="button" onClick={handleApproveButtonClicked(applicant.clientApplicationID)}>
-                  <CheckIcon style={{color: "white"}}></CheckIcon>
-              </button>
+              { applicant.status.toLowerCase() !== "bundled" && applicant.status.toLowerCase() !== "do not bundle" &&
+                <button className="btn btn-primary btn-sm" type="button" onClick={handleFlagButtonClicked(applicant.clientApplicationID)}>
+                    <FlagIcon style={{color: "white"}}></FlagIcon>
+                </button>
+              }
+              { applicant.status.toLowerCase() !== "bundled" && applicant.status.toLowerCase() !== "do not bundle" &&
+                <button className="btn btn-primary btn-sm" type="button" onClick={handleApproveButtonClicked(applicant.clientApplicationID)}>
+                    <CheckIcon style={{color: "white"}}></CheckIcon>
+                </button>
+              }
             </TableCell>
             <TableCell align="left">
               <button 
@@ -465,7 +471,7 @@ function ReviewReferral({location}) {
 
 
     return(
-        <div className="container ml-3">
+        <div className="container ml-3 mt-5">
           {jobOrder && catchments && centres &&
             <div>
               <div className="row">

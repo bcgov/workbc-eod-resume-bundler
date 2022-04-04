@@ -255,6 +255,20 @@ export const setClientsToFlagged = async (applicantIDs: string[]) => {
   return;
 }
 
+// Set Client Application to Do Not Bundle //
+export const setClientToDoNotBundle = async (applicantID: string) => {
+  await db.query(
+  `UPDATE client_applications SET Status = 'Do Not Bundle' WHERE client_application_id = $1`,
+  [applicantID]
+  )
+  .catch((err: any) => {
+      console.error("error while querying: ", err);
+      throw new Error(err.message);
+  });
+
+  return;
+}
+
 // Bundle and Send PDF //
 export const bundleAndSend = async (clientApplicationIDs: String[], emailParams: BundleEmailParams) => {
   try {
