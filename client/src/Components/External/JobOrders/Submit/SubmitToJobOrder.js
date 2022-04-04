@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Formik, Form, Field, FastField, FieldArray, ErrorMessage } from 'formik'
 import { FORM_URL } from '../../../../constants/form'
 import ApplicantForm from './ApplicantForm';
+import ConfirmSubmissionModal from './ConfirmSubmissionModal';
 import { useKeycloak } from '@react-keycloak/web';
 import { useHistory } from 'react-router-dom';
 import * as yup from 'yup';
@@ -12,6 +13,9 @@ function SubmitToJobOrder(props) {
 
   const [catchment, setCatchment] = useState(-1);
   const [centre, setCentre] = useState(-1);
+
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
 
   let [applicants, setApplicants] = useState([
       { 
@@ -47,8 +51,8 @@ function SubmitToJobOrder(props) {
     )
   });
 
-  const [catchments, setCatchments] = useState([]);
-  const [centres, setCentres] = useState([]);
+  const [catchments, setCatchments] = useState(null);
+  const [centres, setCentres] = useState(null);
   
   useEffect(async () => {
     if (initialized) {
@@ -85,9 +89,70 @@ function SubmitToJobOrder(props) {
             });
   }
 
+  const handleSubmit = (values, setErrors, setSubmitting) => {
+    setSubmitting(true);
+    let formData = new FormData(); // use form data to be able to send resume buffers to API
+    formData.append("catchment", values.catchment);
+    formData.append("centre", values.centre);
+    formData.append("applicants", JSON.stringify(values.applicants));
+    formData.append("jobID", values.jobID);
+    formData.append("user", values.user);
+    formData.append("email", values.email);
+    values.applicants.forEach(applicant => {
+      let blob = new Blob([applicant.resume.buffer], { type: "application/pdf" });
+      formData.append(applicant.applicantID, blob);
+    });
+
+    fetch(FORM_URL.Submissions, {
+        method: "POST",
+        credentials: 'include',
+        headers: {
+          "Authorization": "Bearer " + keycloak.token
+        },
+        body: formData
+    })
+    .then(
+        (res) => {
+            if (res.ok){
+                setSubmitting(false);
+                return res.json();
+            }
+            else{
+                throw new Error("server responded with error!")
+            }
+    })
+    .then(
+        (res) => {
+            setSubmitting(false);
+            h.push({
+              pathname: '/submitToJobOrderSuccess',
+              createdID: res.createdID,
+              jobID: props.location.jobID,
+              userCatchments: props.location.userCatchments
+          });
+        },
+        (err) => {
+            setErrors(err);
+            setSubmitting(false);
+        }
+    );
+  }
+
+  const handleConfirmModalClose = (confirmed, values, setErrors, setSubmitting) => {
+    if (confirmed === true){
+      setShowConfirmModal(false);
+      setConfirmed(true);
+      handleSubmit(values, setErrors, setSubmitting)
+    } 
+    else {
+      setShowConfirmModal(false);
+      setSubmitting(false);
+    }
+  }
+
   return (
       <div className="container mt-5 mb-5">
-        {props.location.jobID && catchments && centres &&
+        {props.location.jobID && catchments != null && centres != null &&
           <div className="row">
               <div className="col-md-12">
                 <h1>Resume Bundler - Submitting to {props.location.employer} Job Order {props.location.jobID} - {props.location.jobTitle}</h1>  
@@ -99,55 +164,20 @@ function SubmitToJobOrder(props) {
                   initialValues={initialValues}
                   enableReinitialize={false}
                   validationSchema={SubmissionValidationSchema}
-                  onSubmit={(values, { resetForm, setErrors, setStatus, setSubmitting }) => {
-                    let formData = new FormData(); // use form data to be able to send resume buffers to API
-                    formData.append("catchment", values.catchment);
-                    formData.append("centre", values.centre);
-                    formData.append("applicants", JSON.stringify(values.applicants));
-                    formData.append("jobID", values.jobID);
-                    formData.append("user", values.user);
-                    formData.append("email", values.email);
-                    values.applicants.forEach(applicant => {
-                      let blob = new Blob([applicant.resume.buffer], { type: "application/pdf" });
-                      formData.append(applicant.applicantID, blob);
-                    });
+                  onSubmit={(values, { setErrors, setSubmitting }) =>
+                   {
+                      /* On submission show a confirmation modal, if user confirms then the modal  
+                        will set confirmed to true and re-trigger onSubmit */
+                      if (!confirmed) {
+                        setShowConfirmModal(true);
+                        return;
+                      }
 
-                    fetch(FORM_URL.Submissions, {
-                        method: "POST",
-                        credentials: 'include',
-                        headers: {
-                          "Authorization": "Bearer " + keycloak.token
-                        },
-                        body: formData
-                    })
-                    .then(
-                        (res) => {
-                            if (res.ok){
-                                setSubmitting(false);
-                                return res.json();
-                            }
-                            else{
-                                throw new Error("server responded with error!")
-                            }
-                    })
-                    .then(
-                        (res) => {
-                            setSubmitting(false);
-                            h.push({
-                              pathname: '/submitToJobOrderSuccess',
-                              createdID: res.createdID,
-                              jobID: props.location.jobID,
-                              userCatchments: props.location.userCatchments
-                          });
-                        },
-                        (err) => {
-                            setErrors(err);
-                            setSubmitting(false);
-                        }
-                    );
-                  }}
-              >
-                  {({ values, isSubmitting, setFieldValue, handleBlur, handleChange, errors, hasError }) => (
+                      handleSubmit(values, setErrors, setSubmitting);
+                    }
+                  }
+                >
+                  {({ values, isSubmitting, hasError, setFieldValue, setErrors, setSubmitting, handleChange }) => (
                       <div>
                           <a style={{ color: 'grey', fontWeight: 'lighter' }}>Job Fields</a>
                           <Form>
@@ -203,7 +233,8 @@ function SubmitToJobOrder(props) {
                                       applicantsState={applicants}
                                       setApplicants={setApplicants}
                                       values={values}
-                                      setFieldValue={setFieldValue} />
+                                      setFieldValue={setFieldValue} 
+                                    />
                                 </div>
                                 <div>
                                   <button 
@@ -224,6 +255,16 @@ function SubmitToJobOrder(props) {
                                     Add Another
                                   </button>
                                 </div>
+                                <ConfirmSubmissionModal 
+                                  applicants={values.applicants}
+                                  catchment={catchments.find(c => c.catchment_id == values.catchment)}
+                                  centre={centres.find(c => c.centre_id == values.centre)}
+                                  show={showConfirmModal} 
+                                  handleClose={handleConfirmModalClose}
+                                  values={values}
+                                  setErrors={setErrors}
+                                  setSubmitting={setSubmitting} 
+                                />
                             </div>
                               <button
                                   className="btn btn-success btn-block"
