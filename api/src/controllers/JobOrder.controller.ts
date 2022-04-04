@@ -54,7 +54,7 @@ export const setToClosed = async (req: express.Request, res: express.Response) =
 
   try {
     await jobOrderService.setToClosed(req.params.id);
-    return res.status(200).send(`Successfully updated ${req.params.id}`);
+    return res.status(200).send(`Successfully closed job order`);
 
   } catch(e) {
     console.log(e);
@@ -70,7 +70,7 @@ export const setToOpen = async (req: express.Request, res: express.Response) => 
 
   try {
     await jobOrderService.setToOpen(req.params.id);
-    return res.status(200).send(`Successfully updated ${req.params.id}`);
+    return res.status(200).send(`Successfully opened job order`);
 
   } catch(e) {
     console.log(e);
