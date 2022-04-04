@@ -371,12 +371,6 @@ function ViewSubmissions() {
 
   return (
     <div className="container ml-3 mt-5 mb-5">
-      {!loaded && // Loading
-        <div className="col-md-12"  style={{display: "flex", justifyContent: "center"}}>
-          <CircularProgress />
-        </div>
-      }
-      {loaded && submissions != null && catchments != null && centres != null && // Loaded successfully
         <div className="row">
             <div className="col-md-12">
               <h1>Resume Bundler - My Submissions</h1>  
@@ -387,22 +381,31 @@ function ViewSubmissions() {
               <p>Use the search box below to search submissions
                  by client name, case number or status.
               </p>
-              <SearchBar
-                handleUpdate={handleUpdateSubmissionsToDisplay}
-                paginationCount={submissionsToDisplay.length}
-                label={"Find Submissions"}
-              />
-              {loaded &&
-                <SubmissionTable/>
+              {/* Loading */}
+              {!loaded &&
+                <div className="col-md-12"  style={{display: "flex", justifyContent: "center"}}>
+                  <CircularProgress />
+                </div>
+              }
+              {/* Loaded successfully */}
+              {loaded && submissions != null && catchments != null && centres != null &&
+                <React.Fragment>
+                  <SearchBar
+                    handleUpdate={handleUpdateSubmissionsToDisplay}
+                    paginationCount={submissionsToDisplay.length}
+                    label={"Find Submissions"}
+                  />
+                  <SubmissionTable/>
+                </React.Fragment>
+              }
+              {/* Loaded unsuccessfully */}
+              {loaded && (!submissions || !catchments || !centres) &&
+                <h2>
+                  Error loading submissions. Please go back and re-select the job order you wish to submit to.
+                </h2>
               }
             </div>
         </div>
-      }
-      {loaded && (!submissions || !catchments || !centres) && // Loaded unsuccessfully
-        <h2>
-          Error loading submissions. Please go back and re-select the job order you wish to submit to.
-        </h2>
-      }
     </div>
   )
 }

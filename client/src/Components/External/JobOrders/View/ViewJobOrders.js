@@ -346,7 +346,9 @@ function ViewJobOrders() {
               }
 
               {(!jobOrdersLoaded || catchments.length == 0) && // show spinner while fetching data
-                <CircularProgress />
+                <div className="col-md-12"  style={{display: "flex", justifyContent: "center"}}>
+                  <CircularProgress />
+                </div>
               }
             </div>
         </div>
