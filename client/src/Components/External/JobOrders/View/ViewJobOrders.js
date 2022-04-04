@@ -16,7 +16,7 @@ import Collapse from '@material-ui/core/Collapse';
 import SearchBar from '../../../../utils/SearchBar';
 import ViewJobOrderModal from './ViewJobOrderModal';
 import { useKeycloak } from '@react-keycloak/web';
-import CircularProgress from '@material-ui/core/CircularProgress'
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 const useStyles = makeStyles((theme) => ({
   root: {

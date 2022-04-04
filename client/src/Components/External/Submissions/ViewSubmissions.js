@@ -18,6 +18,7 @@ import ViewClientModal from './ViewClientModal';
 import EditClientModal from './EditClientModal';
 import { useKeycloak } from '@react-keycloak/web';
 import { b64toBlob } from '../../../utils/FileFunctions';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -66,9 +67,10 @@ function ViewSubmissions() {
 
   const [forceUpdate, setForceUpdate] = useState(0);
   const [permissions, setPermissions] = useState({});
-  const [catchments, setCatchments] = useState([]);
-  const [centres, setCentres] = useState([]);
+  const [catchments, setCatchments] = useState(null);
+  const [centres, setCentres] = useState(null);
   const [openRows, setOpenRows] = React.useState([]);
+  const [loaded, setLoaded] = useState(false);
   const handleRowToggle = (rowID) => {
     const currentIndex = openRows.indexOf(rowID);
     const newOpenRows = [...openRows];
@@ -82,8 +84,8 @@ function ViewSubmissions() {
     setOpenRows(newOpenRows);
   };
 
-  const [submissions, setSubmissions] = useState([[]]);
-  const [submissionsToDisplay, setSubmissionsToDisplay] = useState([]);
+  const [submissions, setSubmissions] = useState(null);
+  const [submissionsToDisplay, setSubmissionsToDisplay] = useState(null);
   const handleUpdateSubmissionsToDisplay = (searchString) => {
     setSubmissionsToDisplay(submissions.filter(s => // search on client name and client case number
       s.applicants.find(a => (a.clientName.toLowerCase().startsWith(searchString.toLowerCase())) || (a.clientCaseNumber.toLowerCase().startsWith(searchString.toLowerCase())))
@@ -174,6 +176,7 @@ function ViewSubmissions() {
       await getSubmissions();
       await getCatchments();
       await getCentres();
+      setLoaded(true);
     }
 
     async function getSubmissions() {
@@ -368,7 +371,12 @@ function ViewSubmissions() {
 
   return (
     <div className="container ml-3 mt-5 mb-5">
-      {submissions && catchments && centres &&
+      {!loaded && // Loading
+        <div className="col-md-12"  style={{display: "flex", justifyContent: "center"}}>
+          <CircularProgress />
+        </div>
+      }
+      {loaded && submissions != null && catchments != null && centres != null && // Loaded successfully
         <div className="row">
             <div className="col-md-12">
               <h1>Resume Bundler - My Submissions</h1>  
@@ -384,13 +392,15 @@ function ViewSubmissions() {
                 paginationCount={submissionsToDisplay.length}
                 label={"Find Submissions"}
               />
-              <SubmissionTable/>
+              {loaded &&
+                <SubmissionTable/>
+              }
             </div>
         </div>
       }
-      {(!submissions || !catchments || !centres) && 
+      {loaded && (!submissions || !catchments || !centres) && // Loaded unsuccessfully
         <h2>
-          Error loading page. Please go back and re-select the job order you wish to submit to.
+          Error loading submissions. Please go back and re-select the job order you wish to submit to.
         </h2>
       }
     </div>
