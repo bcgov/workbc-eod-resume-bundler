@@ -310,6 +310,18 @@ function ReviewReferral({location}) {
 
     }
 
+    const determineIfContainsApprovedSubmission = () => {
+      let found = false
+      referralsToDisplay.forEach(r => {
+        r.applicants.forEach(a => {
+          if (a.status.toLowerCase() === "approved"){
+            found = true
+          }
+        })
+      })
+      return found
+    }
+
     const ReferralTable = () => {
 
         return (
@@ -522,7 +534,7 @@ function ReviewReferral({location}) {
                       }
                   </div>
               </div>
-              { jobOrder.catchments.length > MAX_CATCHMENTS && jobOrder.catchments.length != catchments.length && // Put catchments in a separate row if there's more than 4 of them
+              { jobOrder.catchments.length > MAX_CATCHMENTS && jobOrder.catchments.length !== catchments.length && // Put catchments in a separate row if there's more than 4 of them
                   <div className="row mt-2">
                     <b>Catchments:</b> { DisplayCatchments(jobOrder.catchments.map(c => c.key)) }
                   </div>
@@ -542,7 +554,11 @@ function ReviewReferral({location}) {
                         <button className="btn btn-success mr-5" onClick={handleApproveSelectedClicked()}>
                           Approve Selected
                         </button>
-                        <button className="btn btn-success mr-5" onClick={handleBundleClicked()}>
+                        <button 
+                          className="btn btn-success mr-5" 
+                          onClick={handleBundleClicked()}
+                          disabled={!determineIfContainsApprovedSubmission()}
+                        >
                           Bundle/Send Approved
                         </button>
                       </div>
