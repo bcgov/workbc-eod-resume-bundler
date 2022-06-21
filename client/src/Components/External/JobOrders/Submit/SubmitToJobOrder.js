@@ -98,9 +98,9 @@ function SubmitToJobOrder(props) {
     formData.append("jobID", values.jobID);
     formData.append("user", values.user);
     formData.append("email", values.email);
-    values.applicants.forEach(applicant => {
+    values.applicants.forEach((applicant, index) => {
       let blob = new Blob([applicant.resume.buffer], { type: "application/pdf" });
-      formData.append(applicant.applicantID, blob);
+      formData.append(index, blob);
     });
 
     fetch(FORM_URL.Submissions, {

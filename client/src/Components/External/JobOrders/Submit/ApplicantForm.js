@@ -107,7 +107,7 @@ function ApplicantForm({ applicants, setApplicants, applicantsState, values, set
                                     name={`applicants[${index}].resume`}
                                     accept="application/pdf"
                                     onDrop={acceptedFiles => {
-                                        acceptedFiles.forEach(file => {
+                                        let file = acceptedFiles[acceptedFiles.length - 1]
                                             const reader = new FileReader();
                                             reader.onabort = () => console.log('file reading was aborted')
                                             reader.onerror = () => console.log('file reading has failed')
@@ -120,18 +120,17 @@ function ApplicantForm({ applicants, setApplicants, applicantsState, values, set
                                                 setFieldValue(`applicants[${index}].resume.fileType`, file.type);
                                             }
                                             reader.readAsArrayBuffer(file);
-                                        })
                                     }}
                                 >
                                     {({ getRootProps, getInputProps, acceptedFiles }) => (
                                         <div>
-                                            { acceptedFiles.length == 0 && 
+                                            { (values.applicants[index].resume == null || values.applicants[index].resume?.fileName === "") &&
                                                 <div {...getRootProps({ style })}>
                                                     <input {...getInputProps()} />
                                                     <p style={{ margin: "auto", paddingTop: "30px", paddingBottom: "30px", textAlign: "center" }}>Click to upload or drag and drop the resume here (pdf only)</p>
                                                 </div>
                                             }
-                                            { acceptedFiles.length > 0 && 
+                                            { (values.applicants[index].resume?.fileName != null && values.applicants[index].resume?.fileName !== "") && 
                                                 <div {...getRootProps({ style })}>
                                                     <input {...getInputProps()} />
                                                     <p style={{ margin: "auto", paddingTop: "30px", paddingBottom: "30px", textAlign: "center", backgroundColor: "#d9e7d8" }}>{values.applicants[index].resume?.fileName} Uploaded. Click to re-upload a different resume</p>
@@ -175,7 +174,7 @@ function ApplicantForm({ applicants, setApplicants, applicantsState, values, set
                                     style={{ marginBottom: "0.5rem" }}
                                     onClick={(e) => {
                                         let i = 0;
-                                        values.applicants.forEach(a => {
+                                        values.applicants.forEach(a => { //TODO: applicantID not being correctly reset
                                             a.applicantID = i; // reset the applicant ids to 0,1,2,3...etc to allow filtering by index
                                             i++;
                                         });

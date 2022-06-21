@@ -190,7 +190,7 @@ export const createSubmission = async (createBody: CreateSubmission, files: any)
         ]
   )
   .then(() => {
-    applicants.forEach(async (applicant: any) => {
+    applicants.forEach(async (applicant: any, index: number) => {
       const clientApplicationID: string = nanoid();
       await db.query(
         `INSERT INTO client_applications (
@@ -204,7 +204,7 @@ export const createSubmission = async (createBody: CreateSubmission, files: any)
           applicant.clientName,
           applicant.preferredName,
           applicant.clientCaseNumber,
-          files[applicant.applicantID].data,
+          files[index].data,
           applicant.resume?.fileName,
           applicant.resume?.fileType,
           applicant.consent,
