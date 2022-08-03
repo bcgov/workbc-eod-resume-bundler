@@ -1,60 +1,59 @@
 {
-  "name": "@workbc-eod-resume-bundleer/elmsd-form-sample",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "@material-ui/core": "^4.12.4",
-    "@material-ui/icons": "^4.11.3",
-    "@react-keycloak/web": "^3.4.0",
-    "@testing-library/jest-dom": "^5.16.4",
-    "@testing-library/react": "^11.2.7",
-    "@testing-library/user-event": "^12.1.10",
-    "buffer": "^6.0.3",
-    "core-js": "^3.22.5",
-    "file-saver": "^2.0.5",
-    "formik": "^2.2.9",
-    "keycloak-js": "^12.0.4",
-    "modal": "^1.2.0",
-    "node-sass": "^7.0.1",
-    "nodemailer": "^6.7.5",
-    "nth-check": "^2.0.1",
-    "pdf-merger-js": "^3.4.0",
-    "react": "^17.0.2",
-    "react-accessible-shuttle": "^0.5.0",
-    "react-bootstrap": "^1.6.5",
-    "react-dom": "^17.0.2",
-    "react-dropzone": "^11.7.1",
-    "react-router-dom": "^5.3.1",
-    "react-scripts": "5.0.1",
-    "sass": "^1.51.0",
-    "web-vitals": "^1.1.2",
-    "yup": "^0.32.11",
-    "@bcgov/bootstrap-theme": "https://github.com/bcgov/bootstrap-theme/releases/download/v1.1.1/bcgov-bootstrap-theme-1.1.1.tgz",
-    "bootstrap": "~4.3.1",
-    "progress-tracker": "^2.0.7"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  }
+    "name": "@workbc-eod-resume-bundler/client",
+    "version": "0.1.0",
+    "private": true,
+    "dependencies": {
+        "@material-ui/core": "^4.12.4",
+        "@material-ui/icons": "^4.11.3",
+        "@react-keycloak/web": "^3.4.0",
+        "@testing-library/jest-dom": "^5.16.4",
+        "@testing-library/react": "^11.2.7",
+        "@testing-library/user-event": "^12.1.10",
+        "buffer": "^6.0.3",
+        "core-js": "^3.22.5",
+        "file-saver": "^2.0.5",
+        "formik": "^2.2.9",
+        "keycloak-js": "^12.0.4",
+        "modal": "^1.2.0",
+        "node-sass": "^7.0.1",
+        "nodemailer": "^6.7.5",
+        "nth-check": "^2.0.1",
+        "pdf-merger-js": "^3.4.0",
+        "react": "^17.0.2",
+        "react-bootstrap": "^1.6.5",
+        "react-dom": "^17.0.2",
+        "react-dropzone": "^11.7.1",
+        "react-router-dom": "^5.3.1",
+        "react-scripts": "5.0.1",
+        "sass": "^1.51.0",
+        "web-vitals": "^1.1.2",
+        "yup": "^0.32.11",
+        "@bcgov/bootstrap-theme": "https://github.com/bcgov/bootstrap-theme/releases/download/v1.1.1/bcgov-bootstrap-theme-1.1.1.tgz",
+        "bootstrap": "~4.3.1",
+        "progress-tracker": "^2.0.7"
+    },
+    "scripts": {
+        "start": "react-scripts start",
+        "build": "react-scripts build",
+        "test": "react-scripts test",
+        "eject": "react-scripts eject"
+    },
+    "eslintConfig": {
+        "extends": [
+            "react-app",
+            "react-app/jest"
+        ]
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    }
 }

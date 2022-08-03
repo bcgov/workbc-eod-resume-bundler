@@ -1,10 +1,18 @@
 {
     "name": "@workbc-eod-resume-bundler/core",
     "scripts": {
-        "preinstall": "npx npm-force-resolutions"
+        "preinstall": "npx npm-force-resolutions",
+        "prepare": "husky install"
+    },
+    "dependencies": {
+        "eslint-config-elmsd": "github:bcgov/elmsd-eslint-config"
+    },
+    "devDependencies": {
+        "husky": "^8.0.1",
+        "lint-staged": "^13.0.3"
     },
     "resolutions": {
-        "minimist": "^1.2.6",
+        "minimist": "1.2.6",
         "ini": "^1.3.6",
         "tar": "^4.4.17"
     },
