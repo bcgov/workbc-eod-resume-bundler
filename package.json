@@ -1,0 +1,15 @@
+{
+    "name": "@workbc-eod-resume-bundler/core",
+    "scripts": {
+        "preinstall": "npx npm-force-resolutions"
+    },
+    "resolutions": {
+        "minimist": "^1.2.6",
+        "ini": "^1.3.6",
+        "tar": "^4.4.17"
+    },
+    "workspaces": [
+        "api",
+        "client"
+    ]
+}
