@@ -5,9 +5,9 @@
         "prepare": "husky install"
     },
     "devDependencies": {
+        "eslint-config-elmsd": "github:bcgov/elmsd-eslint-config",
         "husky": "^8.0.1",
-        "lint-staged": "^13.0.3",
-        "eslint-config-elmsd": "github:bcgov/elmsd-eslint-config"
+        "lint-staged": "^13.0.3"
     },
     "resolutions": {
         "minimist": "1.2.6",
