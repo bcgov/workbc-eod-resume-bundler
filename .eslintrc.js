@@ -4,6 +4,7 @@ module.exports = {
     extends: ["elmsd"],
     parserOptions: { ecmaVersion: 2020 },
     rules: {
+        "consistent-return": "warn",
         "no-underscore-dangle": "off",
         "no-shadow": "warn",
         "@typescript-eslint/no-explicit-any": "off",
@@ -15,5 +16,6 @@ module.exports = {
         "prettier/prettier": ["error", prettierConfig],
         "react/prop-types": "off",
         "react-hooks/exhaustive-deps": "warn"
-    }
+    },
+    ignorePatterns: ["**/dist/**/*.js"]
 }

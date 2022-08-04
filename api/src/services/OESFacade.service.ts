@@ -1,21 +1,22 @@
 import { AxiosResponse } from "axios"
-import { oesApi } from "../db/OESConfig";
+import oesApi from "../db/OESConfig"
 
+// eslint-disable-next-line import/prefer-default-export
 export const getUserPermissions = async (userGUID: string): Promise<any> => {
-    try{
-        const resp: AxiosResponse = await oesApi.get("User/Permissions",{
+    try {
+        const resp: AxiosResponse = await oesApi.get("User/Permissions", {
             auth: {
                 username: process.env.OES_USER || "",
                 password: process.env.OES_PASS || ""
             },
             params: {
-                userGUID: userGUID
+                userGUID
             }
-        });
+        })
 
-        return resp;
-    } catch(err: any) {
+        return resp
+    } catch (err: any) {
         console.error("error while calling OES: ", err)
-        throw new Error(err.response?.status);
-      }
+        throw new Error(err.response?.status)
+    }
 }

@@ -1,11 +1,9 @@
-import { AxiosInstance } from "axios";
+import axios, { AxiosInstance } from "axios"
 
-const axios = require('axios');
+const oesBaseUrl = process.env.OES_URL || ""
 
-const oesBaseUrl = process.env.OES_URL|| '';
-
-export const oesApi: AxiosInstance = axios.create(
-  {
+const oesApi: AxiosInstance = axios.create({
     baseURL: oesBaseUrl
-  }
-);
+})
+
+export default oesApi

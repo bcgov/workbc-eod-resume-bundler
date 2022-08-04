@@ -1,5 +1,5 @@
-module.exports = function (title, mainContent, boxContent, endContent) {
-  var html = /*html*/`
+module.exports = (title, mainContent, boxContent, endContent) => {
+    let html = /* html */ `
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
     <html xmlns="http://www.w3.org/1999/xhtml">
      <head>
@@ -48,9 +48,9 @@ module.exports = function (title, mainContent, boxContent, endContent) {
           <h5 class="card-title " style="margin-top: 0; margin-bottom: 0; font-weight: 500; color: inherit; vertical-align: baseline; font-size: 20px; line-height: 24px;color:#003366" align="left"><b>${title}</b></h5>
 
         `
-        if (typeof mainContent != "undefined" && mainContent != null && mainContent.length != null && mainContent.length > 0){
-          mainContent.forEach(e => {
-            html += /*html*/ `
+    if (typeof mainContent !== "undefined" && mainContent != null && mainContent.length != null && mainContent.length > 0) {
+        mainContent.forEach((e) => {
+            html += /* html */ `
                 <table class="s-3 w-100" border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
                 <tbody>
                   <tr>
@@ -63,11 +63,11 @@ module.exports = function (title, mainContent, boxContent, endContent) {
               
                     <p class="" style="line-height: 24px; font-size: 15px; margin: 0;" align="left">${e}</p>          
             `
-          });
-        }
+        })
+    }
 
-        if (typeof boxContent != "undefined" && boxContent != null && boxContent.length != null && boxContent.length > 0){
-          html += /*html*/`
+    if (typeof boxContent !== "undefined" && boxContent != null && boxContent.length != null && boxContent.length > 0) {
+        html += /* html */ `
                 <table class="card" border="0" cellpadding="0" cellspacing="0" style="font-family: Helvetica, Arial, sans-serif; mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-spacing: 0px; border-collapse: separate !important; border-radius: 4px; width: 100%; overflow: hidden; border: 1px solid #111111;" bgcolor="#ffffff">
                 <tbody>
                   <tr>
@@ -79,8 +79,8 @@ module.exports = function (title, mainContent, boxContent, endContent) {
                     <td style="border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 15px; width: 100%; margin: 0; padding: 20px;" align="left">
                       <div>        
           `
-          boxContent.forEach(e => {
-            html += /*html*/ `
+        boxContent.forEach((e) => {
+            html += /* html */ `
             <p class="" style="line-height: 24px; font-size: 15px; margin: 0;" align="left">${e}</p>
             <table class="s-2 w-100" border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
               <tbody>
@@ -92,8 +92,8 @@ module.exports = function (title, mainContent, boxContent, endContent) {
               </tbody>
             </table>       
             `
-          });
-          html += /*html*/`
+        })
+        html += /* html */ `
                       </div>
                     </td>
                   </tr>
@@ -106,11 +106,11 @@ module.exports = function (title, mainContent, boxContent, endContent) {
                 </tbody>
               </table>          
           `
-        }
+    }
 
-        if (typeof endContent != "undefined" && endContent != null && endContent.length != null && endContent.length > 0){
-          endContent.forEach(e => {
-            html += /*html*/ `
+    if (typeof endContent !== "undefined" && endContent != null && endContent.length != null && endContent.length > 0) {
+        endContent.forEach((e) => {
+            html += /* html */ `
                 <table class="s-3 w-100" border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
                 <tbody>
                   <tr>
@@ -123,12 +123,10 @@ module.exports = function (title, mainContent, boxContent, endContent) {
               
                     <p class="" style="line-height: 24px; font-size: 15px; margin: 0;" align="left">${e}</p>          
             `
-          });
-        }
+        })
+    }
 
-
-
-  html += /*html*/ `</div>
+    html += /* html */ `</div>
               </td>
             </tr>
           </tbody>
@@ -177,6 +175,5 @@ module.exports = function (title, mainContent, boxContent, endContent) {
 
     `
 
-
-  return html
+    return html
 }

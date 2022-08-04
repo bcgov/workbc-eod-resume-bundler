@@ -1,8 +1,8 @@
-var yup = require('yup');
+import * as yup from "yup"
 
-export const SubmissionValidationSchema = yup.object().shape({
-    catchment: yup.number().required({ key: "catchment", value: "catchment is required field" }),
-    centre: yup.number().required({ key: "centre", value: "centre is a required field" }),
+const SubmissionValidationSchema = yup.object().shape({
+    catchment: yup.number().required("catchment is required field"),
+    centre: yup.number().required("centre is a required field"),
     applicants: yup.array().of(
         yup.object({
             applicantID: yup.number(),
@@ -16,4 +16,6 @@ export const SubmissionValidationSchema = yup.object().shape({
             })
         })
     )
-});
+})
+
+export default SubmissionValidationSchema

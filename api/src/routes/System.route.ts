@@ -1,9 +1,10 @@
-import * as express from "express";
-import * as systemController from "../controllers/System.controller";
-export const router = express.Router();
+import * as express from "express"
+import * as systemController from "../controllers/System.controller"
 
-router.get("/Catchments", systemController.getCatchments);
-router.get("/Centres", systemController.getCentres);
-router.get("/UserPermissions", systemController.getUserPermissions);
+const router = express.Router()
 
-module.exports = router;
+router.get("/Catchments", systemController.getCatchments)
+router.get("/Centres", systemController.getCentres)
+router.get("/UserPermissions", systemController.getUserPermissions)
+
+export default router

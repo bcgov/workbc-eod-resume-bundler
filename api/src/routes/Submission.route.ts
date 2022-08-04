@@ -1,17 +1,18 @@
-import * as express from "express";
-import * as submissionController from "../controllers/Submission.controller";
-export const router = express.Router();
+import * as express from "express"
+import * as submissionController from "../controllers/Submission.controller"
 
-router.get("/", submissionController.getSubmissions);
-router.get("/:submissionID/applications/:applicationID/downloadResume", submissionController.downloadResume);
+const router = express.Router()
 
-router.post("/bundleAndSend", submissionController.bundleAndSend);
-router.post("/", submissionController.createSubmission);
-router.put("/setClientsToApproved", submissionController.setClientsToApproved);
-router.put("/setClientsToFlagged", submissionController.setClientsToFlagged);
-router.put("/:submissionID/applications/:applicationID/setClientToDoNotBundle", submissionController.setClientToDoNotBundle);
+router.get("/", submissionController.getSubmissions)
+router.get("/:submissionID/applications/:applicationID/downloadResume", submissionController.downloadResume)
 
-router.put("/:submissionID/applications/:applicationID", submissionController.editClientApplication);
-router.post("/:submissionID/applications/:applicationID/notify", submissionController.NotifyClient);
+router.post("/bundleAndSend", submissionController.bundleAndSend)
+router.post("/", submissionController.createSubmission)
+router.put("/setClientsToApproved", submissionController.setClientsToApproved)
+router.put("/setClientsToFlagged", submissionController.setClientsToFlagged)
+router.put("/:submissionID/applications/:applicationID/setClientToDoNotBundle", submissionController.setClientToDoNotBundle)
 
-module.exports = router;
+router.put("/:submissionID/applications/:applicationID", submissionController.editClientApplication)
+router.post("/:submissionID/applications/:applicationID/notify", submissionController.NotifyClient)
+
+export default router
