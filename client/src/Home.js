@@ -7,6 +7,7 @@ import HelpIcon from '@material-ui/icons/HelpOutline';
 import WorkBCLogo from './workbc-header-logo.svg';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { useHistory } from 'react-router-dom';
+import UserGuide from './user-guide.pdf';
 
 function Home() {
     const { keycloak, initialized } = useKeycloak();
@@ -176,7 +177,12 @@ function Home() {
                             </p>
                         </div>
                         <div className="row mb-3 ml-2 mr-2">
-                            <button className="btn btn-primary btn-lg btn-block">
+                            <button 
+                                className="btn btn-primary btn-lg btn-block"
+                                onClick={() => {
+                                    window.open(UserGuide)
+                                }}
+                            >
                                 Resume Bundler User Guide
                             </button>
                         </div>
