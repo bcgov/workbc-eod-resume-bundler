@@ -78,6 +78,22 @@ export const setToOpen = async (req: express.Request, res: express.Response) => 
   }
 };
 
+// Delete Job Order //
+export const setToDeleted = async (req: express.Request, res: express.Response) => {
+  console.log("PUT request received to " + req.get("host") + req.originalUrl);
+  console.log("request params: ");
+  console.log(req.params);
+
+  try {
+    await jobOrderService.setToDeleted(req.params.id);
+    return res.status(200).send("Successfully deleted job order");
+
+  } catch(e) {
+    console.log(e);
+    return res.status(500).send("Internal Server Error");
+  }
+};
+
 // Edit Job Order //
 export const editJobOrder = async (req: express.Request, res: express.Response) => {
   console.log("PUT request received to " + req.get("host") + req.originalUrl);

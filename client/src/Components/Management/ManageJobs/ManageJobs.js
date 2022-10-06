@@ -95,7 +95,7 @@ function ManageJobs() {
         }
       });
       const data = await response.json();
-      let jobs = data.jobs;
+      let jobs = data.jobs.filter(j => j.status.toLowerCase() !== "deleted");
 
       jobs.forEach(job => {
         job.catchments = job.catchments.map(catchment => { 
@@ -158,6 +158,7 @@ function ManageJobs() {
     .catch(err => {
       console.log(err);
     });
+
     setForceUpdate(forceUpdate + 1); // force re-render
   }
 
@@ -174,6 +175,25 @@ function ManageJobs() {
     .catch(err => {
       console.log(err);
     });
+
+    setForceUpdate(forceUpdate + 1); // force re-render
+  }
+
+  const setStatusDeleted = jobID => async () => {
+    await fetch(FORM_URL.JobOrders + "/" + jobID + "/setDeleted", {
+      method: "PUT",
+      credentials: 'include',
+      headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          "Authorization": "Bearer " + keycloak.token
+      }
+    })
+    .catch(err => {
+      console.log(err);
+      throw new Error("server responded with error!")
+    });
+
     setForceUpdate(forceUpdate + 1); // force re-render
   }
 
@@ -341,7 +361,9 @@ function ManageJobs() {
           catchments={catchments}
           show={showEdit}
           handleShow={handleEditShow}
-          handleClose={handleEditClose} >
+          handleClose={handleEditClose} 
+          setStatusDeleted={setStatusDeleted}
+        >
         </EditJobModal>
         <ViewJobModal 
           job={row}

@@ -110,6 +110,19 @@ export const setToOpen = async (jobOrderID: string) => {
     return;
 }
 
+// Delete Job Order //
+export const setToDeleted = async (jobOrderID: string) => {
+    await db.query(
+    `UPDATE job_orders SET Status = 'Deleted' WHERE job_id = $1`, [jobOrderID]
+    )
+    .catch((err: any) => {
+        console.error("error while querying: ", err);
+        throw new Error(err.message);
+    });
+
+    return;
+}
+
 // Edit Job Order //
 export const editJobOrder = async (jobID: string, updateBody: UpdateJobOrder) => {
     await db.query(

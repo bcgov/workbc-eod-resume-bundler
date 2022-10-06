@@ -160,7 +160,7 @@ function ViewJobOrders() {
 
       const data = await response.json();
       let jobOrders = data.jobs;
-      jobOrders = jobOrders.filter(j => j.status.toLowerCase() !== "closed" && j.status.toLowerCase() !== "upcoming"); // filter out closed and upcoming job orders
+      jobOrders = jobOrders.filter(j => j.status.toLowerCase() !== "closed" && j.status.toLowerCase() !== "upcoming" && j.status.toLowerCase() !== "deleted"); // filter out closed and upcoming job orders
       jobOrders = jobOrders.filter(j => j.catchments.some(c => userCatchments.indexOf(parseInt(c)) > -1)); // filter for jobs in catchments the user has access to
       setJobOrders(jobOrders);
       setJobOrdersToDisplay(jobOrders);
