@@ -44,7 +44,7 @@ function Home() {
 
     const handleRoles = () => {
         if (permissions){
-            if (permissions.hasAccess && keycloak.tokenParsed.identity_provider.includes("bceid")) // service providers use OES auth
+            if (permissions.hasAccess && keycloak?.tokenParsed?.identity_provider?.includes("bceid")) // service providers use OES auth
                 return  <div className="col-md-12">
                             <LandingExternal />
                         </div>

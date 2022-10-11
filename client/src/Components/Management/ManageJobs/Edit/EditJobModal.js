@@ -6,10 +6,8 @@ import CatchmentSelector from '../../../../utils/CatchmentSelector';
 import { Modal } from 'react-bootstrap';
 import { FORM_URL } from '../../../../constants/form';
 
-const EditJobModal = ({ job, catchments, show, handleShow, handleClose }) => {
+const EditJobModal = ({ job, catchments, show, handleShow, handleClose, setStatusDeleted }) => {
     const { keycloak } = useKeycloak();
-
-    //#region MARK FOR DELETE MODAL STATE
     const [showMarkForDelete, setShowMarkForDelete] = useState(false);
 
     const handleMarkForDeleteClose = jobID => () => {
@@ -19,7 +17,12 @@ const EditJobModal = ({ job, catchments, show, handleShow, handleClose }) => {
     const handleMarkForDeleteShow = () => {
       setShowMarkForDelete(true);
     }
-    //#endregion
+
+    const handleMarkForDelete = jobID => () => {
+      setStatusDeleted(jobID)();
+      setShowMarkForDelete(false);
+      handleClose(jobID, false)();
+    }
 
     let initialValues = {
       id: job.id,
@@ -69,7 +72,7 @@ const EditJobModal = ({ job, catchments, show, handleShow, handleClose }) => {
             </Formik>
           </Modal.Body>
           <Modal.Footer>
-            <button className="btn btn-danger" type="button" onClick={handleMarkForDeleteClose(props.jobID)}> 
+            <button className="btn btn-danger" type="button" onClick={handleMarkForDelete(props.jobID)}> 
               Mark for Delete
             </button>
             <button className="btn btn-outline-primary" type="button" onClick={handleMarkForDeleteClose(props.jobID)}> 

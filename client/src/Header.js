@@ -71,7 +71,7 @@ function Header() {
                 </div>
               </React.Fragment>
             }
-            {initialized && permissions?.hasAccess && keycloak.tokenParsed.identity_provider.includes("bceid") && console.log(keycloak) &&
+            {initialized && permissions?.hasAccess && keycloak?.tokenParsed?.identity_provider?.includes("bceid") &&
               <React.Fragment>
                 <div className="navbar-nav">
                   <a className="nav-item nav-link" href="/jobOrdersExternal">View Job Orders</a>
