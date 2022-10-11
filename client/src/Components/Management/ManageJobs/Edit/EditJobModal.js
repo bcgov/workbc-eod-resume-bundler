@@ -9,6 +9,7 @@ import { FORM_URL } from '../../../../constants/form';
 const EditJobModal = ({ job, catchments, show, handleShow, handleClose, setStatusDeleted }) => {
     const { keycloak } = useKeycloak();
     const [showMarkForDelete, setShowMarkForDelete] = useState(false);
+    let enteredID = "";
 
     const handleMarkForDeleteClose = jobID => () => {
       setShowMarkForDelete(false);
@@ -19,9 +20,15 @@ const EditJobModal = ({ job, catchments, show, handleShow, handleClose, setStatu
     }
 
     const handleMarkForDelete = jobID => () => {
-      setStatusDeleted(jobID)();
-      setShowMarkForDelete(false);
-      handleClose(jobID, false)();
+      if (enteredID === jobID) { // only execute if the users entered ID matches the job ID
+        setStatusDeleted(jobID)();
+        setShowMarkForDelete(false);
+        handleClose(jobID, false)();       
+      }
+    }
+
+    const handleEnteredIDChange = (event) => {
+      enteredID = event.target.value;
     }
 
     let initialValues = {
@@ -41,7 +48,7 @@ const EditJobModal = ({ job, catchments, show, handleShow, handleClose, setStatu
           <Modal.Header>
             <div className="d-flex flex-row flex-fill">
               <div className="mr-auto">
-                <Modal.Title>Confirm Mark Delete</Modal.Title>
+                <Modal.Title>Confirm Mark for Delete</Modal.Title>
               </div>
             </div>
           </Modal.Header>
@@ -49,27 +56,8 @@ const EditJobModal = ({ job, catchments, show, handleShow, handleClose, setStatu
             <h5 style={{ color: 'grey', fontWeight: 'lighter' }}>
               Type the ID of the application to confirm mark for deletion:
             </h5>
-            <Formik
-              initialValues={props}
-              enableReinitialize={true}>
-              <Form>
-                <div>
-                  <div className="form-group col-md-6">
-                    <label className="control-label" htmlFor="app-id">Confirm ID</label>
-                    <Field
-                        name="app-id"
-                        type="text"
-                        className="form-control"
-                    />
-                    <ErrorMessage
-                        name="app-id"
-                        component="div"
-                        className="field-error"
-                    />
-                  </div>
-                </div>
-              </Form>
-            </Formik>
+            <input className="form-control" name="enteredID" onChange={handleEnteredIDChange}>
+            </input>
           </Modal.Body>
           <Modal.Footer>
             <button className="btn btn-danger" type="button" onClick={handleMarkForDelete(props.jobID)}> 
