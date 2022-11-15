@@ -14,6 +14,7 @@ const keycloak = new Keycloak({
 })
 const keycloakProviderInitConfig = {
   onLoad: 'check-sso',
+  pkceMethod: 'S256'
 }
 
 
@@ -21,7 +22,7 @@ function App() {
   return (
     <ReactKeycloakProvider
       authClient={keycloak}
-      initConfig={keycloakProviderInitConfig}
+      initOptions={keycloakProviderInitConfig}
     >
       <Router>
         <Header />
