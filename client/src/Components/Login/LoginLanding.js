@@ -23,7 +23,7 @@ function LoginLanding() {
                         :
                         <div>
                             <p><button type="button" className="btn btn-lg btn-primary" onClick={() => keycloak.login({ idpHint: 'idir' })}>Ministry Staff Login</button><br /><br /><br /></p>
-                            <p><button type="button" className="btn btn-lg btn-primary" onClick={() => keycloak.login({ idpHint: 'bceid-basic-and-business' })}>Service Provider Login</button><br /></p>
+                            <p><button type="button" className="btn btn-lg btn-primary" onClick={() => keycloak.login({ idpHint: 'bceidbusiness' })}>Service Provider Login</button><br /></p>
                         </div>
                     }
                     </div>
