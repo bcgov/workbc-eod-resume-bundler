@@ -22,8 +22,11 @@ const kcConfig = {
   clientId: process.env.AUTH_KEYCLOAK_CLIENT,
   bearerOnly: process.env.AUTH_KEYCLOAK_BEARER_ONLY,
   serverUrl: process.env.AUTH_KEYCLOAK_SERVER_URL,
-  realm: process.env.AUTH_KEYCLOAK_REALM
+  realm: process.env.AUTH_KEYCLOAK_REALM,
+  clientSecret: process.env.AUTH_KEYCLOAK_SECRET
 };
+
+console.log(kcConfig)
 
 var keycloak = new Keycloak({}, kcConfig)
 
