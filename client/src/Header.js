@@ -23,7 +23,7 @@ function Header() {
                   'Accept': 'application/json',
                   'Content-Type': 'application/json',
                   'KeycloakToken': keycloak.token,
-                  'UserGUID': keycloak.tokenParsed.smgov_userguid,
+                  'UserGUID': keycloak.tokenParsed.idir_user_guid || keycloak.tokenParsed.bceid_user_guid,
                   'Authorization': "Bearer " + keycloak.token
               }
           });
@@ -61,7 +61,7 @@ function Header() {
             <div className="navbar-nav">
               <a className="nav-item nav-link" href="/">Home</a>
             </div>
-            {keycloak.hasResourceRole('eod-staff') &&
+            {keycloak?.tokenParsed?.client_roles?.includes("eod-staff") &&
               <React.Fragment>
                 <div className="navbar-nav">
                   <a className="nav-item nav-link" href="/createJobOrder">Create Job Order</a>

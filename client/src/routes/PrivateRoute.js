@@ -12,7 +12,7 @@ function PrivateRoute({roles, ...rest }) {
                 //console.log(r)
                 //console.log(keycloak)
                 const realm =  keycloak.hasRealmRole(r);
-                const resource = keycloak.hasResourceRole(r);
+                const resource = keycloak?.tokenParsed?.client_roles?.includes(r);
                 return realm || resource;
             });
         }

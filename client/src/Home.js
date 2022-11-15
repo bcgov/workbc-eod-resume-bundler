@@ -29,7 +29,7 @@ function Home() {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json',
                         'KeycloakToken': keycloak.token,
-                        'UserGUID': keycloak.tokenParsed.smgov_userguid,
+                        'UserGUID': keycloak.tokenParsed.idir_user_guid || keycloak.tokenParsed.bceid_user_guid,
                         'Authorization': "Bearer " + keycloak.token
                     }
                 });
@@ -49,7 +49,7 @@ function Home() {
                             <LandingExternal />
                         </div>
             
-            else if (keycloak.hasResourceRole('eod-staff')) // ministry uses keycloak resource roles for auth
+            else if (keycloak.tokenParsed?.client_roles?.includes("eod-staff")) // ministry uses keycloak resource roles for auth
                 return  <div className="col-md-12">
                             <LandingInternal />
                         </div>
@@ -82,7 +82,7 @@ function Home() {
                         {initialized && !keycloak.authenticated &&
                             <h1>WorkBC Resume Bundler</h1>
                         }
-                        {initialized && keycloak.authenticated && keycloak.hasResourceRole('eod-staff') &&
+                        {initialized && keycloak.authenticated && keycloak.tokenParsed?.client_roles?.includes("eod-staff") &&
                             <h1>WorkBC Resume Bundler - Ministry Staff Homepage</h1>
                         }
                         {initialized && keycloak.authenticated && keycloak.tokenParsed?.identity_provider.includes("bceid") &&
