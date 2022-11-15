@@ -34,7 +34,7 @@
     "fs": "0.0.1-security",
     "graphql": "^15.5.1",
     "helmet": "^4.1.0",
-    "hummus": "^1.0.110",
+    "hummus": "^1.0.111",
     "js-base64": "^3.6.1",
     "keycloak-connect": "^15.0.2",
     "memory-streams": "^0.1.3",
