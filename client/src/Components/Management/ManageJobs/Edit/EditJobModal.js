@@ -39,7 +39,7 @@ const EditJobModal = ({ job, catchments, show, handleShow, handleClose, setStatu
       startDate: job.startDate,
       deadline: job.deadline,
       catchments: job.catchments.map(c => c.value),
-      user: keycloak.tokenParsed?.preferred_username
+      user: `${keycloak.tokenParsed?.idir_username || keycloak.tokenParsed?.bceid_username}@${keycloak.tokenParsed?.identity_provider}`
     }
 
     const MarkForDeleteModal = (props) => {

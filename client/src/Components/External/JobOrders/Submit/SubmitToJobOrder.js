@@ -33,7 +33,7 @@ function SubmitToJobOrder(props) {
     centre: centre,
     applicants: applicants,
     jobID: props.location.jobID,
-    user: keycloak.tokenParsed?.preferred_username,
+    user: `${keycloak.tokenParsed?.idir_username || keycloak.tokenParsed?.bceid_username}@${keycloak.tokenParsed?.identity_provider}`,
     email: keycloak.tokenParsed?.email
   }
 

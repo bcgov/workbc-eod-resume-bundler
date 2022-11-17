@@ -183,7 +183,7 @@ function ViewSubmissions() {
       const response = await fetch(FORM_URL.Submissions, {
         headers: {
           "Authorization": "Bearer " + keycloak.token,
-          "User": keycloak.tokenParsed.preferred_username, // only get submissions from the current user, unless user is a manager
+          "User": `${keycloak.tokenParsed?.idir_username || keycloak.tokenParsed?.bceid_username}@${keycloak.tokenParsed?.identity_provider}`, // only get submissions from the current user, unless user is a manager
           "IsManager": permissions.isManager,
           "ManagesCatchments": JSON.stringify(permissions.managesCatchments) // if user is a manager, show all submissions for catchments they manage
         }

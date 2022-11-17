@@ -18,7 +18,7 @@ const EditClientModal = ({submission, applicant, catchments, centres, show, hand
         clientCaseNumber: applicant.clientCaseNumber,
         bundle: applicant.status.toLowerCase() !== "do not bundle" ? true : false,
         status: applicant.status,
-        user: keycloak.tokenParsed?.preferred_username
+        user: `${keycloak.tokenParsed?.idir_username || keycloak.tokenParsed?.bceid_username}@${keycloak.tokenParsed?.identity_provider}`
     }
 
     const ApplicationValidationSchema = yup.object().shape({

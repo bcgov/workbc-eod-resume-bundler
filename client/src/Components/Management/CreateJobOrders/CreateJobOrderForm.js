@@ -60,7 +60,7 @@ const CreateJobOrderForm = () => {
         jobDescription: {},
         minimumRequirements: "",
         otherInformation: "",
-        user: keycloak.tokenParsed.preferred_username
+        user: `${keycloak.tokenParsed?.idir_username || keycloak.tokenParsed?.bceid_username}@${keycloak.tokenParsed?.identity_provider}`
     }
 
     const CreateJobOrderValidationSchema = yup.object().shape({
