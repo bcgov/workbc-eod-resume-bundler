@@ -89,8 +89,8 @@ function Home() {
                             <h1>WorkBC Resume Bundler - Service Provider Homepage</h1>
                         }
                         {keycloak.authenticated 
-                            ?   <h2>Welcome {keycloak.tokenParsed.given_name // sometimes given name isn't available, show preferred username instead
-                                            ? keycloak.tokenParsed.given_name
+                            ?   <h2>Welcome {keycloak.tokenParsed.name // sometimes given name or name isn't available, show preferred username instead
+                                            ? keycloak.tokenParsed.name
                                             : keycloak.tokenParsed.preferred_username ? keycloak.tokenParsed.preferred_username.split("@")[0] : ""}
                                             . Please select an option below:
                                 </h2>
