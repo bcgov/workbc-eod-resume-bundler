@@ -29,7 +29,7 @@ function Home() {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json',
                         'KeycloakToken': keycloak.token,
-                        'UserGUID': keycloak.tokenParsed.idir_user_guid || keycloak.tokenParsed.bceid_user_guid,
+                        'UserGUID': keycloak.tokenParsed.idir_user_guid || keycloak.tokenParsed.bceid_user_guid || keycloak.tokenParsed.preferred_username.split("@")[0].toUpperCase() || "",
                         'Authorization': "Bearer " + keycloak.token
                     }
                 });
